@@ -54,17 +54,9 @@ The `client` `.env` consists primarily of your Firebase secrets. An example is p
 
 ```shell
 VITE_FIREBASE_APIKEY=my-api-key
-VITE_FIREBASE_AUTHDOMAIN=localhost:3000
+VITE_FIREBASE_AUTHDOMAIN=my-project.firebaseapp.com
 VITE_FIREBASE_PROJECTID=my-project-id
 ...
-```
-
-> [!CAUTION]
-> Due to recent changes to 3rd party cookies, `VITE_FIREBASE_AUTHDOMAIN` should point to where you're currently running your project (whether that be locally or deployed), and **not** the typically Firebase-provided auth domain. 
-
-```shell
-+ VITE_FIREBASE_AUTHDOMAIN=localhost:3000
-- VITE_FIREBASE_AUTHDOMAIN=my-project.firebaseapp.com
 ```
 
 **Server**

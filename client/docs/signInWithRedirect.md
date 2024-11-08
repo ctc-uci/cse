@@ -44,6 +44,9 @@ export default defineConfig(() => {
 });
 ```
 
+> [!IMPORTANT]
+> Also make sure to add `http://localhost:3000/__/auth/handler` to `Authorized redirect URIs` in the Google Cloud Console (a project should be automatically created for your Firebase project)
+
 ### 2. Patching `@firebase/auth`
 
 ### What is `patch-packages`?
