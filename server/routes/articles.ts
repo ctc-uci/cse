@@ -71,6 +71,25 @@ articlesRouter.post("/", async (req, res) => {
   }
 });
 
+// GET /articles/search/:title
+articlesRouter.get("/search/:title", async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ error: "Missing article title."});
+    }
+
+    const rows = await db.query(
+      "SELECT * FROM articles WHERE title LIKE $1", [title]
+    )
+
+    res.status(201).json(keysToCamel(rows[0] as Article));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+
 // PUT /articles/:id
 articlesRouter.put("/:id", async (req, res) => {
   try {
