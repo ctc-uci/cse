@@ -3,9 +3,11 @@ import { VideoCard } from "./VideoCard";
 import { NewsCard } from "./NewsCard";
 import { Button, Flex, Text, Box } from "@chakra-ui/react";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import CreateArticle from "../../components/forms/createArticle.tsx";
 
 export const Resources = () => {
 
+  const [showForm, setShowForm] = useState(false);
   const { backend } = useBackendContext()
   const [videos, setVideos] = useState([]);
   const [news, setNews] = useState([]);
@@ -80,6 +82,9 @@ export const Resources = () => {
           ))}
         </Flex>
       </Box>
+      <Button onClick={() => setShowForm(true)}>Add Article Button</Button>
+
+      {showForm && <CreateArticle></CreateArticle>}
     </Flex>
   );
 };
