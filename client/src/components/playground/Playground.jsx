@@ -1,71 +1,87 @@
 import { useEffect, useState } from "react";
-import { Box, Flex, Button, Image, Center, Input, Stack, Text } from "@chakra-ui/react";
-import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import { ClassCard } from "../shared/ClassCard";
-import { useAuthContext } from "../../contexts/hooks/useAuthContext";
-import { useRoleContext } from "../../contexts/hooks/useRoleContext";
+// import { render } from "@react-email/components";
+import { renderToPipeableStream } from "react-dom/server";
+
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Image,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+
 import axios from "axios";
 import { z } from "zod";
-import { EmailTemplate } from "../signup/EmailTemplate";
-import { render } from "@react-email/components";
-import { renderToPipeableStream } from "react-dom/server";
+
+import { useAuthContext } from "../../contexts/hooks/useAuthContext";
+import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import { useRoleContext } from "../../contexts/hooks/useRoleContext";
+import ClassInfoModal from "../reviewModals/classInfoModal";
+import ReviewFailureModal from "../reviewModals/reviewFailureModal";
 import ReviewModal from "../reviewModals/reviewModal";
 import ReviewSubmittedModal from "../reviewModals/reviewSubmittedModal";
-import ReviewFailureModal from "../reviewModals/reviewFailureModal";
-import ClassInfoModal from "../reviewModals/classInfoModal";
+import { ClassCard } from "../shared/ClassCard";
 
+// import { EmailTemplate } from "../signup/EmailTemplate";
 
 export const Playground = () => {
-    const { backend } = useBackendContext();
+  const { backend } = useBackendContext();
 
-    const [classes, setClasses] = useState([]);
-    const [events, setEvents] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [events, setEvents] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            // Fetch and Store Classes Information
-            try {
-                const response = await backend.get("/classes");
-                setClasses(response.data);
-            } catch (error) {
-                console.error("Error fetching classes:", error);
-            }
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch and Store Classes Information
+      try {
+        const response = await backend.get("/classes");
+        setClasses(response.data);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
 
-            // Fetch and Store Events Information
-            try {
-                const response = await backend.get("/events");
-                setEvents(response.data);
-            } catch (error) {
-                console.error("Error fetching events:", error);
-            }
-        };
+      // Fetch and Store Events Information
+      try {
+        const response = await backend.get("/events");
+        setEvents(response.data);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
 
-        fetchData();
-    }, [backend]);
+    fetchData();
+  }, [backend]);
 
-    return (
-        <Box>
-            <Flex align="center" justify="center" gap={5} wrap="wrap">
-                {classes.map((classItem, index) => (
-                    <ClassCard
-                        key={index}
-                        title={classItem.title}
-                        description={classItem.description}
-                        location={classItem.location}
-                        capacity={classItem.capacity}
-                        level={classItem.level}
-                        costume={classItem.costume}
-                    />
-                ))}
+  return (
+    <Box>
+      <Flex
+        align="center"
+        justify="center"
+        gap={5}
+        wrap="wrap"
+      >
+        {classes.map((classItem, index) => (
+          <ClassCard
+            key={index}
+            title={classItem.title}
+            description={classItem.description}
+            location={classItem.location}
+            capacity={classItem.capacity}
+            level={classItem.level}
+            costume={classItem.costume}
+          />
+        ))}
 
-                {events.map((eventItem, index) => (
-                    // Your event card component and its props!
-                    <></> // here to avoid errors
-                ))}
-            </Flex>
-        </Box>
-    );
-
+        {events.map((eventItem, index) => (
+          // Your event card component and its props!
+          <></> // here to avoid errors
+        ))}
+      </Flex>
+    </Box>
+  );
 
   //   <>
   //   <ReviewModal />
@@ -80,7 +96,7 @@ export const Playground = () => {
   //     costume="Comfortable clothes, no shoes"
   //   />
   // </>
-      // const [formData, setFormData] = useState({
+  // const [formData, setFormData] = useState({
   //   firstName: "",
   //   lastName: "",
   //   role: "",
@@ -160,7 +176,6 @@ export const Playground = () => {
   //     </Stack>
   //   </Box>
   // );
-
 
   // const { logout, currentUser } = useAuthContext();
   // const { role } = useRoleContext();
