@@ -74,17 +74,22 @@ articlesRouter.post("/", async (req, res) => {
 // GET /articles/search/:title
 articlesRouter.get("/search/:title", async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title } = req.params;
 
     if (!title) {
       return res.status(400).json({ error: "Missing article title."});
     }
 
     const rows = await db.query(
-      "SELECT * FROM articles WHERE title LIKE $1", [title]
-    )
+      "SELECT * FROM articles WHERE title LIKE $1",
+      [`%${title}%`]
+    );
 
-    res.status(201).json(keysToCamel(rows[0] as Article));
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "No articles found."});
+    }
+
+    res.status(200).json(keysToCamel(keysToCamel(rows) as Article[]));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
