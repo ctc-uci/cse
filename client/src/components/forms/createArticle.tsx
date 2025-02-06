@@ -16,10 +16,10 @@ import { useState } from "react";
 import { z } from "zod";
 
 const createArticleSchema = z.object({
-    photo: z.string(),
-    link: z.string().url("Please enter a valid url."),
+    s3_url: z.string(),
+    media_url: z.string().url("Please enter a valid URL."),
     tag: z.array(z.string()).min(1, "You must include at least one tag."),
-    textInput: z.string().min(1, "Please write a description of the article."),
+    description: z.string().min(1, "Please write a description of the article."),
     title: z.string().min(1, "Your article must include a title.")
 });
 
@@ -38,12 +38,16 @@ const CreateArticle = () => {
 
     const onSubmit = async (data: ArticleFormValues) => {
         try {
-            const response = await fetch("/articles/search/:title", {
+            const response = await fetch("/articles", {
                 method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             });
+
+            if (!response.ok) {
+                throw new Error("Failed to submit article.");
+            }
     
-            const result = await response.json();
             console.log("Successfully submitted article.")
             alert("Article submitted successfully!")
         } catch (error) {
@@ -75,31 +79,31 @@ const CreateArticle = () => {
     >
         <Box display="flex" justifyContent="center" alignItems="center">
             <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl isInvalid={!!errors.photo}>
+            <FormControl isInvalid={!!errors.s3_url}>
                 <FormLabel>Select media to upload.</FormLabel>
                 <Input
-                    placeholder="Photo"
+                    placeholder="s3 URL"
                     size={"lg"}
-                    {...register("photo")}
+                    {...register("s3_url")}
                     name="photo"
                     isRequired
-                    autoComplete="photo"
+                    autoComplete="s3Url"
                     ></Input>
                 <FormErrorMessage>
-                    {errors.photo?.message?.toString()}
+                    {errors.s3_url?.message?.toString()}
                 </FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={!!errors.link}>
+            <FormControl isInvalid={!!errors.media_url}>
                 <Input
-                    placeholder="Link"
+                    placeholder="Media URL"
                     type="link"
                     size={"lg"}
-                    {...register("link")}
-                    name="link"
+                    {...register("media_url")}
+                    name="media_url"
                     isRequired
-                    autoComplete="link"
+                    autoComplete="media_url"
                 ></Input>
-                <FormErrorMessage>{errors.link?.message?.toString()}</FormErrorMessage>
+                <FormErrorMessage>{errors.media_url?.message?.toString()}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.tag}>
                 <FormLabel>Select tags for media.</FormLabel>
