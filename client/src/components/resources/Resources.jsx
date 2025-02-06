@@ -54,11 +54,12 @@ export const Resources = () => {
       }
     } else if (resourceFilter === "NEWS") {
       //does not work yet
-      // try {
-      //   const newsResponse = await backend.get(`/articles/search/${title}`);
-      //   setNews(newsResponse.data);
-      // } catch (error) {
-      //   console.error("Error fetching news:", error);
+      try {
+        const newsResponse = await backend.get(`/articles/search/${title}`);
+        setNews(newsResponse.data);
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
     }
   };
 
