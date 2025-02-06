@@ -86,13 +86,26 @@ export const Resources = () => {
           direction="column"
           justifyContent="center"
           gap={4}
-          height={"100vh"}
         >
           {formType === null ? (
-            <>
-              <Button onClick={() => setFormType("VIDEO")}>Video</Button>
-              <Button onClick={() => setFormType("ARTICLE")}>Article</Button>
-            </>
+            <Flex
+              direction={"column"}
+              align={"center"}
+              gap={4}
+            >
+              <Button
+                onClick={() => setFormType("VIDEO")}
+                width={"10rem"}
+              >
+                Video
+              </Button>
+              <Button
+                onClick={() => setFormType("ARTICLE")}
+                width="10rem"
+              >
+                Article
+              </Button>
+            </Flex>
           ) : (
             <>{formType === "VIDEO" ? <CreateVideo /> : <CreateArticle />}</>
           )}
