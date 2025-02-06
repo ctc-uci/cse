@@ -87,6 +87,18 @@ function CreateVideo() {
     }
   };
 
+  const handleSubmit = async () => {
+    console.log(videoData);
+    const res = await backend.post("/classes-videos", {
+      title: videoData.title ?? "",
+      s3Url: videoData.s3_url ?? "",
+      description: videoData.description ?? "",
+      mediaUrl: videoData.media_url ?? "",
+      classId: videoData.class_id ?? "",
+    });
+    console.log(res);
+  };
+
   useEffect(() => {
     fetchClasses();
     return () => {
@@ -103,10 +115,7 @@ function CreateVideo() {
       alignItems="center"
       flexDirection="column"
     >
-      <Stack
-        width={"50%"}
-        spacing={4}
-      >
+      <Stack spacing={4}>
         {!previewUrl ? (
           <FormControl>
             <FormLabel>Upload Image</FormLabel>
@@ -229,7 +238,12 @@ function CreateVideo() {
             ))}
           </Select>
         </FormControl>
-        <Button colorScheme="teal">Next</Button>
+        <Button
+          colorScheme="teal"
+          onClick={handleSubmit}
+        >
+          Submit
+        </Button>
       </Stack>
     </Box>
   );
