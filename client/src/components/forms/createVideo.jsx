@@ -10,11 +10,13 @@ import {
   Input,
   Select,
   Stack,
+  Text,
   Textarea,
   VisuallyHidden,
 } from "@chakra-ui/react";
 
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import { VideoCard } from "../resources/VideoCard";
 
 function CreateVideo() {
   const fileInputRef = useRef(null);
@@ -28,6 +30,14 @@ function CreateVideo() {
     class_id: "",
   });
 
+  const [errors, setErrors] = useState({
+    title: false,
+    description: false,
+    media_url: false,
+    class_id: false,
+    s3_url: false,
+  });
+
   const { backend } = useBackendContext();
 
   const [activeButton, setActiveButton] = useState(null);
@@ -35,6 +45,26 @@ function CreateVideo() {
   const [videoFile, setVideoFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [classes, setClasses] = useState([]);
+
+  const validateForm = () => {
+    const newErrors = {
+      title: videoData.title.trim() === "",
+      description: videoData.description.trim() === "",
+      media_url: videoData.media_url.trim() === "",
+      class_id: videoData.class_id.trim() === "",
+      s3_url: videoData.s3_url.trim() === "",
+    };
+    setErrors(newErrors);
+
+    // Returns true if there are no errors
+    return (
+      !newErrors.title &&
+      !newErrors.description &&
+      !newErrors.media_url &&
+      !newErrors.class_id &&
+      !newErrors.s3_url
+    );
+  };
 
   const fetchClasses = async () => {
     try {
@@ -88,15 +118,15 @@ function CreateVideo() {
   };
 
   const handleSubmit = async () => {
-    console.log(videoData);
-    const res = await backend.post("/classes-videos", {
-      title: videoData.title ?? "",
-      s3Url: videoData.s3_url ?? "",
-      description: videoData.description ?? "",
-      mediaUrl: videoData.media_url ?? "",
-      classId: videoData.class_id ?? "",
-    });
-    console.log(res);
+    if (validateForm()) {
+      const res = await backend.post("/classes-videos", {
+        title: videoData.title ?? "",
+        s3Url: videoData.s3_url ?? "",
+        description: videoData.description ?? "",
+        mediaUrl: videoData.media_url ?? "",
+        classId: videoData.class_id ?? "",
+      });
+    }
   };
 
   useEffect(() => {
@@ -117,13 +147,13 @@ function CreateVideo() {
     >
       <Stack spacing={4}>
         {!previewUrl ? (
-          <FormControl>
+          <FormControl isInvalid={!!errors.media_url}>
             <FormLabel>Upload Image</FormLabel>
             <VisuallyHidden>
               <Input
                 ref={fileInputRef}
                 type="file"
-                accept="video/*,image/*"
+                accept="image/*"
                 onChange={handleFileChange}
               />
             </VisuallyHidden>
@@ -133,6 +163,9 @@ function CreateVideo() {
             >
               Choose File
             </Button>
+            {errors.media_url && (
+              <FormErrorMessage>Image is Required</FormErrorMessage>
+            )}
           </FormControl>
         ) : (
           <Box
@@ -148,7 +181,7 @@ function CreateVideo() {
             />
           </Box>
         )}
-        <FormControl>
+        <FormControl isInvalid={!!errors.s3_url}>
           <FormLabel>Upload Video</FormLabel>
           <Stack
             direction="row"
@@ -176,22 +209,31 @@ function CreateVideo() {
               fontSize={12}
             />
           </Stack>
+          {errors.s3_url && (
+            <FormErrorMessage>Video Is Required</FormErrorMessage>
+          )}
         </FormControl>
-        <FormControl>
+        <FormControl isInvalid={!!errors.title}>
           <FormLabel>Video Title</FormLabel>
           <Input
             onChange={(e) =>
               setVideoData({ ...videoData, title: e.target.value })
             }
           />
+          {errors.title && (
+            <FormErrorMessage>Title is Required</FormErrorMessage>
+          )}
         </FormControl>
-        <FormControl>
+        <FormControl isInvalid={!!errors.description}>
           <FormLabel>Description</FormLabel>
           <Textarea
             onChange={(e) =>
               setVideoData({ ...videoData, description: e.target.value })
             }
           />
+          {errors.description && (
+            <FormErrorMessage>Description is Required</FormErrorMessage>
+          )}
         </FormControl>
         // these don't do anything lol
         <FormControl>
@@ -220,7 +262,7 @@ function CreateVideo() {
             </Button>
           </Stack>
         </FormControl>
-        <FormControl>
+        <FormControl isInvalid={!!errors.class_id}>
           <FormLabel>Select Class</FormLabel>
           <Select
             placeholder="Select a class"
@@ -237,10 +279,23 @@ function CreateVideo() {
               </option>
             ))}
           </Select>
+          {errors.class_id && (
+            <FormErrorMessage>Class is Required</FormErrorMessage>
+          )}
         </FormControl>
+        <Box overflowX="hidden">
+          <Text>Preview</Text>
+          <VideoCard
+            title={videoData.title}
+            description={videoData.description}
+            S3Url={videoData.s3_url}
+            classId={videoData.class_id}
+            mediaUrl={videoData.media_url}
+          />
+        </Box>
         <Button
           colorScheme="teal"
-          onClick={handleSubmit}
+          type="submit"
         >
           Submit
         </Button>
