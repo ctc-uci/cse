@@ -7,7 +7,20 @@ import { Button, Flex, Text, Box } from "@chakra-ui/react";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { useEffect, useState } from "react";
 
-import { Box, Button, Flex, HStack, Input, Text } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Input,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+  Text,
+} from "@chakra-ui/react";
 
 import CreateArticle from "../../components/forms/createArticle.tsx";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -16,45 +29,36 @@ import { NewsCard } from "./NewsCard";
 import { VideoCard } from "./VideoCard";
 
 export const Resources = () => {
-  const [showForm, setShowForm] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const { backend } = useBackendContext();
 
 
   const [videos, setVideos] = useState([]);
   const [news, setNews] = useState([]);
-  const [resourceFilter, setResourceFilter] = useState(null);
-  const [filterTitle, setFilterTitle] = useState("");
+  const [resourceFilter, setResourceFilter] = useState(0);
+  const [filterTitle, setFilterTitle] = useState(null);
 
   const [postArticle, setPostArticle] = useState(false);
   const [formType, setFormType] = useState(null);
 
-  const handleVideoButton = () => {
-    setResourceFilter(setResourceFilter ? "VIDEO" : null);
-  };
-
-  const handleNewsButton = () => {
-    setResourceFilter(setResourceFilter ? "NEWS" : null);
-  };
-
   const searchResouce = async () => {
-    if (resourceFilter) {
-      if (resourceFilter === "VIDEO") {
-        try {
-          const videoResponse = await backend.get(
-            `/classes-videos/search/${filterTitle}`
-          );
-          setVideos(videoResponse.data);
-        } catch (error) {
-          console.error("Error fetching videos:", error);
-        }
-      } else if (resourceFilter === "NEWS") {
-        //does not work yet
-        // try {
-        //   const newsResponse = await backend.get(`/articles/search/${title}`);
-        //   setNews(newsResponse.data);
-        // } catch (error) {
-        //   console.error("Error fetching news:", error);
+    if (resourceFilter === 0) {
+      try {
+        const videoResponse = await backend.get(
+          `/classes-videos/search/${filterTitle}`
+        );
+        setVideos(videoResponse.data);
+        setShowAlert(false);
+      } catch (error) {
+        setShowAlert(true);
       }
+    } else if (resourceFilter === "NEWS") {
+      //does not work yet
+      // try {
+      //   const newsResponse = await backend.get(`/articles/search/${title}`);
+      //   setNews(newsResponse.data);
+      // } catch (error) {
+      //   console.error("Error fetching news:", error);
     }
   };
 
@@ -127,6 +131,22 @@ export const Resources = () => {
           >
             Resources
           </Text>
+          <Tabs
+            isFitted
+            colorScheme="teal"
+            variant="unstyled"
+            onChange={(index) => setResourceFilter(index)}
+          >
+            <TabList>
+              <Tab>Video</Tab>
+              <Tab>News</Tab>
+            </TabList>
+            <TabIndicator
+              height="2px"
+              bg="teal"
+              borderRadius="1px"
+            />
+          </Tabs>
 
           <HStack spacing={0}>
             <Input
@@ -144,66 +164,62 @@ export const Resources = () => {
               Search
             </Button>
           </HStack>
-          <Flex gap={4}>
-            <Button
-              onClick={handleVideoButton}
-              colorScheme={resourceFilter === "VIDEO" ? "purple" : "gray"}
-            >
-              Videos
-            </Button>
-            <Button
-              onClick={handleNewsButton}
-              colorScheme={resourceFilter === "NEWS" ? "purple" : "gray"}
-            >
-              News
-            </Button>
-          </Flex>
-          <Box>
-            <Text
-              fontWeight="bold"
-              mt={4}
-            >
-              Videos
-            </Text>
-            <Flex
-              wrap="wrap"
-              gap={4}
-            >
-              {videos.map((video) => (
-                <VideoCard
-                  key={video.id}
-                  id={video.id}
-                  description={video.description}
-                  title={video.title}
-                  S3Url={video.S3Url}
-                  classId={video.classId}
-                  mediaUrl={video.mediaUrl}
-                />
-              ))}
-            </Flex>
-          </Box>
-          <Box>
-            <Text
-              fontWeight="bold"
-              mt={4}
-            >
-              News
-            </Text>
-            <Flex
-              wrap="wrap"
-              gap={4}
-            >
-              {news.map((newsItem) => (
-                <NewsCard
-                  key={newsItem.id}
-                  id={newsItem.id}
-                  S3Url={newsItem.S3Url}
-                  description={newsItem.description}
-                  mediaUrl={newsItem.mediaUrl}
-                />
-              ))}
-            </Flex>
-          </Box>
+
+          {showAlert ? (
+            <Alert status="warning">
+              <AlertIcon />
+              Sorry, we could not find any resources
+            </Alert>
+          ) : (
+            <>
+              <Box>
+                <Text
+                  fontWeight="bold"
+                  mt={4}
+                >
+                  Videos
+                </Text>
+                <Flex
+                  wrap="wrap"
+                  gap={4}
+                >
+                  {videos.map((video) => (
+                    <VideoCard
+                      key={video.id}
+                      id={video.id}
+                      description={video.description}
+                      title={video.title}
+                      S3Url={video.S3Url}
+                      classId={video.classId}
+                      mediaUrl={video.mediaUrl}
+                    />
+                  ))}
+                </Flex>
+              </Box>
+              <Box>
+                <Text
+                  fontWeight="bold"
+                  mt={4}
+                >
+                  News
+                </Text>
+                <Flex
+                  wrap="wrap"
+                  gap={4}
+                >
+                  {news.map((newsItem) => (
+                    <NewsCard
+                      key={newsItem.id}
+                      id={newsItem.id}
+                      S3Url={newsItem.S3Url}
+                      description={newsItem.description}
+                      mediaUrl={newsItem.mediaUrl}
+                    />
+                  ))}
+                </Flex>
+              </Box>
+            </>
+          )}
         </>
       )}
       {/* // uncentered button */}

@@ -118,6 +118,7 @@ function CreateVideo() {
   };
 
   const handleSubmit = async () => {
+    console.log("valid");
     if (validateForm()) {
       const res = await backend.post("/classes-videos", {
         title: videoData.title ?? "",
@@ -126,6 +127,7 @@ function CreateVideo() {
         mediaUrl: videoData.media_url ?? "",
         classId: videoData.class_id ?? "",
       });
+      window.screen.reload(); // hold on i need to set up a proper form lol
     }
   };
 
@@ -145,42 +147,37 @@ function CreateVideo() {
       alignItems="center"
       flexDirection="column"
     >
-      <Stack spacing={4}>
-        {!previewUrl ? (
-          <FormControl isInvalid={!!errors.media_url}>
-            <FormLabel>Upload Image</FormLabel>
-            <VisuallyHidden>
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </VisuallyHidden>
-            <Button
-              onClick={handleFileUploadClick}
-              colorScheme="teal"
-            >
-              Choose File
-            </Button>
-            {errors.media_url && (
-              <FormErrorMessage>Image is Required</FormErrorMessage>
-            )}
-          </FormControl>
-        ) : (
-          <Box
-            mt={4}
-            mb={4}
-          >
-            <Image
-              src={previewUrl}
-              alt="Preview"
-              maxHeight="200px"
-              objectFit="contain"
-              onDoubleClick={() => setPreviewUrl(null)}
+      <Stack
+        spacing={4}
+        maxWidth="100%"
+      >
+        <FormControl isInvalid={!!errors.media_url}>
+          <FormLabel>Upload Image</FormLabel>
+          <VisuallyHidden>
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
             />
-          </Box>
-        )}
+          </VisuallyHidden>
+          <Button
+            onClick={handleFileUploadClick}
+            colorScheme="teal"
+          >
+            Choose File
+          </Button>
+          <Input
+            value={selectedFile?.name ?? ""}
+            placeholder="No file chosen"
+            isReadOnly
+            width="200px"
+            fontSize={12}
+          />
+          {errors.media_url && (
+            <FormErrorMessage>Image is Required</FormErrorMessage>
+          )}
+        </FormControl>
         <FormControl isInvalid={!!errors.s3_url}>
           <FormLabel>Upload Video</FormLabel>
           <Stack
@@ -295,7 +292,7 @@ function CreateVideo() {
         </Box>
         <Button
           colorScheme="teal"
-          type="submit"
+          onClick={handleSubmit}
         >
           Submit
         </Button>
