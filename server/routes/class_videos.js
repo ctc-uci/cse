@@ -97,7 +97,7 @@ classVideosRouter.get("/search/:title", async (req, res) => {
     }
 
     const rows = await db.query(
-      "SELECT * FROM class_videos WHERE title LIKE $1",
+      "SELECT * FROM class_videos WHERE LOWER(title) LIKE LOWER($1)",
       [`%${title}%`]
     );
 
