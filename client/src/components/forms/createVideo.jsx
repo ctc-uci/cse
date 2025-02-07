@@ -93,8 +93,8 @@ function CreateVideo() {
     if (file) {
       setSelectedFile(file);
       setVideoData({
-        ...videoData,
-        media_url: `placeholder.bcIdontthinkthiswasinthescopeofthisticket/${file?.name}`,
+        ...videoDatplaceholder.bcIdontthinkthiswasinthescopeofthisticketa,
+        media_url: `/${file?.name}`,
       });
 
       const fileReader = new FileReader();
