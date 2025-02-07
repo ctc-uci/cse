@@ -42,7 +42,6 @@ export const Resources = () => {
   const [formType, setFormType] = useState(null);
 
   const searchResouce = async () => {
-<<<<<<< HEAD
     if (resourceFilter === 0) {
       try {
         const videoResponse = await backend.get(
@@ -54,31 +53,11 @@ export const Resources = () => {
         setShowAlert(true);
       }
     } else if (resourceFilter === "NEWS") {
-      //does not work yet
       try {
         const newsResponse = await backend.get(`/articles/search/${title}`);
         setNews(newsResponse.data);
       } catch (error) {
         console.error("Error fetching news:", error);
-=======
-    if (resourceFilter) {
-      if (resourceFilter === "VIDEO") {
-        try {
-          const videoResponse = await backend.get(
-            `/classes-videos/search/${filterTitle}`
-          );
-          setVideos(videoResponse.data);
-        } catch (error) {
-          console.error("Error fetching videos:", error);
-        }
-      } else if (resourceFilter === "NEWS") {
-          try {
-            const newsResponse = await backend.get(`/articles/search/${filterTitle}`);
-            setNews(newsResponse.data);
-          } catch (error) {
-            console.error("Error fetching news:", error);
-        }
->>>>>>> b577d10 (finished articles, small placeholder problems.)
       }
     }
   };
