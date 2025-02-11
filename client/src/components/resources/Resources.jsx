@@ -32,7 +32,6 @@ export const Resources = () => {
   const [showAlert, setShowAlert] = useState(false);
   const { backend } = useBackendContext();
 
-
   const [videos, setVideos] = useState([]);
   const [news, setNews] = useState([]);
   const [resourceFilter, setResourceFilter] = useState(0);
