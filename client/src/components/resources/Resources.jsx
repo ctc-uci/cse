@@ -2,11 +2,7 @@
 import { useState, useEffect } from "react";
 import { VideoCard } from "./VideoCard";
 import { NewsCard } from "./NewsCard";
-import { UploadComponent } from "./UploadComponent";
-import { Button, Flex, Text, Box } from "@chakra-ui/react";
-import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import { useEffect, useState } from "react";
-
+import { Navbar } from "../navbar/Navbar.jsx";
 import {
   Alert,
   AlertIcon,
@@ -25,8 +21,6 @@ import {
 import CreateArticle from "../../components/forms/createArticle.jsx";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import CreateVideo from "../forms/createVideo.jsx";
-import { NewsCard } from "./NewsCard";
-import { VideoCard } from "./VideoCard";
 
 export const Resources = () => {
   const [showAlert, setShowAlert] = useState(false);
@@ -242,7 +236,7 @@ export const Resources = () => {
         {/* Change the icon to < (left arrow) */}
       </Button>
     </Flex>
-    <Navbar></Navbar>
+    {/* <Navbar></Navbar> */}
     </Box>
   );
 };

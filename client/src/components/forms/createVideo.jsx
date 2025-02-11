@@ -20,7 +20,6 @@ import { VideoCard } from "../resources/VideoCard";
 
 function CreateVideo() {
   const fileInputRef = useRef(null);
-  const videoInputRef = useRef(null);
 
   const [videoData, setVideoData] = useState({
     title: "",
@@ -42,7 +41,6 @@ function CreateVideo() {
 
   const [activeButton, setActiveButton] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [videoFile, setVideoFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [classes, setClasses] = useState([]);
 
@@ -84,17 +82,14 @@ function CreateVideo() {
   const handleFileUploadClick = () => {
     fileInputRef.current.click();
   };
-  const handleVideoUploadClick = () => {
-    videoInputRef.current.click();
-  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
       setVideoData({
-        ...videoDatplaceholder.bcIdontthinkthiswasinthescopeofthisticketa,
-        media_url: `/${file?.name}`,
+        ...videoData,
+        s3_url: `/${file?.name}`,
       });
 
       const fileReader = new FileReader();
@@ -105,29 +100,46 @@ function CreateVideo() {
     }
   };
 
-  const handleVideoFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setVideoFile(file);
-      setVideoData({
-        ...videoData,
-        s3_url: `placeholder.bcIdontthinkthiswasinthescopeofthisticket/${file?.name}`,
-      });
-      console.log("File selected:", file.name);
+
+  const fetchS3URL = async () => {
+    try {
+      const URLResponse = await backend.get('/s3/url');
+      console.log(URLResponse);
+      return URLResponse.data.url;
+    } catch (error) {
+      console.error('Error fetching S3 URL:', error);
     }
   };
 
   const handleSubmit = async () => {
-    console.log("valid");
+
+    const s3Url = await fetchS3URL();
+
+    const uploadResponse = await fetch(s3Url, {
+      method: "PUT",
+      body: selectedFile,
+      headers: {
+        "Content-Type": selectedFile.type,
+      },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("Failed to upload file");
+    } 
+
+
+    setVideoData({...videoData, s3_url: s3Url});
+
+    console.log("valid", videoData);
     if (validateForm()) {
       const res = await backend.post("/classes-videos", {
         title: videoData.title ?? "",
-        s3Url: videoData.s3_url ?? "",
+        s3Url: s3Url ?? "",
         description: videoData.description ?? "",
         mediaUrl: videoData.media_url ?? "",
         classId: videoData.class_id ?? "",
       });
-      window.screen.reload(); // hold on i need to set up a proper form lol
+      window.location.reload(); // hold on i need to set up a proper form lol
     }
   };
 
@@ -151,7 +163,7 @@ function CreateVideo() {
         spacing={4}
         maxWidth="100%"
       >
-        <FormControl isInvalid={!!errors.media_url}>
+        <FormControl isInvalid={!!errors.s3_url}>
           <FormLabel>Upload Image</FormLabel>
           <VisuallyHidden>
             <Input
@@ -174,39 +186,18 @@ function CreateVideo() {
             width="200px"
             fontSize={12}
           />
-          {errors.media_url && (
+          {errors.s3_url && (
             <FormErrorMessage>Image is Required</FormErrorMessage>
           )}
         </FormControl>
-        <FormControl isInvalid={!!errors.s3_url}>
-          <FormLabel>Upload Video</FormLabel>
-          <Stack
-            direction="row"
-            spacing="0"
-          >
-            <VisuallyHidden>
-              <Input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                onChange={handleVideoFileChange}
-              />
-            </VisuallyHidden>
-            <Button
-              onClick={handleVideoUploadClick}
-              colorScheme="teal"
-            >
-              Choose File
-            </Button>
-            <Input
-              value={videoFile?.name ?? ""}
-              placeholder="No file chosen"
-              isReadOnly
-              width="200px"
-              fontSize={12}
-            />
-          </Stack>
-          {errors.s3_url && (
+        <FormControl isInvalid={!!errors.media_url}>
+          <FormLabel>Upload Video Embed URL</FormLabel>
+          <Textarea
+            onChange={(e) =>
+              setVideoData({ ...videoData, media_url: e.target.value })
+            }
+          />
+          {errors.media_url && (
             <FormErrorMessage>Video Is Required</FormErrorMessage>
           )}
         </FormControl>
