@@ -51,7 +51,7 @@ classesRouter.get("/students/", async(req, res) => {
             `
         )
 
-        res.status(200).json(keysToCamel(classClasses));
+        res.status(200).json(keysToCamel(classStudents));
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -77,7 +77,7 @@ classesRouter.get("/students/:id", async(req, res) => {
             [classId]
         )
 
-        res.status(200).json(keysToCamel(classClasses));
+        res.status(200).json(keysToCamel(classStudents));
     } catch (err) {
         console.log(err)
         res.status(500).json({
