@@ -150,7 +150,7 @@ function CreateVideo() {
         URL.revokeObjectURL(previewUrl);
       }
     };
-  }, [previewUrl, classes]);
+  }, [previewUrl]);
 
   return (
     <Box
