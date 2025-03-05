@@ -17,6 +17,7 @@ export const Navbar = () => {
       bg="#DBDBDB"
       p={3}
       padding={5}
+      height="80px"
     >
       <Flex justify="space-around" align="center" gap="14">
           <Link to="/profile">

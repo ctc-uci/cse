@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 
 import axios from "axios";
-import QRCodeReact from "react-qr-code";
+// import QRCodeReact from "react-qr-code";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import CreateClassForm from "../forms/createClasses";

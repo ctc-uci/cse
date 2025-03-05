@@ -21,6 +21,7 @@ import { TeacherDashboard } from "./components/dashboard/teacherDashboard/Teache
 import { TeacherInfoDashboard } from "./components/dashboard/teacherInfoDashboard/TeacherInfoDashboard";
 import { Discovery } from "./components/discovery/Discovery";
 import { CreateEvent } from "./components/forms/createEvent";
+import { NavBarLayout } from "./components/navbar/NavbarLayout";
 import { Login } from "./components/login/Login";
 import { Playground } from "./components/playground/Playground";
 import { Profile } from "./components/profile/Profile";
@@ -45,145 +46,147 @@ const App = () => {
         <AuthProvider>
           <RoleProvider>
             <Router>
-              <Routes>
-                <Route
-                  path="/login"
-                  element={<Login />}
-                />
-                <Route
-                  path="/create-event"
-                  element={<CreateEvent />}
-                />
-                <Route
-                  path="/signup"
-                  element={<Signup />}
-                />
-                <Route
-                  path="/teacher-signup"
-                  element={<TeacherSignup />}
-                />
-                <Route
-                  path="/settings"
-                  element={<Settings />}
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute
-                      element={<Dashboard />}
-                      allowedRoles={"admin"}
-                    />
-                  }
-                >
+              <NavBarLayout>
+                <Routes>
                   <Route
-                    index
-                    element={<DashboardHome />}
+                    path="/login"
+                    element={<Login />}
                   />
                   <Route
-                    path="settings"
-                    element={<SettingsDashboard />}
+                    path="/create-event"
+                    element={<CreateEvent />}
                   />
                   <Route
-                    path="classes"
-                    element={<ClassDashboard />}
+                    path="/signup"
+                    element={<Signup />}
+                  />
+                  <Route
+                    path="/teacher-signup"
+                    element={<TeacherSignup />}
+                  />
+                  <Route
+                    path="/settings"
+                    element={<Settings />}
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute
+                        element={<Dashboard />}
+                        allowedRoles={"admin"}
+                      />
+                    }
                   >
                     <Route
                       index
-                      element={<OverallClassDashboard />}
+                      element={<DashboardHome />}
                     />
                     <Route
-                      path=":classId"
-                      element={<ClassInfoDashboard />}
+                      path="settings"
+                      element={<SettingsDashboard />}
+                    />
+                    <Route
+                      path="classes"
+                      element={<ClassDashboard />}
+                    >
+                      <Route
+                        index
+                        element={<OverallClassDashboard />}
+                      />
+                      <Route
+                        path=":classId"
+                        element={<ClassInfoDashboard />}
+                      />
+                    </Route>
+                    <Route
+                      path="/dashboard/students"
+                      element={<ProtectedRoute element={<StudentDashboard />} />}
+                    />
+                    <Route
+                      path="/dashboard/students/:id"
+                      element={
+                        <ProtectedRoute element={<StudentInfoDashboard />} />
+                      }
+                    />
+                    <Route
+                      path="/dashboard/teachers/"
+                      element={<ProtectedRoute element={<TeacherDashboard />} />}
+                    />
+                    <Route
+                      path="/dashboard/teachers/:teacherId"
+                      element={
+                        <ProtectedRoute element={<TeacherInfoDashboard />} />
+                      }
                     />
                   </Route>
                   <Route
-                    path="/dashboard/students"
-                    element={<ProtectedRoute element={<StudentDashboard />} />}
+                    path="/bookings"
+                    element={<ProtectedRoute element={<Bookings />} />}
                   />
                   <Route
-                    path="/dashboard/students/:id"
+                    path="/admin"
                     element={
-                      <ProtectedRoute element={<StudentInfoDashboard />} />
+                      <ProtectedRoute
+                        element={<Admin />}
+                        allowedRoles={["admin"]}
+                      />
                     }
                   />
                   <Route
-                    path="/dashboard/teachers/"
-                    element={<ProtectedRoute element={<TeacherDashboard />} />}
+                    path="/resources"
+                    element={<ProtectedRoute element={<Resources />} />}
                   />
                   <Route
-                    path="/dashboard/teachers/:teacherId"
+                    path="/profile"
+                    element={<ProtectedRoute element={<Profile />} />}
+                  />
+                  <Route
+                    path="/playground"
+                    element={<ProtectedRoute element={<Playground />} />}
+                  />
+
+                  <Route
+                    path="/reviews"
+                    element={<ProtectedRoute element={<Reviews />} />}
+                  />
+
+                  <Route
+                    path="/discovery"
+                    element={<ProtectedRoute element={<Discovery />} />}
+                  />
+
+                  <Route
+                    path="/check-in/class/:id"
+                    element={<ClassCheckInHandler />}
+                  />
+                  <Route
+                    path="/check-in/event/:id"
+                    element={<EventCheckInHandler />}
+                  />
+
+                  <Route
+                    path="/"
                     element={
-                      <ProtectedRoute element={<TeacherInfoDashboard />} />
+                      <Navigate
+                        to="/login"
+                        replace
+                      />
                     }
                   />
-                </Route>
-                <Route
-                  path="/bookings"
-                  element={<ProtectedRoute element={<Bookings />} />}
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute
-                      element={<Admin />}
-                      allowedRoles={["admin"]}
-                    />
-                  }
-                />
-                <Route
-                  path="/resources"
-                  element={<ProtectedRoute element={<Resources />} />}
-                />
-                <Route
-                  path="/profile"
-                  element={<ProtectedRoute element={<Profile />} />}
-                />
-                <Route
-                  path="/playground"
-                  element={<ProtectedRoute element={<Playground />} />}
-                />
-
-                <Route
-                  path="/reviews"
-                  element={<ProtectedRoute element={<Reviews />} />}
-                />
-
-                <Route
-                  path="/discovery"
-                  element={<ProtectedRoute element={<Discovery />} />}
-                />
-
-                <Route
-                  path="/check-in/class/:id"
-                  element={<ClassCheckInHandler />}
-                />
-                <Route
-                  path="/check-in/event/:id"
-                  element={<EventCheckInHandler />}
-                />
-
-                <Route
-                  path="/"
-                  element={
-                    <Navigate
-                      to="/login"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="*"
-                  element={<ProtectedRoute element={<CatchAll />} />}
-                />
-                <Route
-                  path = "/teacher-signup/request"
-                  element = {<ProtectedRoute element = {<Request />} />}
-                />
-                <Route
-                  path = "/teacher-signup/pending"
-                  element = {<ProtectedRoute element = {<Request />} />}
-                />
-              </Routes>
+                  <Route
+                    path="*"
+                    element={<ProtectedRoute element={<CatchAll />} />}
+                  />
+                  <Route
+                    path = "/teacher-signup/request"
+                    element = {<ProtectedRoute element = {<Request />} />}
+                  />
+                  <Route
+                    path = "/teacher-signup/pending"
+                    element = {<ProtectedRoute element = {<Request />} />}
+                  />
+                </Routes>
+              </NavBarLayout>
             </Router>
           </RoleProvider>
         </AuthProvider>
