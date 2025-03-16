@@ -19,7 +19,7 @@
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.0",
     "@react-email/components": "0.0.32",
-    "axios": "^1.7.4",
+    "axios": "^1.8.2",
     "firebase": "10.12.5",
     "framer-motion": "^11.3.27",
     "npo-client-template": "file:",
