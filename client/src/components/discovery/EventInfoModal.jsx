@@ -104,7 +104,7 @@ function EventInfoModal({
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {title} {id}
+            {title}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

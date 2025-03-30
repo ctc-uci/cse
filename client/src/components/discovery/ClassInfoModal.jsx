@@ -19,10 +19,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
+import { FaPencilAlt } from "react-icons/fa";
 import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import PublishedReviews from "../reviews/classReview";
 import SuccessSignupModal from "./SuccessSignupModal";
 
 function ClassInfoModal({
@@ -40,7 +42,7 @@ function ClassInfoModal({
   handleClose,
   handleResolveCoreq = () => {},
 }) {
-  const { currentUser } = useAuthContext();
+  const { currentUser, role } = useAuthContext();
   const { backend } = useBackendContext();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
@@ -54,7 +56,7 @@ function ClassInfoModal({
       const req = await backend.post(`/class-enrollments`, {
         studentId: users.data[0].id,
         classId: id,
-        attendance: new Date(),
+        attendance: null,
       });
       if (req.status === 201) {
         setOpenSuccessModal(true);
@@ -194,9 +196,18 @@ function ClassInfoModal({
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={classSignUp}>Sign up</Button>
+            {role === "student" && <Button onClick={classSignUp}>Sign up</Button>}
           </ModalFooter>
+          <PublishedReviews classId={id} />
         </ModalContent>
+        <PublishedReviews
+          title={title}
+          location={location}
+          description={description}
+          level={level}
+          date={date}
+          id={id}
+        ></PublishedReviews>
       </Modal>
     </>
   );

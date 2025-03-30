@@ -32,17 +32,17 @@ classEnrollmentsRouter.get("/student/:student_id", async (req, res) => {
   try {
     const result = await db.query(
       `
-      SELECT
-        c.*,
-        sc.date,
-        sc.start_time,
-        sc.end_time,
-        COUNT(ce.student_id) as attendee_count
+      SELECT DISTINCT ON (c.id, sc.date)
+          c.*,
+          sc.date,
+          sc.start_time,
+          sc.end_time,
+          ce.attendance,
+          (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) AS attendee_count
       FROM classes c
+      JOIN class_enrollments ce ON c.id = ce.class_id AND ce.student_id = $1
       LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
-      LEFT JOIN class_enrollments ce ON c.id = ce.class_id
-      WHERE ce.student_id = $1
-      GROUP BY c.id, sc.date, sc.start_time, sc.end_time
+      ORDER BY c.id, sc.date DESC;
     `,
       [req.params.student_id]
     );
@@ -52,6 +52,32 @@ classEnrollmentsRouter.get("/student/:student_id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+classEnrollmentsRouter.get(
+  "/teacher/:teacher_id/:class_id",
+  async (req, res) => {
+    try {
+      const { teacher_id, class_id } = req.params; // Ensure correct param names
+      const result = await db.query(
+        `
+      SELECT DISTINCT u.first_name, u.last_name, u.email, ce.attendance IS NOT NULL AS attendance
+      FROM users u
+        JOIN students s ON s.id = u.id
+        JOIN class_enrollments ce ON ce.student_id = s.id
+        JOIN classes c ON c.id = ce.class_id
+        JOIN classes_taught ct ON ct.class_id = c.id
+        JOIN scheduled_classes sc ON sc.date = ce.attendance
+      WHERE ct.teacher_id = $1 AND c.id = $2;
+    `,
+        [teacher_id, class_id]
+      );
+
+      res.status(200).json(keysToCamel(result));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 classEnrollmentsRouter.post("/", async (req, res) => {
   const { studentId, classId, attendance } = req.body;
@@ -89,16 +115,17 @@ classEnrollmentsRouter.put("/:student_id", async (req, res) => {
   }
 });
 classEnrollmentsRouter.delete("/:student_id/:class_id", async (req, res) => {
-    const { student_id, class_id } = req.params;
+  const { student_id, class_id } = req.params;
 
-    try {
-        const result = await db.query(
-            "DELETE FROM class_enrollments WHERE student_id = $1 AND class_id = $2 RETURNING *", [student_id, class_id]
-        )
-        res.status(200).send(keysToCamel(result[0]));
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+  try {
+    const result = await db.query(
+      "DELETE FROM class_enrollments WHERE student_id = $1 AND class_id = $2 RETURNING *",
+      [student_id, class_id]
+    );
+    res.status(200).send(keysToCamel(result[0]));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 export { classEnrollmentsRouter };

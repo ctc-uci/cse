@@ -1,6 +1,7 @@
 import { Button, Flex, Heading, Image, Text, VStack, Box } from "@chakra-ui/react";
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { Navbar } from "../navbar/Navbar";
+import { L } from "../logout/Logout";
 
 export const Profile = () => {
   const { currentUser } = useAuthContext();
@@ -51,6 +52,7 @@ export const Profile = () => {
         >
           <a href="/settings">Settings</a>
         </Button>
+        <L/>
       </VStack>
     </Flex>
     <Navbar></Navbar>

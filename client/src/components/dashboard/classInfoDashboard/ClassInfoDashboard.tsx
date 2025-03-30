@@ -33,7 +33,7 @@ function ClassInfoDashboard() {
         const classesResponse = await backend.get(`/classes/joined/${classId}`);
         classesResponse.data[0].date = new Date(classesResponse.data[0].date);
         setcurrentClass(classesResponse.data[0]);
-        console.log(classesResponse.data[0]);
+        // console.log(classesResponse.data[0]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

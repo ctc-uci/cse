@@ -11,7 +11,13 @@ import EventInfoModal from "./EventInfoModal";
 /*
 infoProps: title, location, description, level, date, id, capacity, costume
 */
-function SignUpController({ openRootModal, setOpenRootModal, class_id = null, event_id = null, ...infoProps }) {
+function SignUpController({
+  openRootModal,
+  setOpenRootModal,
+  class_id = null,
+  event_id = null,
+  ...infoProps
+}) {
   const { backend } = useBackendContext();
   const { currentUser } = useAuthContext();
   const [openCoreqModal, setOpenCoreqModal] = useState(false);
@@ -23,6 +29,7 @@ function SignUpController({ openRootModal, setOpenRootModal, class_id = null, ev
       class_id !== null
         ? `/classes/corequisites/${id}`
         : `/events/corequisites/${id}`;
+
     const ENROLLMENT_ROUTE =
       class_id === null ? "/class-enrollments" : "/event-enrollments";
 

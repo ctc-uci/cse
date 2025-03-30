@@ -7,14 +7,18 @@ import {
   Text,
   VStack,
   Button,
-  CardFooter
+  CardFooter,
+  useDisclosure
 } from "@chakra-ui/react";
 
 import { FaClock, FaMapMarkerAlt, FaUser } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { useAuthContext } from "../../contexts/hooks/useAuthContext";
+
 
 import { formatDate, formatTime } from "../../utils/formatDateTime";
 import SignUpController from "../discovery/SignUpController";
+import TeacherEventViewModal from "../bookings/teacherView/TeacherEventViewModal";
 import { useState } from "react";
 
 export const EventCard = ({
@@ -31,6 +35,9 @@ export const EventCard = ({
   attendeeCount = 0, // Default to 0 if not provided
   onClick,
   id,
+  setRefresh,
+  isAttended = false,
+  onCloseModal
 }) => {
   const formattedDate = formatDate(date);
   const formattedStartTime = formatTime(startTime);
@@ -38,6 +45,11 @@ export const EventCard = ({
   const [openModal, setOpenModal] = useState(false);
   const { pathname } = useLocation();
   const [openRootModal, setOpenRootModal] = useState(false);
+  const [openTeacherModal, setOpenTeacherModal] = useState(false);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [currentModal, setCurrentModal] = useState("view");
+  const { role } = useAuthContext();
 
   const handleOpenModal = () => {
     setOpenModal(!openModal);
@@ -45,9 +57,36 @@ export const EventCard = ({
   const handleCancel = () => {
     setOpenModal(false);
   };
+
+  // const onCloseModal = () => {
+  //   setCurrentModal("view");
+  //   onClose();
+  // };
+
+  const closeTeacherModal = () => {
+    setOpenTeacherModal(false);
+    onCloseModal();
+  };
+
+  const handleClickModal = () => {
+      if (pathname === "/bookings" && role !== "student") {
+        if (currentModal === "view") {
+          setOpenTeacherModal(true);
+          console.log("Open teacher view modal!");
+        }
+      } else if (pathname === "/bookings") {
+        onClick();
+      }
+      else {
+        setOpenRootModal(true);
+      }
+    };
+
+
+
   return (
     <>
-       <Card
+    <Card
       w={{ base: "90%", md: "30em" }}
       bg="gray.200"
     >
@@ -90,20 +129,14 @@ export const EventCard = ({
             color="black"
             _hover={{ bg: "gray.700" }}
             mt={2}
-            onClick={() => {
-              if (pathname === "/bookings") {
-                onClick();
-              } else {
-                setOpenRootModal(true);
-              }
-            }}
+            onClick={handleClickModal}
           >
             View Details &gt;
           </Button>
         </VStack>
       </CardBody>
 
-        <CardFooter justifyContent="right" hidden>
+      <CardFooter justifyContent="right" hidden>
           {/* <Text>Required Class ID: {classId}</Text> */}
           <SignUpController
             event_id={id}
@@ -117,8 +150,23 @@ export const EventCard = ({
             setOpenRootModal={setOpenRootModal}
             openRootModal={openRootModal}
           />
-        </CardFooter>
-      </Card>
+          <TeacherEventViewModal
+            isOpenProp={openTeacherModal}
+            handleClose={closeTeacherModal}
+            id = {id}
+            location = {location}
+            title = {title}
+            description = {description}
+            level = {level}
+            date = {date}
+            startTime = {startTime}
+            endTime = {endTime}
+            callTime = {callTime}
+            costume = {costume}
+            setRefresh = {setRefresh}
+          />
+      </CardFooter>
+    </Card>
     </>
   );
 };

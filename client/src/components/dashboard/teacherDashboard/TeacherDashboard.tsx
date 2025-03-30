@@ -43,7 +43,7 @@ export const TeacherDashboard = () => {
     const fetchData = async () => {
       try {
         const response = await backend.get("/teachers/classes/");
-        console.log(response.data);
+        // console.log(response.data);
         setTeacherClasses(
           response.data.reduce((acc, item) => {
             const {
@@ -62,7 +62,7 @@ export const TeacherDashboard = () => {
               email,
               isActivated,
             }); // teacher + user
-            console.log(key);
+            // console.log(key);
             const value = { id: classId, title }; // class
             if (!acc.has(key))
               if (classId) acc.set(key, [value]);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Box,
@@ -10,11 +10,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import axios from "axios";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 
 
-export const CreateEvent = () => {
+export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallback }) => {
   const [formData, setFormData] = useState({
     location: "",
     title: "",
@@ -29,6 +28,23 @@ export const CreateEvent = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { backend } = useBackendContext();
+
+  useEffect(() => {
+    if (event) {
+      // console.log(event.startTime, event.endTime);
+      setFormData({
+        location: event.location || "",
+        title: event.title || "",
+        description: event.description || "",
+        level: event.level || "",
+        date: event.date || "",
+        startTime: event.startTime || "",
+        endTime: event.endTime || "",
+        callTime: event.callTime || "",
+        costume: event.costume || "",
+      });
+    }
+  }, [event]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -51,7 +67,7 @@ export const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    console.log(formData);
+    // console.log(formData);
 
     setIsSubmitting(true);
     try {
@@ -64,9 +80,16 @@ export const CreateEvent = () => {
       };
 
       // Using axios instead of fetch
-      const response = await backend.post("/events/", eventData);
+      let response;
+      if (eventId) {
+        // Edit event (PUT request)
+        response = await backend.put(`/events/${eventId}/`, eventData);
+      } else {
+        // Create new event (POST request)
+        response = await backend.post("/events/", eventData);
+      }
 
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         // Reset form or handle success
         setFormData({
           location: "",
@@ -79,13 +102,15 @@ export const CreateEvent = () => {
           callTime: "",
           costume: "",
         });
+        if (onClose) onClose();
       } else {
-        console.error("Failed to create event:", response.statusText);
+        console.error("Failed to create/save event:", response.statusText);
       }
     } catch (error) {
-      console.error("Failed to create event:", error);
+      console.error("Failed to create/save event:", error);
     } finally {
       setIsSubmitting(false);
+      if (reloadCallback) reloadCallback();
     }
   };
 
@@ -218,8 +243,10 @@ export const CreateEvent = () => {
         colorScheme="blue"
         isLoading={isSubmitting}
       >
-        Create Event
+        {eventId  ? "Save Changes" : "Create Event"}
       </Button>
     </VStack>
   );
 };
+
+export default CreateEvent;

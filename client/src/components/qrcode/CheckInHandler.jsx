@@ -16,20 +16,20 @@ export const CheckInHandler = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log("studentId", currentUser);
+  // console.log("studentId", currentUser);
 
   // Print all localStorage data
-  console.log(
-    "LocalStorage contents:",
-    Object.entries(localStorage).reduce((obj, [key, value]) => {
-      try {
-        obj[key] = JSON.parse(value);
-      } catch {
-        obj[key] = value;
-      }
-      return obj;
-    }, {})
-  );
+  // console.log(
+  //   "LocalStorage contents:",
+  //   Object.entries(localStorage).reduce((obj, [key, value]) => {
+  //     try {
+  //       obj[key] = JSON.parse(value);
+  //     } catch {
+  //       obj[key] = value;
+  //     }
+  //     return obj;
+  //   }, {})
+  // );
 
   useEffect(() => {
     const handleCheckIn = async () => {

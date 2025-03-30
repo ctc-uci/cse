@@ -80,7 +80,16 @@ export const Login = () => {
             }
         }
         else {
-            navigate('/discovery')
+          console.log("In else clause!")
+          const qrCodeRedirect = localStorage.getItem("qrcode_redirect");
+          console.log(qrCodeRedirect)
+          // return qrCodeRedirect ? navigate(qrCodeRedirect) : navigate('/discovery');
+          if(qrCodeRedirect) {
+            localStorage.removeItem("qrcode_redirect");
+            navigate(qrCodeRedirect);
+          } else {
+            navigate('/discovery');
+          }
         }
 
     } catch (err) {
@@ -187,7 +196,7 @@ export const Login = () => {
         </Stack>
       </form>
 
-      <Button
+      {/* <Button
         leftIcon={<FaGoogle />}
         variant={"solid"}
         size={"lg"}
@@ -195,7 +204,7 @@ export const Login = () => {
         sx={{ width: "100%" }}
       >
         Login with Google
-      </Button>
+      </Button> */}
     </VStack>
   );
 };

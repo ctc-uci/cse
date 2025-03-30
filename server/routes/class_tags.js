@@ -5,14 +5,14 @@ import { db } from "../db/db-pgp";
 
 const classTagsRouter = express.Router();
 
-classTagsRouter.use(express.json);
+classTagsRouter.use(express.json());
 
 // tags for a single class
 classTagsRouter.get("/tags/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const tags = await db.query(`SELECT * FROM class_tags JOIN tags on class_tags(tag_id) = tag(id) WHERE class_tags.class_id = $1;`, [id])
+        const tags = await db.query(`SELECT * FROM class_tags JOIN tags on class_tags.tag_id = tags.id WHERE class_tags.class_id = $1;`, [id])
         res.status(200).json(keysToCamel(tags));
     } catch (err) {
         res.status(500).send(err.message);
@@ -23,7 +23,7 @@ classTagsRouter.get("/tags/:id", async (req, res) => {
 classTagsRouter.get("/classes/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const classes = await db.query(`SELECT * FROM class_tags JOIN classes on class_tags(class_id) = classes(id) WHERE class_tags.tag_id = $1;`, [id]);
+        const classes = await db.query(`SELECT * FROM class_tags JOIN classes on class_tags.class_id = classes.id WHERE class_tags.tag_id = $1;`, [id]);
         res.status(200).json(keysToCamel(classes)); 
     } catch (err) {
         res.status(500).send(err.message);

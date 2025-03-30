@@ -15,12 +15,18 @@ export const EventCheckInHandler = () => {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const params = useParams();
 
   useEffect(() => {
     const handleCheckIn = async () => {
       try {
         if (!currentUser?.uid) {
-          throw new Error("No user ID found");
+          const id = params.id;
+
+          // removed baseURL, was preventing the redirect to login from happening
+          localStorage.setItem("qrcode_redirect", `/check-in/event/${id}`);
+          // throw new Error("No user ID found");
+          navigate("/login");
         }
 
         const studentResponse = await backend.get(
@@ -28,9 +34,10 @@ export const EventCheckInHandler = () => {
         );
         const studentId = studentResponse.data.id;
 
-        // Event-specific endpoint
-        await backend.put(`/event-enrollments/${studentId}`, {
+        await backend.post("/event-enrollments", {
+          student_id: studentId,
           event_id: id,
+          // this statement has no effect since attendance defaults to false in backend route (event_enrollments.ts)
           attendance: true,
         });
 

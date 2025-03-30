@@ -42,6 +42,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "caniuse-lite": "^1.0.30001700",
     "npo-template-merged": "file:"
   }
 }

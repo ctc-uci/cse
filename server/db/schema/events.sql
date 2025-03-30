@@ -13,5 +13,6 @@ CREATE TABLE events (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     call_time TIME NOT NULL,
-    costume TEXT NOT NULL
+    costume TEXT NOT NULL,
+    is_draft BOOLEAN NOT NULL DEFAULT false
 );
