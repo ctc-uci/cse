@@ -102,6 +102,7 @@ export const ViewModal = ({
   );
   return (
     <Modal
+      size="full"
       isOpen={isOpen}
       onClose={onClose}
     >

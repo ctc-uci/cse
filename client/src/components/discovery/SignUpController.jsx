@@ -12,6 +12,7 @@ import EventInfoModal from "./EventInfoModal";
 infoProps: title, location, description, level, date, id, capacity, costume
 */
 function SignUpController({
+  user,
   openRootModal,
   setOpenRootModal,
   class_id = null,
@@ -99,6 +100,7 @@ function SignUpController({
           isCorequisiteSignUp={false}
           handleClose={toggleRootModal}
           handleResolveCoreq={toggleCoreqModal}
+          user={user}
         />
       ) : (
         <EventInfoModal
@@ -109,6 +111,7 @@ function SignUpController({
           isCorequisiteSignUp={false}
           handleClose={toggleRootModal}
           handleResolveCoreq={toggleCoreqModal}
+          user={user}
         />
       )}
 

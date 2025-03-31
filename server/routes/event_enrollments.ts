@@ -29,6 +29,24 @@ eventEnrollmentRouter.get("/", async (req, res) => {
   }
 });
 
+
+// test
+eventEnrollmentRouter.get("/test", async (req, res) => {
+  const { student_id, event_id } = req.query;
+  try {
+    const result = await db.query(
+      'SELECT * FROM event_enrollments WHERE student_id = $1 AND event_id = $2;',
+      [student_id, event_id]
+    )
+
+    const exists = result.length > 0;
+    const enrollmentData = keysToCamel(result) as EventEnrollment[];
+    res.status(200).send({enrollmentData, exists});
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+})
+
 // GET /:id
 eventEnrollmentRouter.get("/:id", async (req, res) => {
   try {

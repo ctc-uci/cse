@@ -91,9 +91,10 @@ eventsRouter.post("/", async (req, res) => {
       end_time,
       call_time,
       costume,
+      capacity,
     } = req.body;
     const result = await db.query(
-      "INSERT INTO events (location, title, description, level, date, start_time, end_time, call_time, costume) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;",
+      "INSERT INTO events (location, title, description, level, date, start_time, end_time, call_time, costume, capacity) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;",
       [
         location,
         title,
@@ -104,6 +105,7 @@ eventsRouter.post("/", async (req, res) => {
         end_time,
         call_time,
         costume,
+        capacity,
       ]
     );
 
@@ -126,6 +128,7 @@ eventsRouter.put("/:id", async (req, res) => {
       end_time,
       call_time,
       costume,
+      capacity,
     } = req.body;
 
     const query = `UPDATE events SET
@@ -137,8 +140,9 @@ eventsRouter.put("/:id", async (req, res) => {
         start_time = COALESCE($6, start_time),
         end_time = COALESCE($7, end_time),
         call_time = COALESCE($8, call_time),
-        costume = COALESCE($9, costume)
-        WHERE id = $10 RETURNING *;`;
+        costume = COALESCE($9, costume),
+        capacity = COALESCE($10, capacity)
+        WHERE id = $11 RETURNING *;`;
 
     const updatedEvent = await db.query(query, [
       location,
@@ -150,6 +154,7 @@ eventsRouter.put("/:id", async (req, res) => {
       end_time,
       call_time,
       costume,
+      capacity,
       id,
     ]);
 

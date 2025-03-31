@@ -3,6 +3,7 @@ import { MdArrowBackIosNew, MdMoreHoriz } from "react-icons/md"
 import {
   Box,
   Button,
+  Center,
   HStack,
   Heading,
   Image,
@@ -43,6 +44,7 @@ import { calcLength } from "framer-motion";
 import { BsChevronLeft } from "react-icons/bs";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
 import { EventRSVP } from "../../rsvp/eventRsvp";
+import { QRCode } from "./qrcode/QRCode.jsx";
 
 function TeacherEventViewModal({
   isOpenProp,
@@ -61,7 +63,7 @@ function TeacherEventViewModal({
   costume,
   isCorequisiteSignUp,
   corequisites,
-  setRefresh,
+  triggerRefresh,
   handleResolveCoreq = () => {},
 }) {
   const { currentUser, role } = useAuthContext();
@@ -69,6 +71,7 @@ function TeacherEventViewModal({
   const formattedDate = formatDate(date);
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
+  const formattedCallTime = formatTime(callTime);
   const formFormattedDate = formFormatDate(date)
   const toast = useToast();
 
@@ -149,10 +152,6 @@ function TeacherEventViewModal({
         setIsDeleting(false);
         setIsEditing(false);
         setIsConfirmDelete(true);
-        // handleClose()
-        // console.log("isDeleting", isDeleting);
-        // console.log("isEditing", isEditing);
-        // console.log("isConfirmDelete", isConfirmDelete);
       }
     } catch (error) {
       toast({
@@ -166,6 +165,7 @@ function TeacherEventViewModal({
 
   const handleCloseConfirmation = () => {
     setIsConfirmDelete(false);
+    triggerRefresh();
     handleClose();
   }
 
@@ -211,10 +211,10 @@ function TeacherEventViewModal({
                 callTime: callTime, 
                 description: description, 
                 level: level, 
+                capacity: capacity,
                 date: formFormattedDate}}
                 onClose={handleSaveChanges}
-                reloadCallback={setRefresh}
-              />
+                triggerRefresh={triggerRefresh}/>
               {console.log(startTime, endTime)}
             </Box>
           </ModalBody>
@@ -273,46 +273,71 @@ function TeacherEventViewModal({
                 </Box>
             </HStack>
 
+            <VStack>
+              <Box
+                bg="gray.200"
+                h="100%"
+                w="100%"
+                mt="4"
+                mb="4"
+                p="4"
+              >
+                <Box
+                  bg="gray"
+                  h="100%"
+                  w="100%"
+                  p="4"
+                  mt="4"
+                  color="white"
+                >
+                  <Center>
+                    <QRCode
+                      id={id}
+                      type="Event"
+                    >
+                    </QRCode>
+                  </Center>
+                  <Center>
+                    <Button
+                      colorScheme="blue"
+                      mr={3}
+                    >
+                      Share
+                    </Button>
+                  </Center>
+                </Box>
+                <Box width="100%" align="center">
+                  <Text fontWeight="bold"> {rsvpnum ? rsvpnum : 0} RSVPs</Text>
+                  <Button
+                    onClick={onOpen}
+                    variant="unstyled"
+                    fontSize="lg"
+                    fontWeight="normal"
+                    color="purple"
+                    textDecoration="underline"
+                    _focus={{ boxShadow: "none" }}
+                  >
+                    View attendees &gt;
+                  </Button>
+                  <EventRSVP isOpen={isOpen} onClose={onClose} card={{id, name: title}}/>
+                </Box>
+              </Box>
+            </VStack> 
+
+
             <VStack
               spacing={4}
               align="center"
             >
-              <Box
-                boxSize="sm"
-                height="15rem"
-                width={"100%"}
-                alignContent={"center"}
-                justifyContent={"center"}
-                display="block"
-                p={5}
-              >
-                <Image
-                  src={imageSrc}
-                  alt="Random Dog"
-                  height={"100%"}
-                  width={"100%%"}
-                />
-              </Box>
 
-              <Box width="100%" align="center">
-                <Text fontWeight="bold"> {rsvpnum ? rsvpnum : 0} RSVPs</Text>
-                <Button 
-                  onClick={onOpen} 
-                  variant="unstyled"
-                  fontSize="lg" 
-                  fontWeight="normal"
-                  color="purple"
-                  textDecoration="underline"
-                  _focus={{ boxShadow: "none" }}
-                >
-                  View attendees &gt;
-                </Button>
-                <EventRSVP isOpen={isOpen} onClose={onClose} card={{id, name: title}}/>
+              <Box width="100%">
+                <Text fontWeight="bold">Event Time:</Text>
+                <Text>{formattedStartTime ? formattedStartTime : "TBD"} to {formattedEndTime ? formattedEndTime : "TBD"}</Text>
               </Box>
 
               <Box width="100%">
-                <Text fontWeight="bold">Time:</Text>
-                <Text>{formattedStartTime ? formattedStartTime : "TBD"} to {formattedEndTime ? formattedEndTime : "TBD"}</Text>
+                <Text fontWeight="bold">Call Time:</Text>
+                <Text>{formattedCallTime ? formattedCallTime : "TBD"}</Text>
               </Box>
 
               <Box width="100%">

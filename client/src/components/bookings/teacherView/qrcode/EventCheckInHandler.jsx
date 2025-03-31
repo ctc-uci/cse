@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Box, Button, Center, Spinner, Text, VStack } from "@chakra-ui/react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useAuthContext } from "../../contexts/hooks/useAuthContext";
-import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import { useAuthContext } from "../../../../contexts/hooks/useAuthContext";
+import { useBackendContext } from "../../../../contexts/hooks/useBackendContext";
 
-export const ClassCheckInHandler = () => {
+export const EventCheckInHandler = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { backend } = useBackendContext();
@@ -16,15 +16,22 @@ export const ClassCheckInHandler = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const params = useParams();
+  const hasCheckedIn = useRef(false);
 
   useEffect(() => {
     const handleCheckIn = async () => {
+      // AW - idk if this works
+      if (hasCheckedIn.current) {
+        return;
+      }
+      hasCheckedIn.current = true;
+
       try {
         if (!currentUser?.uid) {
           const id = params.id;
 
           // removed baseURL, was preventing the redirect to login from happening
-          localStorage.setItem("qrcode_redirect", `/check-in/class/${id}`);
+          localStorage.setItem("qrcode_redirect", `/check-in/event/${id}`);
           // throw new Error("No user ID found");
           navigate("/login");
         }
@@ -34,18 +41,15 @@ export const ClassCheckInHandler = () => {
         );
         const studentId = studentResponse.data.id;
 
-        // Format current date as YYYY-MM-DD
-        const today = new Date().toISOString().split("T")[0];
-
-        // Class-specific endpoint
-        await backend.post("/class-enrollments", {
-          studentId: studentId,
-          classId: id,
-          attendance: today,
+        await backend.put(`/event-enrollments/${studentId}`, { // switched post to put?
+          student_id: studentId,
+          event_id: id,
+          // this statement has no effect since attendance defaults to false in backend route (event_enrollments.ts)
+          attendance: true,
         });
 
-        const classResponse = await backend.get(`/classes/${id}`);
-        setTitle(classResponse.data[0].title);
+        const eventResponse = await backend.get(`/events/${id}`);
+        setTitle(eventResponse.data[0].title);
 
         setLoading(false);
       } catch (err) {
@@ -76,7 +80,7 @@ export const ClassCheckInHandler = () => {
   return (
     <Box
       h="100vh"
-      bg="black"
+      bg="grey"
     >
       <VStack
         spacing={4}

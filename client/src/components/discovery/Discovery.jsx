@@ -6,12 +6,15 @@ import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { Navbar } from "../navbar/Navbar";
 import { ClassCard } from "../shared/ClassCard";
 import { EventCard } from "../shared/EventCard";
+import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 
 export const Discovery = () => {
   // Active Tab Logic
   const [activeTab, setActiveTab] = useState("both"); // Default to showing both
   const [searchInput, setSearchInput] = useState("");
   const [refresh, setRefresh] = useState(0);
+  const { currentUser } = useAuthContext();
+
 
   const toggleClasses = () => {
     setActiveTab("classes");
@@ -27,6 +30,14 @@ export const Discovery = () => {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  // this will be an array of users
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const fetchUserData = () => {backend.get(`/users/${currentUser.uid}`).then(res => setUser(res))};
+    fetchUserData();
+  }, [backend, currentUser])
+
+  
   useEffect(() => {
     const fetchData = async () => {
       // Fetch and Store Classes Information
@@ -135,6 +146,7 @@ export const Discovery = () => {
                 startTime={classItem.startTime}
                 endTime={classItem.endTime}
                 attendeeCount={classItem.attendeeCount}
+                user={user}
               />
             ))}
           </Flex>
@@ -162,6 +174,7 @@ export const Discovery = () => {
                 costume={eventItem.costume}
                 id={eventItem.id}
                 setRefresh={setRefresh}
+                user={user}
               />
             ))}
           </Flex>

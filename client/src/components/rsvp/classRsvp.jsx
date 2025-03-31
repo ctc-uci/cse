@@ -35,8 +35,10 @@ export const ClassRSVP = ({ isOpen, onClose, card }) => {
     if (teacherId) {
       const fetchClasses = async () => {
         try {
-          const response = await backend.get(`/class-enrollments/teacher/${teacherId}/${card.id}`);
-          // console.log(response)
+          // const response = await backend.get(`/class-enrollments/teacher/${teacherId}/${card.id}`);
+          const date = new Date(decodeURIComponent(card?.date)).toISOString().split("T")[0];
+          const response = await backend.get(`/class-enrollments/class/${card?.id}/${date}`);
+          console.log(response)
           setStudents(response.data);
         } catch (error) {
           console.error("Error fetching classes:", error);
@@ -45,7 +47,7 @@ export const ClassRSVP = ({ isOpen, onClose, card }) => {
   
       fetchClasses();
     }
-  }, [backend, teacherId, card.id]);
+  }, [backend, teacherId, card, isOpen]);
 
   return (
     <Modal

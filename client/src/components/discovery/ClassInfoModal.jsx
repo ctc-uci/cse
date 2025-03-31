@@ -28,6 +28,7 @@ import PublishedReviews from "../reviews/classReview";
 import SuccessSignupModal from "./SuccessSignupModal";
 
 function ClassInfoModal({
+  userid,
   isOpenProp,
   title,
   location,

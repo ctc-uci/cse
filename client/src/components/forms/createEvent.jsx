@@ -13,7 +13,7 @@ import {
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 
 
-export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallback }) => {
+export const CreateEvent = ({ event = null, eventId = null, onClose, triggerRefresh }) => {
   const [formData, setFormData] = useState({
     location: "",
     title: "",
@@ -24,6 +24,7 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
     endTime: "",
     callTime: "",
     costume: "",
+    capacity: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,7 +32,6 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
 
   useEffect(() => {
     if (event) {
-      // console.log(event.startTime, event.endTime);
       setFormData({
         location: event.location || "",
         title: event.title || "",
@@ -42,6 +42,7 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
         endTime: event.endTime || "",
         callTime: event.callTime || "",
         costume: event.costume || "",
+        capacity: ((event.capacity || (event.capacity === 0)) ? event.capacity : "")
       });
     }
   }, [event]);
@@ -67,7 +68,6 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    // console.log(formData);
 
     setIsSubmitting(true);
     try {
@@ -101,6 +101,7 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
           endTime: "",
           callTime: "",
           costume: "",
+          capacity: "",
         });
         if (onClose) onClose();
       } else {
@@ -109,8 +110,9 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
     } catch (error) {
       console.error("Failed to create/save event:", error);
     } finally {
+      triggerRefresh();
       setIsSubmitting(false);
-      if (reloadCallback) reloadCallback();
+      // if (reloadCallback) reloadCallback();
     }
   };
 
@@ -127,7 +129,7 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
       spacing={4}
       align="stretch"
     >
-      <Text>New Event</Text>
+      {!eventId ? (<Text>New Event</Text>) : ""}
       <Box>
         <Text>Title</Text>
         <Input
@@ -212,6 +214,16 @@ export const CreateEvent = ({ event = null, eventId = null, onClose, reloadCallb
           isInvalid={errors.callTime}
         />
         {errors.callTime && <Text color="red.500">{errors.callTime}</Text>}
+      </Box>
+
+      <Box>
+        <Text>Capacity</Text>
+        <Input
+          type="number"
+          name="capacity"
+          value={formData.capacity}
+          onChange={handleChange}
+        />
       </Box>
 
       <Box>

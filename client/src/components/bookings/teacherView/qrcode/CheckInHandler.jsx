@@ -4,8 +4,8 @@ import { Box, Button, Center, Spinner, Text, VStack } from "@chakra-ui/react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useAuthContext } from "../../contexts/hooks/useAuthContext";
-import { useBackendContext } from "../../contexts/hooks/useBackendContext";
+import { useAuthContext } from "../../../../contexts/hooks/useAuthContext";
+import { useBackendContext } from "../../../../contexts/hooks/useBackendContext";
 
 export const CheckInHandler = () => {
   const { id } = useParams();

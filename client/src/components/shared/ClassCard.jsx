@@ -32,6 +32,7 @@ export const ClassCard = ({
   attendeeCount = 0, // Default to 0 if not provided
   onClick,
   id,
+  user = null
 }) => {
   const formattedDate = date ? formatDate(date) : null;
   const formattedStartTime = startTime ? formatTime(startTime) : null;
@@ -146,6 +147,7 @@ export const ClassCard = ({
             date={classDate}
             setOpenRootModal={setOpenRootModal}
             openRootModal={openRootModal}
+            user={user}
           />
         </CardFooter>
       </Card>

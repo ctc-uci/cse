@@ -26,6 +26,7 @@ import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import SuccessSignupModal from "./SuccessSignupModal";
 
 function EventInfoModal({
+  user,
   isOpenProp,
   handleClose,
   title,
@@ -40,24 +41,59 @@ function EventInfoModal({
   corequisites,
   handleResolveCoreq = () => {},
 }) {
-  const { currentUser } = useAuthContext();
   const { backend } = useBackendContext();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
   // temp for image
   const [imageSrc, setImageSrc] = useState("");
+  // const [enrollmentStatus, setEnrollmentStatus] = useState(false);
+
+  // // console.log(user);
+
+  // useEffect(() => {
+  //   const checkEventEnrollment = () => {
+  //     // Check if already checked into event
+  //     console.log(user.data[0].id, id);
+  //     const body = {student_id: user.data[0].id, event_id: id};
+  //     backend.get(
+  //       `/event-enrollments/test`, {body}
+  //     ).then(res => {
+  //       console.log(res);
+  //       setEnrollmentStatus(res.data.exists);
+  //     });
+  //   };
+  //   if (user?.data && user?.data[0]) {
+  //     checkEventEnrollment();
+  //   } else {
+  //     setEnrollmentStatus(false);
+  //   }
+  // }, [backend, id, user?.data, isOpenProp]);
+
 
   const enrollInEvent = async () => {
-    const users = await backend.get(`/users/${currentUser.uid}`);
-    if (users.data[0]) {
+    // Check if already checked into event
+    const currentCheckIn = await backend.get(
+      `/event-enrollments/test`,
+      {
+        params:{
+          student_id: user.data[0].id,
+          event_id: id
+        }
+      }
+    );
+    if (user.data[0] && !currentCheckIn.data.exists) {
       const req = await backend.post(`/event-enrollments/`, {
-        student_id: users.data[0].id,
+        student_id: user.data[0].id,
         event_id: id,
+        attendance: null
       });
       if (req.status === 201) {
         setOpenSuccessModal(true);
       }
+    }
+    else {
+      console.log("Already signed up for this event!");
     }
   };
 
