@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Container,
   Flex,
   FormControl,
   HStack,
@@ -12,8 +13,8 @@ import {
   Select,
   Text,
   Textarea,
+  useToast,
   VStack,
-  useToast
 } from "@chakra-ui/react";
 
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -29,7 +30,7 @@ export const CreateEvent = ({
     title: "",
     description: "",
     level: "",
-    tag: "",
+    tag: "Select Tag",
     date: "",
     startTime: "",
     endTime: "",
@@ -58,6 +59,7 @@ export const CreateEvent = ({
         callTime: event.callTime || "",
         costume: event.costume || "",
         capacity: event.capacity || event.capacity === 0 ? event.capacity : "",
+        tag: event.tag || "Select Tag",
       });
     }
   }, [event]);
@@ -114,10 +116,7 @@ export const CreateEvent = ({
       const eventData = {
         ...formData,
         level: formData.level === "" ? "beginner" : formData.level,
-        tag:
-          formData.tag === "Select Tag"
-            ? ""
-            : formData.tag[0].toLowerCase() + formData.tag.slice(1),
+        tag: formData.tag === "Select Tag" ? "" : formData.tag,
         date: formData.date === "" ? new Date() : formData.date,
         start_time:
           formData.startTime === ""
@@ -148,11 +147,25 @@ export const CreateEvent = ({
       if (eventId) {
         // Edit event (PUT request)
         response = await backend.put(`/events/${eventId}/`, eventData);
+        if (eventData.tag !== "") {
+          if (event?.tag) {
+            // If the event already has a tag, we need to delete it first
+            await backend.delete(`/event-tags/${eventId}/${event?.tag}`);
+          }
+          response = await backend.post("/event-tags/", {
+            eventId: eventId,
+            tagId: eventData.tag,
+          });
+        }
       } else {
         // Create new event (POST request)
         if (eventData.tag !== "") {
           const tagId = await backend.get(`/tags/${eventData.tag}`);
           response = await backend.post("/events/", eventData);
+          if (event?.tag) {
+            // If the event already has a tag, we need to delete it first
+            await backend.delete(`/event-tags/${eventId}/${event?.tag}`);
+          }
           response = await backend.post("/event-tags/", {
             eventId: response.data[0].id,
             tagId: tagId.data[0].id,
@@ -179,15 +192,14 @@ export const CreateEvent = ({
           costume: "",
           capacity: "",
         });
-        if (onClose) onClose(1); // 1 == "event"
         if (triggerRefresh) triggerRefresh();
+        if (onClose) onClose();
       } else {
         console.error("Failed to create/save event:", response.statusText);
       }
     } catch (error) {
       console.error("Failed to create/save event, error:", error);
     } finally {
-      if (triggerRefresh) triggerRefresh();
       setIsSubmitting(false);
     }
   };
@@ -203,17 +215,7 @@ export const CreateEvent = ({
   const fetchTags = async () => {
     try {
       const tagsResponse = await backend.get("/tags");
-      // const initialTagFilter = {};
-      const initialTags = {};
-      tagsResponse.data.forEach((tag) => {
-        // initialTagFilter[tag.id] = false;
-        initialTags[tag.id] =
-          tag.tag.charAt(0).toUpperCase() + tag.tag.slice(1).toLowerCase();
-      });
-
-      // setTagFilter(initialTagFilter);
-      setTags(initialTags);
-      console.log(initialTags);
+      setTags(tagsResponse.data);
     } catch (error) {
       console.error("Error fetching tags:", error);
     }
@@ -224,209 +226,211 @@ export const CreateEvent = ({
   }, []);
 
   return (
-    <VStack
-      height="100%"
-      spacing={4}
-      align="stretch"
-    >
-      {!eventId ? <Text></Text> : ""}
-      <Box>
-        <Text fontWeight="bold">Event Title</Text>
-        <Input
-          placeholder="Event Title"
-          _placeholder={{ color: "gray.400" }}
-          border="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          isInvalid={errors.title}
-        />
-        {errors.title && <Text color="red.500">{errors.title}</Text>}
-      </Box>
-
-      <Box>
-        <Text fontWeight="bold">Location</Text>
-        <Input
-          placeholder="Location"
-          _placeholder={{ color: "gray.400" }}
-          border="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-          type="text"
-          name="location"
-          value={formData.location}
-          onChange={handleChange}
-          isInvalid={errors.location}
-        />
-        {errors.location && <Text color="red.500">{errors.location}</Text>}
-      </Box>
-
-      <Box>
-        <Text fontWeight="bold">Tags</Text>
-        <Select
-          name="tag"
-          value={formData.tag}
-          // onChange={handleOnChange}
-          onChange={handleChange}
-          // isInvalid={errors.level}
-        >
-          <option
-            value
-            disabled="Tag"
-          >
-            Select Tag
-          </option>
-          {Object.values(tags).map((option) => {
-            return <option value={option}>{option}</option>;
-          })}
-        </Select>
-        {/* {errors.level && <Text color="red.500">{errors.level}</Text>} */}
-      </Box>
-
-      <Box>
-        <Text fontWeight="bold">Date</Text>
-        <Input
-          border="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-          type="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-          isInvalid={errors.date}
-        />
-        {errors.date && <Text color="red.500">{errors.date}</Text>}
-      </Box>
-
-      <HStack align="flex-start">
-        <FormControl>
-          <Text fontWeight="bold">Start Time</Text>
-          <Input
-            border="1px"
-            borderColor="gray.200"
-            boxShadow="sm"
-            type="time"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleChange}
-            isInvalid={errors.startTime}
-          />
-          {errors.startTime && <Text color="red.500">{errors.startTime}</Text>}
-        </FormControl>
-
-        <FormControl>
-          <Text fontWeight="bold">End Time</Text>
-          <Input
-            border="1px"
-            borderColor="gray.200"
-            boxShadow="sm"
-            type="time"
-            name="endTime"
-            value={formData.endTime}
-            onChange={handleChange}
-            isInvalid={errors.endTime}
-          />
-          {errors.endTime && <Text color="red.500">{errors.endTime}</Text>}
-        </FormControl>
-      </HStack>
-
-      <Box>
-        <Text fontWeight="bold">Call Time</Text>
-        <Input
-          border="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-          type="time"
-          name="callTime"
-          value={formData.callTime}
-          onChange={handleChange}
-          isInvalid={errors.callTime}
-        />
-        {errors.callTime && <Text color="red.500">{errors.callTime}</Text>}
-      </Box>
-
-      <HStack>
+    <Container>
+      <VStack
+        height="100%"
+        spacing={4}
+        align="stretch"
+      >
+        {!eventId ? <Text></Text> : ""}
         <Box>
-          <Text fontWeight="bold">Capacity</Text>
+          <Text fontWeight="bold">Event Title</Text>
           <Input
-            placeholder="Capacity"
+            placeholder="Event Title"
             _placeholder={{ color: "gray.400" }}
             border="1px"
             borderColor="gray.200"
             boxShadow="sm"
-            type="number"
-            name="capacity"
-            value={formData.capacity}
+            type="text"
+            name="title"
+            value={formData.title}
             onChange={handleChange}
+            isInvalid={errors.title}
           />
+          {errors.title && <Text color="red.500">{errors.title}</Text>}
         </Box>
 
         <Box>
-          <Text fontWeight="bold">Level</Text>
-          <Select
+          <Text fontWeight="bold">Location</Text>
+          <Input
+            placeholder="Location"
+            _placeholder={{ color: "gray.400" }}
             border="1px"
             borderColor="gray.200"
             boxShadow="sm"
             type="text"
-            name="level"
-            value={formData.level}
+            name="location"
+            value={formData.location}
             onChange={handleChange}
-            isInvalid={errors.level}
-          >
-            <option>Level</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </Select>
-          {errors.level && <Text color="red.500">{errors.level}</Text>}
+            isInvalid={errors.location}
+          />
+          {errors.location && <Text color="red.500">{errors.location}</Text>}
         </Box>
-      </HStack>
 
-      <Box>
-        <Text fontWeight="bold">Description</Text>
-        <Textarea
-          placeholder="Description"
-          _placeholder={{ color: "gray.400" }}
-          border="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-          type="text"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          isInvalid={errors.description}
-        />
-        {errors.description && (
-          <Text color="red.500">{errors.description}</Text>
-        )}
-      </Box>
-      <Flex
-        justifyContent="center"
-        w="100%"
-        gap={3}
-      >
-        <Button
-          onClick={() => handleSubmit(true)} // true = save draft
-          isLoading={isSubmitting}
-          flex="1"
-          bg="gray.100"
+        <Box>
+          <Text fontWeight="bold">Tags</Text>
+          <Select
+            name="tag"
+            value={formData.tag}
+            onChange={handleChange}
+          >
+            <option
+              value="Select Tag"
+              disabled="Tag"
+            >
+              Select Tag
+            </option>
+            {Object.values(tags).map((option) => {
+              return <option value={option.id}>{option.tag}</option>;
+            })}
+          </Select>
+          {/* {errors.level && <Text color="red.500">{errors.level}</Text>} */}
+        </Box>
+
+        <Box>
+          <Text fontWeight="bold">Date</Text>
+          <Input
+            border="1px"
+            borderColor="gray.200"
+            boxShadow="sm"
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            isInvalid={errors.date}
+          />
+          {errors.date && <Text color="red.500">{errors.date}</Text>}
+        </Box>
+
+        <HStack align="flex-start">
+          <FormControl>
+            <Text fontWeight="bold">Start Time</Text>
+            <Input
+              border="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
+              type="time"
+              name="startTime"
+              value={formData.startTime}
+              onChange={handleChange}
+              isInvalid={errors.startTime}
+            />
+            {errors.startTime && (
+              <Text color="red.500">{errors.startTime}</Text>
+            )}
+          </FormControl>
+
+          <FormControl>
+            <Text fontWeight="bold">End Time</Text>
+            <Input
+              border="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
+              type="time"
+              name="endTime"
+              value={formData.endTime}
+              onChange={handleChange}
+              isInvalid={errors.endTime}
+            />
+            {errors.endTime && <Text color="red.500">{errors.endTime}</Text>}
+          </FormControl>
+        </HStack>
+
+        <Box>
+          <Text fontWeight="bold">Call Time</Text>
+          <Input
+            border="1px"
+            borderColor="gray.200"
+            boxShadow="sm"
+            type="time"
+            name="callTime"
+            value={formData.callTime}
+            onChange={handleChange}
+            isInvalid={errors.callTime}
+          />
+          {errors.callTime && <Text color="red.500">{errors.callTime}</Text>}
+        </Box>
+
+        <HStack>
+          <Box>
+            <Text fontWeight="bold">Capacity</Text>
+            <Input
+              placeholder="Capacity"
+              _placeholder={{ color: "gray.400" }}
+              border="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
+              type="number"
+              name="capacity"
+              value={formData.capacity}
+              onChange={handleChange}
+            />
+          </Box>
+
+          <Box>
+            <Text fontWeight="bold">Level</Text>
+            <Select
+              border="1px"
+              borderColor="gray.200"
+              boxShadow="sm"
+              type="text"
+              name="level"
+              value={formData.level}
+              onChange={handleChange}
+              isInvalid={errors.level}
+            >
+              <option>Level</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </Select>
+            {errors.level && <Text color="red.500">{errors.level}</Text>}
+          </Box>
+        </HStack>
+
+        <Box>
+          <Text fontWeight="bold">Description</Text>
+          <Textarea
+            placeholder="Description"
+            _placeholder={{ color: "gray.400" }}
+            border="1px"
+            borderColor="gray.200"
+            boxShadow="sm"
+            type="text"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            isInvalid={errors.description}
+          />
+          {errors.description && (
+            <Text color="red.500">{errors.description}</Text>
+          )}
+        </Box>
+        <Flex
+          justifyContent="center"
+          w="100%"
+          gap={3}
         >
-          Save Draft
-        </Button>
-        <Button
-          onClick={() => handleSubmit(false)} // false = publish
-          isLoading={isSubmitting}
-          bg="purple.600"
-          color="white"
-          flex="1"
-        >
-          Publish
-        </Button>
-      </Flex>
-    </VStack>
+          <Button
+            onClick={() => handleSubmit(true)} // true = save draft
+            isLoading={isSubmitting}
+            flex="1"
+            bg="gray.100"
+          >
+            Save Draft
+          </Button>
+          <Button
+            onClick={() => handleSubmit(false)} // false = publish
+            isLoading={isSubmitting}
+            bg="purple.600"
+            color="white"
+            flex="1"
+          >
+            Publish
+          </Button>
+        </Flex>
+      </VStack>
+    </Container>
   );
 };
 

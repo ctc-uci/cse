@@ -8,9 +8,12 @@ import {
   CardFooter,
   CardHeader,
   HStack,
+  Icon,
   Text,
+  useToken,
 } from "@chakra-ui/react";
 
+import { FaUserCircle } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
@@ -27,10 +30,12 @@ const ReviewCard = ({
   const [student, setStudent] = useState(null);
   const { backend } = useBackendContext();
   const [stars, setStars] = useState(Array(5).fill(0));
+  const [purpleHex] = useToken("colors", ["purple.600"]);
+  const [greyHex] = useToken("colors", ["gray.400"]);
 
   const colors = {
-    purple: "#6B46C1",
-    grey: "#A9A9A9",
+    purple: purpleHex,
+    grey: greyHex,
   };
 
   useEffect(() => {
@@ -43,12 +48,15 @@ const ReviewCard = ({
   return (
     <>
       <CardHeader>
-        <HStack>
-          <Avatar
-            name="Dan Abrahmov"
-            src="https://bit.ly/dan-abramov"
+        <HStack alignItems={"center"}>
+          <Icon
+            as={FaUserCircle}
+            w={45}
+            h={45}
+            mb={2}
+            color="gray.500"
           />
-          <Text>
+          <Text mb={2}>
             {student?.firstName} {student?.lastName}
           </Text>
         </HStack>

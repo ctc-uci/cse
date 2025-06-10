@@ -38,6 +38,7 @@ export const TeacherCancelModal = ({
         status: "error",
         duration: 4000,
         isClosable: true,
+        position: "top",
       });
     }
   };
@@ -51,16 +52,36 @@ export const TeacherCancelModal = ({
         <ModalHeader textAlign="center">Delete class?</ModalHeader>
         <ModalCloseButton />
         <ModalBody textAlign="center">
-          <Text>You are deleting {classData.title}. This action can't be undone.</Text>
+          <Text>
+            You are deleting {classData.title}. This action can't be undone.
+          </Text>
         </ModalBody>
 
         <ModalFooter>
-          <Flex justifyContent="center" w="100%">
-            <Button backgroundColor="#D9D9D9" mr={3} w= "100px" onClick={onGoBack}>
-            <Text>Cancel</Text>
+          <Flex
+            justifyContent="center"
+            w="100%"
+          >
+            <Button
+              backgroundColor="#D9D9D9"
+              mr={3}
+              w="100px"
+              onClick={onGoBack}
+            >
+              <Text>Cancel</Text>
             </Button>
-            <Button bg="#6B46C1" mr={3} w= "100px" onClick={onConfirm}>
-              <Text fontWeight="bold" color="white">Delete</Text>
+            <Button
+              bg="purple.600"
+              mr={3}
+              w="100px"
+              onClick={onConfirm}
+            >
+              <Text
+                fontWeight="bold"
+                color="white"
+              >
+                Delete
+              </Text>
             </Button>
           </Flex>
         </ModalFooter>

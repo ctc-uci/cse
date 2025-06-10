@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  HStack,
-  Image,
+  Divider,
   Flex,
+  HStack,
+  IconButton,
+  Image,
   List,
   ListIcon,
   ListItem,
@@ -16,19 +19,20 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { FaTimesCircle } from "react-icons/fa";
-import { FaCheckCircle } from "react-icons/fa";
+
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import {formatDate} from "../../utils/formatDateTime";
+import { formatDate, formatTime } from "../../utils/formatDateTime";
 import SuccessSignupModal from "./SuccessSignupModal";
 
-function EventInfoModal({
+const EventInfoModal = ({
   user,
   isOpenProp,
   handleClose,
@@ -39,63 +43,47 @@ function EventInfoModal({
   date,
   id,
   capacity,
-  costume,
+  // costume,
   isCorequisiteSignUp,
   corequisites,
+  // modalIdentity,
+  setModalIdentity,
+  tags = [],
   handleResolveCoreq = () => {},
-}) {
+}) => {
   const { backend } = useBackendContext();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
-  // temp for image
-  const [imageSrc, setImageSrc] = useState("");
-  // const [enrollmentStatus, setEnrollmentStatus] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [callTime, setCallTime] = useState("");
 
-  // // console.log(user);
-
-  // useEffect(() => {
-  //   const checkEventEnrollment = () => {
-  //     // Check if already checked into event
-  //     console.log(user.data[0].id, id);
-  //     const body = {student_id: user.data[0].id, event_id: id};
-  //     backend.get(
-  //       `/event-enrollments/test`, {body}
-  //     ).then(res => {
-  //       console.log(res);
-  //       setEnrollmentStatus(res.data.exists);
-  //     });
-  //   };
-  //   if (user?.data && user?.data[0]) {
-  //     checkEventEnrollment();
-  //   } else {
-  //     setEnrollmentStatus(false);
-  //   }
-  // }, [backend, id, user?.data, isOpenProp]);
-
+  const getStartTime = async () => {
+    const data = await backend.get(`/events/${id}`);
+    setStartTime(data.data[0].startTime);
+    setEndTime(data.data[0].endTime);
+    setCallTime(data.data[0].callTime);
+  };
 
   const enrollInEvent = async () => {
     // Check if already checked into event
-    const currentCheckIn = await backend.get(
-      `/event-enrollments/test`,
-      {
-        params:{
-          student_id: user.data[0].id,
-          event_id: id
-        }
-      }
-    );
+    const currentCheckIn = await backend.get(`/event-enrollments/test`, {
+      params: {
+        student_id: user.data[0].id,
+        event_id: id,
+      },
+    });
     if (user.data[0] && !currentCheckIn.data.exists) {
       const req = await backend.post(`/event-enrollments/`, {
         student_id: user.data[0].id,
         event_id: id,
-        attendance: null
+        attendance: null,
       });
       if (req.status === 201) {
         setOpenSuccessModal(true);
       }
-    }
-    else {
+    } else {
       console.log("Already signed up for this event!");
     }
   };
@@ -107,6 +95,8 @@ function EventInfoModal({
     }
 
     if (corequisites.some((coreq) => !coreq.enrolled)) {
+      // let coReqWarningModal know that it should programatically display an event info modal version
+      setModalIdentity("event");
       handleResolveCoreq();
     } else {
       enrollInEvent();
@@ -118,15 +108,12 @@ function EventInfoModal({
     handleClose();
   };
 
-  
-
   useEffect(() => {
-    if (isOpenProp && !imageSrc) {
-      fetch("https://dog.ceo/api/breeds/image/random") // for fun
-        .then((res) => res.json())
-        .then((data) => setImageSrc(data.message));
+    if (!isOpenProp) {
+      return;
     }
-  }, [imageSrc, isOpenProp]);
+    getStartTime();
+  }, [isOpenProp]);
 
   return (
     <>
@@ -145,112 +132,128 @@ function EventInfoModal({
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            <Flex justifyContent="center">
-              {title}
-            </Flex>
+            <VStack align={"start"}>
+              <IconButton
+                icon={<ArrowBackIcon />}
+                onClick={handleClose}
+                aria-label="Back"
+                variant="ghost"
+                fontSize={"2xl"}
+                p={4}
+                ml={-4}
+              />
+              <List>
+                {tags.map((tag, index) => (
+                  <Tag
+                    key={index}
+                    mr={1}
+                    mb={1}
+                    mt={1}
+                    borderRadius={"full"}
+                    bg="white"
+                    textColor="gray.600"
+                    borderColor={"gray.300"}
+                    borderWidth={1}
+                  >
+                    {tag.tag}
+                  </Tag>
+                ))}
+              </List>
+              <Text
+                justifyContent="center"
+                wordBreak={"break-word"}
+                fontWeight={"bold"}
+              >
+                {title}
+              </Text>
+            </VStack>
           </ModalHeader>
-          <ModalCloseButton />
           <ModalBody>
+            <Text>
+              {description
+                ? `Description: ${description}`
+                : "No description available."}
+            </Text>{" "}
+            <br />
+            <Divider orientation="horizontal" /> <br />
+            <Text color="#553C9A">
+              {formatDate(date)} · {formatTime(startTime)} –{" "}
+              {formatTime(endTime)}
+            </Text>
+            <Text>Call Time: {formatTime(callTime)}</Text>
+            <Text>Location: {location}</Text>
+            <br /> <Divider orientation="horizontal" /> <br />
             <VStack
               spacing={4}
               align="center"
             >
-              <HStack width="100%">
-                {!isCorequisiteSignUp && (
-                  <Box bg = "#E8E7EF" borderRadius="md" width = "100%" p={4}>
-                    <Text as="b">
-                      Recommended
-                    </Text>
-                    {!corequisites || corequisites.length === 0 ? (
-                      <Text>No corequisites for this class</Text>
-                    ) : (
-                      <List>
-                        {corequisites.map((coreq, index) => (
-                          <ListItem key={index}>
-                            <ListIcon
-                              as={
-                                coreq.enrolled
-                                  ? FaCircleCheck
-                                  : FaTimesCircle
-                              }
-                            />
-                            {coreq.title}
-                          </ListItem>
-                        ))}
-                      </List>
-                    )}
-                  </Box>
-                )}
-              </HStack>
-              <Box
-                boxSize="sm"
-                height="15rem"
-                width={"100%"}
-                alignContent={"center"}
-                justifyContent={"center"}
-                display="flex"
-              >
-                <Image
-                  src={imageSrc}
-                  alt="Random Dog"
-                  width={"100%%"}
-                />
-              </Box>
-
-              <HStack
-                width={"100%"}
-                justifyContent={"space-between"}
-              >
-                <Box>
-                  <Text fontWeight="bold">Location:</Text>
-                  <Text>{location}</Text>
-                </Box>
-                <Box>
-                  <Text fontWeight="bold">Date</Text>
-                  <Text>{formatDate(date)}</Text>
-                </Box>
-              </HStack>
-              
-              <Box width="100%">
-                <Box>
-                    <Text fontWeight="bold">Time</Text>
-                    <Text>need to pass in time prop</Text>
-                </Box>
-                <Text fontWeight="bold">Description:</Text>
-                <Text>{description}</Text> 
-              </Box>
-
               <HStack
                 spacing={4}
                 width={"100%"}
-                justifyContent={"space-between"}
               >
-                <Box>
-                  <Text fontWeight="bold">Capacity</Text>
-                  <Text>{capacity}</Text>
-                </Box>
-                <Box>
+                <Box width="50%">
                   <Text fontWeight="bold">Level</Text>
                   <Text>{level}</Text>
                 </Box>
+                <Box width="50%">
+                  <Text fontWeight="bold">Capacity</Text>
+                  <Text>{capacity}</Text>
+                </Box>
               </HStack>
-
-              <HStack width={"100%"}>
+              <br />
+              <Divider orientation="horizontal" />
+              <HStack width="100%">
                 <Box>
-                  <Text fontWeight="bold">Classes</Text>
-                  <Text>{costume}</Text>
+                  <Text
+                    fontWeight="bold"
+                    mb="1"
+                  >
+                    Included Classes
+                  </Text>
+                  <Text
+                    mb={2}
+                    fontSize="sm"
+                  >
+                    All classes that will be participating in this performance.
+                  </Text>
+
+                  {corequisites && corequisites.length > 0 ? (
+                    <Box>
+                      {corequisites.map((prerequisite) => (
+                        <Tag
+                          borderRadius={"full"}
+                          bg="purple.200"
+                          textColor={"purple.800"}
+                          m={1}
+                          key={prerequisite.id}
+                        >
+                          {prerequisite.title}
+                        </Tag>
+                      ))}
+                    </Box>
+                  ) : (
+                    <Text
+                      mt={1}
+                      fontSize={"md"}
+                    >
+                      <em>No prerequisites for this class</em>
+                    </Text>
+                  )}
                 </Box>
               </HStack>
             </VStack>
           </ModalBody>
-          <Flex justifyContent="center" width = "100%">
+          <Flex
+            justifyContent="center"
+            width="100%"
+          >
             <ModalFooter>
-              <Flex justify = "center">
+              <Flex justify="center">
                 <Button
-                  width = "100%"
-                  p = {7}
-                  bg = "#6B46C1" 
-                  color = "white"
+                  width="100%"
+                  p={7}
+                  bg="purple.600"
+                  color="white"
                   onClick={eventSignUp}
                 >
                   Sign Up
@@ -262,6 +265,6 @@ function EventInfoModal({
       </Modal>
     </>
   );
-}
+};
 
 export default EventInfoModal;

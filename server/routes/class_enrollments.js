@@ -76,6 +76,15 @@ classEnrollmentsRouter.get("/student/:student_id", async (req, res) => {
   try {
     const result = await db.query(
       `
+      WITH ranked_enrollments AS (
+          SELECT *,
+                ROW_NUMBER() OVER (
+                    PARTITION BY class_id, student_id
+                    ORDER BY attendance IS NULL  -- non-null first
+                ) AS rn
+          FROM class_enrollments
+          WHERE student_id = $1
+      )
       SELECT DISTINCT ON (c.id, sc.date)
           c.*,
           sc.date,
@@ -84,7 +93,7 @@ classEnrollmentsRouter.get("/student/:student_id", async (req, res) => {
           ce.attendance,
           (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) AS attendee_count
       FROM classes c
-      JOIN class_enrollments ce ON c.id = ce.class_id AND ce.student_id = $1
+      JOIN ranked_enrollments ce ON c.id = ce.class_id AND ce.student_id = $1 AND ce.rn = 1
       LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
       ORDER BY c.id, sc.date DESC;
     `,

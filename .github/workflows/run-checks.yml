@@ -2,9 +2,12 @@ name: Run Checks
 
 on:
   push:
-    branches: ["main"]
+    # branches: ["main"]
+    branches: ["dev"]
+
   pull_request:
-    branches: ["main"]
+    # branches: ["main"]
+    branches: ["dev"]
 
 jobs:
   run-checks:
@@ -22,7 +25,8 @@ jobs:
       - name: Install dependencies
         run:
           npm exec --workspaces -- npx rimraf node_modules && npx rimraf
-          node_modules && yarn install --frozen-lockfile
+          node_modules && yarn install
+          # node_modules && yarn install --frozen-lockfile
 
       - name: Build React project
         run: cd client && yarn run build

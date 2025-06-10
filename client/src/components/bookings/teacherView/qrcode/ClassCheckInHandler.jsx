@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Box, Button, Center, Spinner, Text, VStack } from "@chakra-ui/react";
 
@@ -32,7 +32,10 @@ export const ClassCheckInHandler = () => {
           const date = params.date;
 
           // removed baseURL, was preventing the redirect to login from happening
-          localStorage.setItem("qrcode_redirect", `/check-in/class/${id}/${date}`);
+          localStorage.setItem(
+            "qrcode_redirect",
+            `/check-in/class/${id}/${date}`
+          );
           // throw new Error("No user ID found");
           navigate("/login");
         }
@@ -44,24 +47,24 @@ export const ClassCheckInHandler = () => {
 
         // Format current date as YYYY-MM-DD
         const today = new Date().toISOString().split("T")[0];
-        // console.log(decodeURIComponent(date));
-        // Class-specific endpoint
 
-        const currentCheckIn = await backend.get(
-          `/class-enrollments/test`, {
-            params: {
-              student_id: studentId,
-              class_id: id,
-              attendance: new Date(decodeURIComponent(date)).toISOString().split("T")[0],
-            }
-          }
-        );
+        const currentCheckIn = await backend.get(`/class-enrollments/test`, {
+          params: {
+            student_id: studentId,
+            class_id: id,
+            attendance: new Date(decodeURIComponent(date))
+              .toISOString()
+              .split("T")[0],
+          },
+        });
 
         if (!currentCheckIn.data.exists) {
           await backend.post("/class-enrollments", {
             studentId: studentId,
             classId: id,
-            attendance: new Date(decodeURIComponent(date)).toISOString().split("T")[0],
+            attendance: new Date(decodeURIComponent(date))
+              .toISOString()
+              .split("T")[0],
           });
         }
 
@@ -97,7 +100,9 @@ export const ClassCheckInHandler = () => {
   return (
     <Box
       h="100vh"
-      bg="grey"
+      bg="white"
+      justify="center"
+      align="center"
     >
       <VStack
         spacing={4}
@@ -105,17 +110,13 @@ export const ClassCheckInHandler = () => {
         justify="center"
         h="full"
         p={4}
+        w="80%"
       >
         <Box
-          bg="white"
-          p={8}
-          borderRadius="full"
-          boxSize="200px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          fontSize="9xl"
+          color={"purple.600"}
         >
-          <Text fontSize="4xl">✓</Text>
+          <MdCheckCircle />
         </Box>
         <Text
           fontSize="2xl"
@@ -123,9 +124,15 @@ export const ClassCheckInHandler = () => {
         >
           You've checked in for
         </Text>
-        <Text fontSize="xl">{title}</Text>
+        <Text
+          fontSize="xl"
+          wordBreak="break-word"
+        >
+          {title}
+        </Text>
         <Button
-          colorScheme="blue"
+          textColor="white"
+          bg={"purple.600"}
           onClick={() => navigate("/bookings")}
           mt={4}
         >

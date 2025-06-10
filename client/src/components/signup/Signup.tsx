@@ -1,49 +1,52 @@
 import { useEffect } from "react";
 
 import {
+  Box,
   Button,
   Center,
   Link as ChakraLink,
   FormControl,
-  Box,
   FormErrorMessage,
-  Image,
   FormHelperText,
   FormLabel,
   Heading,
+  Image,
   Input,
   Select,
   Stack,
+  Text,
   useToast,
   VStack,
 } from "@chakra-ui/react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { FaGoogle } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import { authenticateGoogleUser } from "../../utils/auth/providers";
 
-import logo from "./logo.png";
-
-const signupSchema = z.object({
-  firstName: z.string().min(1, "Please include your first name."),
-  lastName: z.string().min(1, "Please include your last name."),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-  level: z.string(),
-});
+const signupSchema = z
+  .object({
+    firstName: z.string().min(1, "Please include your first name."),
+    lastName: z.string().min(1, "Please include your last name."),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export const Signup = () => {
   const navigate = useNavigate();
   const toast = useToast();
-  const { studentSignup, handleRedirectResult } = useAuthContext();
+  const { studentSignup, handleRedirectResult, updateRole, login } =
+    useAuthContext();
   const { backend } = useBackendContext();
 
   const {
@@ -62,10 +65,15 @@ export const Signup = () => {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        level: data.level,
+        level: "beginner",
       });
 
       if (user) {
+        login({
+          email: data.email,
+          password: data.password,
+        });
+        updateRole();
         navigate("/discovery");
       }
     } catch (err) {
@@ -75,149 +83,129 @@ export const Signup = () => {
           description: err.message,
           status: "error",
           variant: "subtle",
+          position: "top",
         });
       }
     }
-  };
-
-  const handleGoogleSignup = async () => {
-    await authenticateGoogleUser();
   };
 
   useEffect(() => {
     handleRedirectResult(backend, navigate, toast);
   }, [backend, handleRedirectResult, navigate, toast]);
 
-  return (
-    <Box mt={"15.10vh"}>
+  const handleBack = () => {
+    navigate("/landing");
+  };
 
-      <Center>
-        <Image src={logo} w="24.378vw" h="11.670vh" fit="contain"></Image>
-      </Center>
-    
+  return (
+    <Box mt={"5vh"}>
       <VStack
-        spacing={8}
-        sx={{ width: 300, marginX: "auto" }}
+        spacing={4}
+        sx={{ width: 350, marginX: "auto" }}
         mt={5}
       >
-
+        <Text
+          fontSize={"2xl"}
+          fontWeight={"bold"}
+        >
+          Enter your details
+        </Text>
         <form
           onSubmit={handleSubmit(handleSignup)}
           style={{ width: "100%" }}
         >
-          <Stack spacing={2}>
-          <Center>
+          <VStack
+            spacing={4}
+            alignItems="stretch"
+          >
             <FormControl isInvalid={!!errors.firstName}>
-                <FormLabel>First Name</FormLabel>
-                <Input
-                  type="text"
-                  size={"lg"}
-                  {...register("firstName")}
-                  name="firstName"
-                  isRequired
-                  autoComplete="firstname"
-                  h="3.661vh"
-                />
-              </FormControl>
-            </Center>
-            <Center>
+              <FormLabel>First Name</FormLabel>
+              <Input
+                type="text"
+                size={"md"}
+                {...register("firstName")}
+                isRequired
+                autoComplete="given-name"
+              />
+              <FormErrorMessage>
+                {errors.firstName?.message?.toString()}
+              </FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={!!errors.lastName}>
               <FormLabel>Last Name</FormLabel>
-                <Input
-                  type="text"
-                  size={"lg"}
-                  {...register("lastName")}
-                  name="lastName"
-                  isRequired
-                  autoComplete="lastname"
-                  h="3.661vh"
-                />
-                </FormControl>
-              </Center>
-            <Center>
-            <FormControl
-              isInvalid={!!errors.email}
-              w={"100%"}
-            >
+              <Input
+                type="text"
+                size={"md"}
+                {...register("lastName")}
+                isRequired
+                autoComplete="family-name"
+              />
+              <FormErrorMessage>
+                {errors.lastName?.message?.toString()}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.email}>
               <FormLabel>Email Address</FormLabel>
-                <Input
-                  type="email"
-                  size={"lg"}
-                  {...register("email")}
-                  name="email"
-                  isRequired
-                  autoComplete="email"
-                  h="3.661vh"
-                />
+              <Input
+                type="email"
+                size={"md"}
+                {...register("email")}
+                isRequired
+                autoComplete="email"
+              />
               <FormErrorMessage>
                 {errors.email?.message?.toString()}
               </FormErrorMessage>
             </FormControl>
-            </Center>
-            <Center>
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel>Password</FormLabel>
-                  <Input
-                    type="password"
-                    size={"lg"}
-                    {...register("password")}
-                    name="password"
-                    isRequired
-                    autoComplete="password"
-                    h="3.661vh"
-                  />
-
-                <FormErrorMessage>
-                  {errors.password?.message?.toString()}
-                </FormErrorMessage>
-              </FormControl>
-            </Center>
-            <FormControl mt={4}>
-              <Center>
-                <Select
-                  placeholder="Select a level..."
-                  required
-                  {...register("level")}
-                >
-                  <option value="beginner">Beginner </option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </Select>
-              </Center>
-              <Center>
-                <ChakraLink
-                  as={Link}
-                  to="/login"
-                >
-                </ChakraLink>
-              </Center>
+            <FormControl isInvalid={!!errors.password}>
+              <FormLabel>Password</FormLabel>
+              <Input
+                type="password"
+                size={"md"}
+                {...register("password")}
+                isRequired
+                autoComplete="new-password"
+              />
+              <FormErrorMessage>
+                {errors.password?.message?.toString()}
+              </FormErrorMessage>
             </FormControl>
-
-            <Center>
-              <Button
-                type="submit"
-                size={"lg"}
-                bg="#422E8D"
-                w={"48.2587vw"}
-                color="white"
-                isDisabled={Object.keys(errors).length > 0}
-                mt={4}
-              >
-                Submit
-              </Button>
-            </Center>
-          </Stack>
+            <FormControl isInvalid={!!errors.confirmPassword}>
+              <FormLabel>Confirm Password Again</FormLabel>
+              <Input
+                type="password"
+                size={"md"}
+                {...register("confirmPassword")}
+                isRequired
+                autoComplete="new-password"
+              />
+              <FormErrorMessage>
+                {errors.confirmPassword?.message?.toString()}
+              </FormErrorMessage>
+            </FormControl>
+            <Button
+              type="submit"
+              size={"lg"}
+              bg="#6A1B9A"
+              color="white"
+              _hover={{ bg: "#4A148C" }}
+              isDisabled={Object.keys(errors).length > 0}
+              mt={4}
+              w="100%"
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="outline"
+              size={"lg"}
+              onClick={handleBack}
+              w="100%"
+              mt={2}
+            >
+              Back
+            </Button>
+          </VStack>
         </form>
-
-        {/* <Button
-          leftIcon={<FaGoogle />}
-          variant={"solid"}
-          size={"lg"}
-          onClick={handleGoogleSignup}
-          sx={{ width: "100%" }}
-        >
-          Signup with Google
-        </Button> */}
       </VStack>
     </Box>
   );

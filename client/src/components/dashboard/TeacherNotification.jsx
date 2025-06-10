@@ -20,6 +20,7 @@ export const TeacherNotification = ({ id, firstName, lastName }) => {
         status: "success",
         duration: 3000,
         isClosable: true,
+        position: "top",
       });
       setHandled(true);
     } catch (error) {
@@ -28,6 +29,7 @@ export const TeacherNotification = ({ id, firstName, lastName }) => {
         status: "error",
         duration: 3000,
         isClosable: true,
+        position: "top",
       });
       console.error("Error updating teacher's activation status: ", error);
     }
@@ -44,6 +46,7 @@ export const TeacherNotification = ({ id, firstName, lastName }) => {
         status: "error",
         duration: 3000,
         isClosable: true,
+        position: "top",
       });
       setHandled(true);
     } catch (error) {
@@ -52,6 +55,7 @@ export const TeacherNotification = ({ id, firstName, lastName }) => {
         status: "error",
         duration: 3000,
         isClosable: true,
+        position: "top",
       });
       console.error("Error updating teacher's activation status: ", error);
     }
@@ -92,7 +96,7 @@ export const TeacherNotification = ({ id, firstName, lastName }) => {
             Deny
           </Button>
           <Button
-            bg="#6B46C1"
+            bg="purple.600"
             color="white"
             width="50%"
             _hover={{ bg: "#2a1c5e" }}

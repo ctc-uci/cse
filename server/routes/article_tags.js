@@ -8,29 +8,31 @@ const articleTagsRouter = express.Router();
 articleTagsRouter.use(express.json());
 
 articleTagsRouter.get("/articles/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const tags = await db.query(
-            `SELECT * FROM article_tags
+  try {
+    const { id } = req.params;
+    const tags = await db.query(
+      `SELECT * FROM article_tags
             JOIN tags ON article_tags.tag_id = tags.id
-            WHERE article_tags.article_id = $1;` [id]);
-        res.status(200).json(keysToCamel(tags));
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+            WHERE article_tags.article_id = $1;`[id]
+    );
+    res.status(200).json(keysToCamel(tags));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 articleTagsRouter.get("/tags/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const tags = await db.query(
-            `SELECT * FROM article_tags
+  try {
+    const { id } = req.params;
+    const tags = await db.query(
+      `SELECT * FROM article_tags
             JOIN tags ON article_tags.tag_id = tags.id
-            WHERE article_tags.tag_id = $1;` [id]);
-        res.status(200).json(keysToCamel(tags));
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+            WHERE article_tags.tag_id = $1;`[id]
+    );
+    res.status(200).json(keysToCamel(tags));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 articleTagsRouter.post("/", async (req, res) => {

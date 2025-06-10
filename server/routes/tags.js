@@ -8,9 +8,7 @@ tagsRouter.use(express.json());
 
 tagsRouter.get("/", async (req, res) => {
   try {
-    const tags = await db.query(
-      `SELECT * FROM tags;`
-    );
+    const tags = await db.query(`SELECT * FROM tags;`);
     res.status(200).json(keysToCamel(tags));
   } catch (err) {
     console.log(err);
@@ -23,12 +21,11 @@ tagsRouter.get("/", async (req, res) => {
 
 tagsRouter.get("/:tagName", async (req, res) => {
   try {
-
     const { tagName } = req.params;
 
-    const tagId = await db.query(
-      `SELECT id FROM tags WHERE tag = $1;`, [tagName]
-    );
+    const tagId = await db.query(`SELECT id FROM tags WHERE tag = $1;`, [
+      tagName,
+    ]);
     res.status(200).json(keysToCamel(tagId));
   } catch (err) {
     console.log(err);

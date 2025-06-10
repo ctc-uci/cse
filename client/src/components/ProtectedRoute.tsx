@@ -20,7 +20,8 @@ export const ProtectedRoute = ({
   return currentUser && isValidRole ? (
     element
   ) : currentUser ? (
-    <Navigate to={"/dashboard"} />
+    // <Navigate to={"/dashboard"} />
+    <Navigate to={"/profile"} />
   ) : (
     <Navigate to={"/"} />
   );

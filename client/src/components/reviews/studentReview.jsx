@@ -11,15 +11,18 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
+  Icon,
   Text,
   Textarea,
+  useToken,
+  VStack,
 } from "@chakra-ui/react";
 
+import { FaUserCircle } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import { color } from "framer-motion";
 
 const StudentReview = ({
   rating,
@@ -35,6 +38,8 @@ const StudentReview = ({
   const [starRating, setStarRating] = useState(rating ?? 0);
   const [review, setReview] = useState(reviewText ?? "");
   const [attended, setAttended] = useState(null);
+  const [purpleHex] = useToken("colors", ["purple.600"]);
+  const [greyHex] = useToken("colors", ["gray.400"]);
 
   const [stars, setStars] = useState(Array(5).fill(0));
 
@@ -53,8 +58,8 @@ const StudentReview = ({
     setStarRating(value);
   };
   const colors = {
-    purple: "#6B46C1",
-    grey: "#A9A9A9",
+    purple: purpleHex,
+    grey: greyHex,
   };
 
   const isError = review === "" || starRating === 0;
@@ -92,55 +97,71 @@ const StudentReview = ({
         `/class-enrollments/student/${student_id}`
       );
 
-      const attendanceObject = attendance.data.find((a) => a.id === class_id)
+      const attendanceObject = attendance.data.find((a) => a.id === class_id);
 
       setAttended(attendanceObject ? attendanceObject.attendance : null);
     };
     fetchAttendance();
   }, [backend, class_id, student_id]);
-  
+
   return (
     <Card>
-      <CardBody hidden={attended === null}>
+      <CardBody>
         <FormControl>
           <HStack>
-            <Avatar
-              name="Dan Abrahmov"
-              src="https://bit.ly/dan-abramov"
+            {/* <Avatar
+              // name="Dan Abrahmov"
+              // src="https://bit.ly/dan-abramov"
+
+            /> */}
+            <Icon
+              as={FaUserCircle}
+              w={45}
+              h={45}
+              mb={2}
+              color="gray.500"
             />
-            <Text>{displayName}</Text>
-          </HStack>
-          <HStack>
-            {stars.map((_, index) => (
-              <FaStar
-                key={index}
-                size={24}
-                value={starRating}
-                onChange={(e) => setStarRating(e.target.value)}
-                color={
-                  (hoverValue || starRating) > index
-                    ? colors.purple
-                    : colors.grey
-                }
-                onClick={() => handleClickStar(index + 1)}
-                onMouseOver={() => handleMouseOverStar(index + 1)}
-                onMouseLeave={() => handleMouseLeaveStar}
-              />
-            ))}
+            <Text mb={2}>{displayName}</Text>
           </HStack>
 
-          <Textarea
-            placeholder="Type Here..."
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
-          />
-          <Button
-            onClick={postReview}
-            colorScheme={isError ? colors.purple : "blue"}
-            disabled={isError}
+          <VStack
+            spacing={2}
+            align="flex-start"
           >
-            {editMode ? "Save" : "Post Review"}
-          </Button>
+            <HStack>
+              {stars.map((_, index) => (
+                <FaStar
+                  key={index}
+                  size={24}
+                  value={starRating}
+                  onChange={(e) => setStarRating(e.target.value)}
+                  color={
+                    (hoverValue || starRating) > index
+                      ? colors.purple
+                      : colors.grey
+                  }
+                  cursor="pointer"
+                  onClick={() => handleClickStar(index + 1)}
+                  onMouseOver={() => handleMouseOverStar(index + 1)}
+                  onMouseLeave={() => handleMouseLeaveStar}
+                />
+              ))}
+            </HStack>
+            <Textarea
+              minH={100}
+              placeholder="Type Here..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+            />
+            <Button
+              onClick={postReview}
+              width={{ base: "100%", md: "fit-content" }}
+              colorScheme={"purple"}
+              isDisabled={isError}
+            >
+              {editMode ? "Save" : "Submit"}
+            </Button>
+          </VStack>
         </FormControl>
       </CardBody>
     </Card>

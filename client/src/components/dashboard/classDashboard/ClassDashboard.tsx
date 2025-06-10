@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   HStack,
+  IconButton,
   Image,
   Input,
   Table,
@@ -22,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 
 import { debounce, set } from "lodash";
+import { FaRegBell } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { PiArrowsDownUpFill } from "react-icons/pi";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
@@ -238,12 +240,21 @@ export function OverallClassDashboard() {
           </Button>
           Classes and Events
         </Heading>
-        <Image
+        {/* <Image
           alignSelf={"flex-end"}
           cursor="pointer"
           onClick={onOpen}
           ref={notifRef}
           src="../bell.png"
+        /> */}
+        <IconButton
+          icon={<FaRegBell />}
+          size="lg"
+          mt="-2"
+          onClick={onOpen}
+          ref={notifRef}
+          aria-label="Notifications"
+          bg="white"
         />
         <NotificationPanel
           isOpen={isOpen}

@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import { Text, Box, Button, Input } from "@chakra-ui/react";
+import { Box, Button, Input, Text } from "@chakra-ui/react";
+
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 
 export const UploadComponent = () => {
-
   const { backend } = useBackendContext();
 
   const [file, setFile] = useState(null);
@@ -17,11 +17,11 @@ export const UploadComponent = () => {
 
   const fetchS3URL = async () => {
     try {
-      const URLResponse = await backend.get('/s3/url');
+      const URLResponse = await backend.get("/s3/url");
       console.log(URLResponse);
       return URLResponse.data.url;
     } catch (error) {
-      console.error('Error fetching S3 URL:', error);
+      console.error("Error fetching S3 URL:", error);
     }
   };
 
@@ -63,11 +63,26 @@ export const UploadComponent = () => {
   return (
     <Box mt={4}>
       <Text fontWeight="bold">Upload a File</Text>
-      <Input type="file" onChange={handleFileChange} mt={2} />
-      <Button onClick={uploadFile} isDisabled={uploading} mt={2}>
+      <Input
+        type="file"
+        onChange={handleFileChange}
+        mt={2}
+      />
+      <Button
+        onClick={uploadFile}
+        isDisabled={uploading}
+        mt={2}
+      >
         {uploading ? "Uploading..." : "Upload"}
       </Button>
-      {message && <Text mt={2} color="green.500">{message}</Text>}
+      {message && (
+        <Text
+          mt={2}
+          color="green.500"
+        >
+          {message}
+        </Text>
+      )}
     </Box>
   );
 };

@@ -19,7 +19,6 @@ classesTaughtRouter.get("/", async (req, res) => {
   }
 });
 
-
 // Creates a new classes-taught entry in the classes taught table
 classesTaughtRouter.post("/", async (req, res) => {
   try {
@@ -43,18 +42,18 @@ classesTaughtRouter.get("/instructor/:classId", async (req, res) => {
   try {
     const classId = req.params.classId;
 
-    const result = await db.any(`
-      SELECT u.first_name, u.last_name
+    const result = await db.any(
+      `
+      SELECT u.first_name, u.last_name, u.id
       FROM classes_taught ct
       JOIN teachers t ON ct.teacher_id = t.id
       JOIN users u ON u.id = t.id
       WHERE ct.class_id = $1;
-    `, [classId]);
+    `,
+      [classId]
+    );
 
     res.status(200).json(keysToCamel(result));
-
-
-
   } catch (err) {
     console.error("Failed to fetch instructor:", err);
     res.status(500).send(err.message);
@@ -82,5 +81,22 @@ classesTaughtRouter.put("/", async (req, res) => {
   }
 });
 
-export { classesTaughtRouter };
+// deletes the class taught entry
+classesTaughtRouter.delete("/:classId", async (req, res) => {
+  const classId = req.params.classId;
 
+  try {
+    // Delete the class taught entry
+    const deletedClassTaught = await db.query(
+      `DELETE FROM classes_taught WHERE class_id = $1 RETURNING *`,
+      [classId]
+    );
+
+    res.status(200).json(keysToCamel(deletedClassTaught));
+  } catch (error) {
+    console.error("Error deleting class taught entry:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export { classesTaughtRouter };

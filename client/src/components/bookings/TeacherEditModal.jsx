@@ -66,6 +66,9 @@ export const TeacherEditModal = ({
   performances,
   setRefresh,
   coreqId,
+  tags = [],
+  magic,
+  setMagic,
 }) => {
   const { backend } = useBackendContext();
   const [isPublishing, setIsPublishing] = useState(false);
@@ -77,24 +80,41 @@ export const TeacherEditModal = ({
     classData?.instructor ?? ""
   );
   const formRef = useRef(null);
-  const [tags, setTags] = useState([]);
+  const [tagTypes, setTagTypes] = useState([]);
   const toast = useToast();
 
-  const [classType, setClassType] = useState(classData?.classType ?? "1");
+  console.log("type", tags[0]?.id);
+  const [classType, setClassType] = useState(tags[0]?.id ?? "-1");
 
-  useMemo(() => {
-    if (backend) {
-      backend.get("/tags").then((response) => {
-        setTags(response.data);
-      });
-      backend.get("/teachers/activated").then((response) => {
-        setTeachers(response.data);
-      });
+  useEffect(() => {
+    if (backend && classData?.id) {
+      Promise.all([
+        backend.get("/tags"),
+        backend.get("/teachers/activated"),
+        backend.get(`/classes-taught/instructor/${classData.id}`),
+      ])
+        .then(
+          ([tagResponse, activatedTeachersResponse, instructorResponse]) => {
+            setTagTypes(tagResponse.data);
+            setTeachers(activatedTeachersResponse.data);
+            const teacher = instructorResponse.data;
+            if (teacher && Array.isArray(teacher) && teacher[0]) {
+              setSelectedInstructor(teacher[0]?.id);
+            } else {
+              setSelectedInstructor("");
+            }
+          }
+        )
+        .catch((error) => {
+          console.log("Error fetching data:", error);
+        });
     }
-  }, [backend]);
+  }, [backend, classData?.id]);
+
   const onBack = () => {
     setCurrentModal("view");
   };
+
   const onSave = async (draft) => {
     try {
       // PUT request to save class data
@@ -111,26 +131,30 @@ export const TeacherEditModal = ({
         is_recurring: recurrencePattern !== "none",
         isDraft: draft,
       };
-      console.log(classData);
+      // console.log(classData);
       await backend.put(`/classes/${classData.id}`, updatedData);
-      console.log("Updating class", classData.id, updatedData);
+      // console.log("Updating class", classData.id, updatedData);
       await backend.delete(`/corequisites/class/${classData.id}`);
-      await backend.put(`/classes-taught`, {
-        classId: classData.id,
-        teacherId: selectedInstructor,
-      });
-      console.log("Updating instructor", classData.id, selectedInstructor);
-      if (performanceId) {
+      if (selectedInstructor && parseInt(selectedInstructor) !== -1) {
+        await backend.put(`/classes-taught`, {
+          classId: classData.id,
+          teacherId: selectedInstructor,
+        });
+      } else {
+        await backend.delete(`/classes-taught/${classData.id}`);
+      }
+      // console.log("Updating instructor", classData.id, selectedInstructor);
+      if (performanceId && parseInt(performanceId) !== -1) {
         await backend.put(
           `/corequisites/${classData.id}/${performanceId}`,
           updatedData
         );
-        console.log(
-          "Updating corequisites",
-          classData.id,
-          performanceId,
-          updatedData
-        );
+        // console.log(
+        //   "Updating corequisites",
+        //   classData.id,
+        //   performanceId,
+        //   updatedData
+        // );
       }
 
       if (recurrencePattern !== "none") {
@@ -140,7 +164,7 @@ export const TeacherEditModal = ({
           stringToDate(endDate),
           recurrencePattern
         );
-        console.log("classdates", classDates);
+        // console.log("classdates", classDates);
         for (const classDate of classDates) {
           if (classDate && startTime && endTime) {
             const scheduledClassBody = {
@@ -182,7 +206,14 @@ export const TeacherEditModal = ({
         isDraft: draft,
       }));
 
-      if (classType !== "") {
+      if (classData?.id && classType !== "-1") {
+        tags.map(async (tag) => {
+          await backend
+            .delete(`/class-tags/${classData.id}/${tag.id}`)
+            .catch((err) => {
+              console.error(err);
+            });
+        });
         await backend
           .post("/class-tags", {
             classId: classData.id,
@@ -230,7 +261,8 @@ export const TeacherEditModal = ({
   const [classTitle, setClassTitle] = useState(classData?.title);
   const [location, setLocation] = useState(classData?.location);
   const [startDate, setStartDate] = useState(
-    isDefaultDate(classData?.startDate) || isDefaultDate(classData?.date)
+    (isDefaultDate(classData?.startDate) && !classData?.date) ||
+      (isDefaultDate(classData?.date) && !classData?.startDate)
       ? ""
       : classData?.startDate
         ? formatDate(classData.startDate)
@@ -270,9 +302,6 @@ export const TeacherEditModal = ({
   const onStartTimeChange = (e) => setStartTime(e.target.value);
   const onEndTimeChange = (e) => setEndTime(e.target.value);
 
-  useEffect(() => {
-    console.log();
-  }, []);
   return (
     <Modal
       size="full"
@@ -399,7 +428,16 @@ export const TeacherEditModal = ({
                 onChange={(e) => setSelectedInstructor(e.target.value)}
                 maxWidth="300px"
                 bg="white"
-                color="black"
+                color={selectedInstructor === "" ? "gray.400" : "black"}
+                sx={{
+                  "& option": {
+                    color: "black",
+                    backgroundColor: "white",
+                  },
+                  "& option[disabled]": {
+                    color: "gray.400",
+                  },
+                }}
               >
                 {teachers.map((teacher) => (
                   <option
@@ -444,6 +482,24 @@ export const TeacherEditModal = ({
               </Select>
             </FormControl>
             <FormControl mb={4}>
+              <FormLabel>ClassType</FormLabel>
+              <Select
+                maxWidth="200px"
+                value={classType}
+                placeholder="Select class type..."
+                onChange={(e) => setClassType(e.target.value)}
+              >
+                {tagTypes.map((tagType) => (
+                  <option
+                    key={tagType.id}
+                    value={tagType.id}
+                  >
+                    {tagType.tag}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl mb={4}>
               <FormLabel>Performances</FormLabel>
               <Select
                 maxWidth="200px"
@@ -477,12 +533,12 @@ export const TeacherEditModal = ({
               Discard Edits
             </Button>
             <Button
-              bg="#6B46C1"
+              bg="purple.600"
               color="white"
               flex="1"
               onClick={onPublish}
             >
-              Save Changes
+              Publish
             </Button>
           </Flex>
         </ModalFooter>

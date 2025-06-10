@@ -8,6 +8,7 @@ import {
   FormLabel,
   Heading,
   HStack,
+  IconButton,
   Image,
   Input,
   Table,
@@ -21,13 +22,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
+import { FaRegBell } from "react-icons/fa";
 import { SlArrowLeft } from "react-icons/sl";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
 import { DetailedClass } from "../../../types/scheduled_class";
-import { NotificationPanel } from "../NotificationPanel";
 import { formatDate, formatTime } from "../../../utils/formatDateTime";
+import { NotificationPanel } from "../NotificationPanel";
 
 type AttendanceRecord = {
   firstName: string;
@@ -50,9 +52,7 @@ export default function EventInfoDashboard() {
     const fetchData = async () => {
       try {
         // Fetch event info
-        const response = await backend.get(
-          `/events/${eventId}`
-        );
+        const response = await backend.get(`/events/${eventId}`);
         response.data[0].date = new Date(response.data[0].date || "");
         setEvent(response.data[0]);
 
@@ -96,12 +96,21 @@ export default function EventInfoDashboard() {
           </Button>
           {currentEvent?.title}
         </Heading>
-        <Image
+        {/* <Image
           alignSelf={"flex-end"}
           cursor="pointer"
           onClick={onOpen}
           ref={notifRef}
           src="/bell.png"
+        /> */}
+        <IconButton
+          icon={<FaRegBell />}
+          size="lg"
+          mt="-2"
+          onClick={onOpen}
+          ref={notifRef}
+          aria-label="Notifications"
+          bg="white"
         />
         <NotificationPanel
           isOpen={isOpen}
@@ -196,7 +205,7 @@ export default function EventInfoDashboard() {
           textAlign="right"
           fontSize={18}
         >
-          {currentEvent ? formatTime(currentEvent.startTime) : ''}
+          {currentEvent ? formatTime(currentEvent.startTime) : ""}
         </Box>
         <Box
           flex={1}
@@ -210,7 +219,7 @@ export default function EventInfoDashboard() {
           textAlign="right"
           fontSize={18}
         >
-          {currentEvent ? formatTime(currentEvent.endTime) : ''}
+          {currentEvent ? formatTime(currentEvent.endTime) : ""}
         </Box>
       </HStack>
       <HStack
@@ -231,7 +240,7 @@ export default function EventInfoDashboard() {
           textAlign="right"
           fontSize={18}
         >
-          {currentEvent ? formatTime(currentEvent.callTime) : ''}
+          {currentEvent ? formatTime(currentEvent.callTime) : ""}
         </Box>
         <Box
           flex={1}
