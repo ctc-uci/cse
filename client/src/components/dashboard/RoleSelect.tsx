@@ -39,6 +39,7 @@ export const RoleSelect = ({ user, disabled = true }: RoleSelectProps) => {
           title: "Role Updated",
           description: `Updated role from ${previousRole} to ${updatedRole}`,
           status: "success",
+          position: "top",
         });
       } catch (error) {
         console.error("Error updating user role:", error);
@@ -47,6 +48,7 @@ export const RoleSelect = ({ user, disabled = true }: RoleSelectProps) => {
           title: "An Error Occurred",
           description: `Role was not updated`,
           status: "error",
+          position: "top",
         });
       } finally {
         setLoading(false);

@@ -12,8 +12,8 @@ import {
   ModalOverlay,
   Text,
 } from "@chakra-ui/react";
-import { formatDate } from "../../utils/formatDateTime";
 
+import { formatDate } from "../../utils/formatDateTime";
 
 export const InfoModal = ({
   isOpen,

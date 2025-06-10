@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   Badge,
   Button,
@@ -25,6 +27,7 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 
 import { useAuthContext } from "../../../contexts/hooks/useAuthContext";
+import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
 import { ProgressBar } from "./ProgressBar";
 
 export const CardModal = ({
@@ -40,13 +43,24 @@ export const CardModal = ({
   allTags,
 }) => {
   const { currentUser } = useAuthContext();
-  const user_name = currentUser.displayName || "Homie Tony";
+  const { backend } = useBackendContext();
+  const [user_name, setUserName] = useState(currentUser?.displayName || "");
   const today = new Date();
   const posted_date = today.toLocaleDateString();
 
   const onGoBack = () => {
     setCurrentModal("form");
   };
+
+  useEffect(() => {
+    backend.get(`/users/${currentUser?.uid}`).then((response) => {
+      setUserName(
+        response?.data[0]?.firstName && response?.data[0]?.lastName
+          ? `${response?.data[0]?.firstName} ${response?.data[0]?.lastName}`
+          : currentUser?.displayName || "current user"
+      );
+    });
+  }, [currentUser, backend]);
 
   return (
     <Modal
@@ -79,11 +93,6 @@ export const CardModal = ({
               p={2}
               m={2}
             >
-              <Image
-                src={s3URL}
-                alt=""
-                borderRadius="lg"
-              />
               <Heading
                 fontSize="18px"
                 color="gray.700"

@@ -24,17 +24,17 @@ eventEnrollmentRouter.get("/test", async (req, res) => {
   const { student_id, event_id } = req.query;
   try {
     const result = await db.query(
-      'SELECT * FROM event_enrollments WHERE student_id = $1 AND event_id = $2;',
+      "SELECT * FROM event_enrollments WHERE student_id = $1 AND event_id = $2;",
       [student_id, event_id]
-    )
+    );
 
     const exists = result.length > 0;
     const enrollmentData = keysToCamel(result) as EventEnrollment[];
-    res.status(200).send({enrollmentData, exists});
+    res.status(200).send({ enrollmentData, exists });
   } catch (err) {
     res.status(500).send(err.message);
   }
-})
+});
 
 // GET /:id
 eventEnrollmentRouter.get("/:id", async (req, res) => {
@@ -66,7 +66,8 @@ eventEnrollmentRouter.get("/event/:event_id", async (req, res) => {
         JOIN event_enrollments ee ON ee.student_id = s.id
         JOIN events e ON e.id = ee.event_id
       WHERE e.id = $1;
-      `, [event_id]
+      `,
+      [event_id]
     );
 
     res.status(200).json(keysToCamel(result as EventEnrollment)); // Ensure .rows is used
@@ -74,7 +75,6 @@ eventEnrollmentRouter.get("/event/:event_id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 eventEnrollmentRouter.get("/student/:student_id", async (req, res) => {
   try {
@@ -110,7 +110,8 @@ eventEnrollmentRouter.get("/", async (req, res) => {
 eventEnrollmentRouter.post("/", async (req, res) => {
   try {
     // Destructure the request body
-    const { student_id, event_id, attendance } = req.body as EventEnrollmentRequest;
+    const { student_id, event_id, attendance } =
+      req.body as EventEnrollmentRequest;
     // mathing sql schema
     if (!student_id || !event_id) {
       return res.status(400).json({ error: "Missing required parameters" });

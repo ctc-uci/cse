@@ -7,28 +7,30 @@ import {
   Heading,
   HStack,
   Icon,
+  IconButton,
   Image,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 
+import { FaRegBell } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
-import cseLogo from "../../components/dashboard/cseLogo.png";
-import classesIcon from "../../components/dashboard/sidebarImgs/classes.svg";
-import dashboardIcon from "../../components/dashboard/sidebarImgs/dashboard.svg";
-import settingsIcon from "../../components/dashboard/sidebarImgs/settings.svg";
-import studentsIcon from "../../components/dashboard/sidebarImgs/students.svg";
-import teachersIcon from "../../components/dashboard/sidebarImgs/teachers.svg";
-import redirectIcon from "../../components/dashboard/sidebarImgs/redirect.svg";
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { useRoleContext } from "../../contexts/hooks/useRoleContext";
 import { Attendance } from "../../types/attendance";
 import { Class } from "../../types/legacy/class";
 import { NotificationPanel } from "./NotificationPanel";
+import cseLogo from "/dashboard/cseLogo.png";
+import classesIcon from "/dashboard/sidebarImgs/classes.svg";
+import dashboardIcon from "/dashboard/sidebarImgs/dashboard.svg";
+import redirectIcon from "/dashboard/sidebarImgs/redirect.svg";
+import settingsIcon from "/dashboard/sidebarImgs/settings.svg";
+import studentsIcon from "/dashboard/sidebarImgs/students.svg";
+import teachersIcon from "/dashboard/sidebarImgs/teachers.svg";
 
 interface StatCardProps {
   icon: string;
@@ -173,12 +175,21 @@ export const DashboardHome = () => {
           justify={"space-between"}
         >
           <Heading alignSelf="flex-start">Dashboard</Heading>
-          <Image
+          {/* <Image
             alignSelf={"flex-end"}
             cursor="pointer"
             onClick={onOpen}
             ref={notifRef}
             src="../bell.png"
+          /> */}
+          <IconButton
+            icon={<FaRegBell />}
+            size="lg"
+            mt="-2"
+            onClick={onOpen}
+            ref={notifRef}
+            aria-label="Notifications"
+            bg="white"
           />
           <NotificationPanel
             isOpen={isOpen}
@@ -251,7 +262,7 @@ export const DashboardHome = () => {
                 <Line
                   type="linear"
                   dataKey="count"
-                  stroke="#422E8D"
+                  stroke="purple.600"
                   dot={false}
                   strokeWidth={3}
                 />
@@ -309,8 +320,6 @@ export const DashboardHome = () => {
 };
 
 export const Sidebar = () => {
-
-
   const navigate = useNavigate();
   return (
     <Box

@@ -142,7 +142,7 @@ export const SelectClassModal = ({
             onChange={(e) =>
               setClasses(
                 originalClasses.filter((obj) =>
-                  obj.name.includes(e.target.value)
+                  obj.title.includes(e.target.value)
                 )
               )
             }
@@ -151,6 +151,8 @@ export const SelectClassModal = ({
             spacing={4}
             w="100%"
             mt={4}
+            my={5}
+            mb={20}
           >
             {classes.length > 0 ? (
               classes.map((cls, index) => (

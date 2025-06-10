@@ -68,8 +68,8 @@ const refreshToken = async () => {
   return null;
 };
 
-const sendPasswordReset = async email => {
+const sendPasswordReset = async (email) => {
   await sendPasswordResetEmail(auth, email);
 };
 
-export {refreshToken, sendPasswordReset}
+export { refreshToken, sendPasswordReset };

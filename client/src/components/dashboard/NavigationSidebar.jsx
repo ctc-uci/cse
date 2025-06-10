@@ -1,5 +1,13 @@
-import { Box, Flex, Icon, Text, Link, useColorModeValue } from "@chakra-ui/react";
-import { MdHome, MdSettings, MdInfo } from "react-icons/md";
+import {
+  Box,
+  Flex,
+  Icon,
+  Link,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
+
+import { MdHome, MdInfo, MdSettings } from "react-icons/md";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 
 export const NavigationSidebar = () => {
@@ -24,10 +32,15 @@ export const NavigationSidebar = () => {
       position="sticky"
       top={0}
     >
-      
-      <Flex direction="column" gap={2}>
+      <Flex
+        direction="column"
+        gap={2}
+      >
         {routes.map((route) => (
-          <RouterLink to={route.path} key={route.path}>
+          <RouterLink
+            to={route.path}
+            key={route.path}
+          >
             <Link
               as="div"
               display="flex"
@@ -41,9 +54,12 @@ export const NavigationSidebar = () => {
               }}
               transition="background-color 0.2s ease"
             >
-              <Icon as={route.icon} mr={3} boxSize={5} />
+              <Icon
+                as={route.icon}
+                mr={3}
+                boxSize={5}
+              />
               <Text fontSize="md">{route.name}</Text>
-              
             </Link>
           </RouterLink>
         ))}

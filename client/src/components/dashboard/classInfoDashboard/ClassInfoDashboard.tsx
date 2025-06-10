@@ -8,6 +8,7 @@ import {
   FormLabel,
   Heading,
   HStack,
+  IconButton,
   Image,
   Input,
   Table,
@@ -21,6 +22,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
+import { FaRegBell } from "react-icons/fa";
 import { SlArrowLeft } from "react-icons/sl";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -109,12 +111,21 @@ export default function ClassInfoDashboard() {
           </Button>
           {currentClass?.title}
         </Heading>
-        <Image
+        {/* <Image
           alignSelf={"flex-end"}
           cursor="pointer"
           onClick={onOpen}
           ref={notifRef}
           src="/bell.png"
+        /> */}
+        <IconButton
+          icon={<FaRegBell />}
+          size="lg"
+          mt="-2"
+          onClick={onOpen}
+          ref={notifRef}
+          aria-label="Notifications"
+          bg="white"
         />
         <NotificationPanel
           isOpen={isOpen}

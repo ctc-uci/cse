@@ -10,7 +10,7 @@ import ReviewCard from "./reviewCard";
 import ReviewCardController from "./ReviewCardController";
 import StudentReview from "./studentReview";
 
-const PublishedReviews = ({ classId }) => {
+const PublishedReviews = ({ classId, isAttended = false }) => {
   const { backend } = useBackendContext();
   const { currentUser } = useAuthContext();
   const [reviews, setReviews] = useState([]);
@@ -48,22 +48,24 @@ const PublishedReviews = ({ classId }) => {
         Reviews
       </Text>
 
-      {!reviews.some((review) => review.studentId === user?.id) && (
-        <>
-          <StudentReview
-            displayName={user?.firstName}
-            class_id={classId}
-            student_id={user?.id}
-            onUpdate={onUpdate}
-          />
-          <Divider />
-        </>
-      )}
+      {!reviews.some((review) => review.studentId === user?.id) &&
+        isAttended && (
+          <>
+            <StudentReview
+              displayName={user?.firstName + " " + user?.lastName}
+              class_id={classId}
+              student_id={user?.id}
+              onUpdate={onUpdate}
+            />
+            <Divider />
+          </>
+        )}
+
       <Stack height={"fit-content"}>
         {reviews.map((review, index) => (
           <ReviewCardController
             key={index}
-            displayName={user?.firstName}
+            displayName={user?.firstName + " " + user?.lastName}
             reviewText={review.review}
             rating={review.rating}
             student_id={review.studentId}

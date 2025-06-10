@@ -1,123 +1,130 @@
-import { useState } from 'react';
-import { sendPasswordReset } from './firebase';
-import { FormControl, Input, Button, Center, Link, Box, Heading, Text, Alert, AlertDescription} from '@chakra-ui/react';
+import { useState } from "react";
 
+import {
+  Box,
+  Button,
+  Center,
+  FormControl,
+  Heading,
+  Image,
+  Input,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+
+import { useNavigate } from "react-router-dom";
+
+import { sendPasswordReset } from "./firebase";
 
 export const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const navigate = useNavigate();
 
-  const handleForgotPassword = async e => {
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
     try {
-      e.preventDefault();
       await sendPasswordReset(email);
-      setHasError(false);
-      setErrorMessage('');
-      window.location.replace("/forgotPasswordConfirmation");
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your inbox for instructions.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setEmail(""); // Clear email field
+      navigate("/forgotPasswordConfirmation");
     } catch (err) {
-        setHasError(true);
-        if (err.code === 'auth/invalid-email') {
-          setErrorMessage("Email could not be found. Please try again.");
+      let message = "An unexpected error occurred. Please try again.";
+      if (err instanceof Error) {
+        if (
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (err as any).code === "auth/invalid-email" ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (err as any).code === "auth/user-not-found"
+        ) {
+          message = "Email address not found. Please check and try again.";
+        } else {
+          message = err.message;
         }
-        else {
-          setErrorMessage(err.message);
-        }
-      console.log(err)
+      }
+      toast({
+        title: "Error",
+        description: message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Box>
-      <Box>
-      { hasError &&
-        <Alert
-          status='warning'
-          alignItems='center'
-          justifyContent='center'
-          height='80px'
-          position='absolute'
-          backgroundColor="#F69052"
-          color="black"
-        >
-          <AlertDescription>{ errorMessage }</AlertDescription>
-        </Alert>
-      }
-    </Box>
+    <Center h="90vh">
+      <VStack
+        spacing={6}
+        w={{ base: "90%", md: "350px" }}
+        p={8} // Added padding
+        textAlign="center"
+      >
+        <Image
+          src="/logo.png"
+          alt="Center Stage Logo"
+          boxSize="150px"
+          mb={4}
+        />
 
-      <Center h="90vh">
-        <Box
-          style={{
-            margin: 'auto',
-            textAlign: 'center',
-            width: '598px',
-            minWidth: '300px',
-          }}
+        <Heading
+          as="h1"
+          size="lg"
         >
-          <Heading as='h1' size='lg'>Reset Password</Heading>
-          <Text as='h2' size='md' mt={2}>Enter email address associated with account</Text>
-          <form onSubmit={handleForgotPassword}>
+          Forgot Password
+        </Heading>
+        <Text
+          size="md"
+          color="gray.600"
+        >
+          Enter your email to reset your password.
+        </Text>
+        <form
+          onSubmit={handleForgotPassword}
+          style={{ width: "100%" }}
+        >
+          <VStack
+            spacing={4}
+            align="stretch"
+          >
             <FormControl>
-              <Box>
-                <Input
-                  style={{ width: '360px', height: '48px', marginTop: '40px' }}
-                  type="email"
-                  isRequired={true}
-                  onChange={({ target }) => setEmail(target.value)}
-                  placeholder="Email Address"
-                  borderColor={"#CBD5E0"}
-                  borderRadius= '3px'
-                />
-              </Box>
-              <Box
-                style={{
-                  marginTop: '25px',
-                  marginBottom: '25px',
-                }}
-              >
-                <Link href='/login'>
-                  <Button
-                    style={{
-                      borderRadius: '30px',
-                      borderColor: '#155696',
-                      borderWidth: '1.5px',
-                      marginRight: '16px',
-                      paddingLeft: '80px',
-                      paddingRight: '80px',
-                      width: '140px',
-                      height: '38px',
-                    }}
-                    backgroundColor={'#FFFFFF'}
-                    color={'#155696'}
-                    variant='outline'
-                    _hover={{backgroundColor: '#E0E0E0'}}
-                  >
-                    Cancel
-                  </Button>
-                </Link>
-
-                <Button
-                  type="submit"
-                  style={{
-                    borderRadius: '30px',
-                    marginLeft: '16px',
-                    paddingLeft: '80px',
-                    paddingRight: '80px',
-                    width: '140px',
-                    height: '38px',
-                  }}
-                  backgroundColor={'#243268'}
-                  color={'#ffffff'}
-                  _hover={{backgroundColor: '#1A2559'}}
-                >
-                  Send Instructions
-                </Button>
-
-              </Box>
+              <Input
+                type="email"
+                isRequired={true}
+                value={email}
+                onChange={({ target }) => setEmail(target.value)}
+                placeholder="Enter email"
+                size="lg"
+              />
             </FormControl>
-          </form>
-        </Box>
-      </Center>
-    </Box>
+            <Button
+              type="submit"
+              bg="purple.600"
+              color="white"
+              _hover={{ bg: "purple.400" }}
+              size="lg"
+              w="100%"
+              isLoading={isLoading}
+            >
+              Submit
+            </Button>
+          </VStack>
+        </form>
+      </VStack>
+    </Center>
   );
 };

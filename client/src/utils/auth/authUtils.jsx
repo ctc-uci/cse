@@ -7,10 +7,9 @@ const logout = async (redirectPath, navigate, cookies) => {
   await signOut(auth);
   clearCookies(cookies);
   navigate(redirectPath);
-  window.location.reload(true);
+  // window.location.reload();
+  localStorage.clear();
+  sessionStorage.clear();
 };
-
-
-
 
 export { logout };

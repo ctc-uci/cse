@@ -50,7 +50,7 @@ export const ProgressBar = ({ currStep }) => {
           top="10px"
           zIndex={-1}
           colorScheme="purple"
-          sx={{ "--chakra-colors-purple-500": "#805AD5" }}
+          sx={{ "--chakra-colors-purple-500": "purple.600" }}
         />
       </Box>
     </Box>

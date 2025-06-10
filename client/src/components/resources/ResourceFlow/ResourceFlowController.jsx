@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useDisclosure } from "@chakra-ui/react";
 
+import { useAuthContext } from "../../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
 import { CardModal } from "./CardModal";
 import { FormModal } from "./FormModal";
@@ -13,6 +14,7 @@ import { UploadFileModal } from "./UploadFileModal";
 import { UploadLinkModal } from "./UploadLinkModal";
 
 export const ControllerModal = ({ autoOpen = true }) => {
+  const { currentUser } = useAuthContext();
   const { backend } = useBackendContext();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -63,11 +65,14 @@ export const ControllerModal = ({ autoOpen = true }) => {
   };
 
   const ajax = async () => {
+    const teacherIdResponse = await backend.get(`/users/${currentUser?.uid}`);
+    const teacherId = teacherIdResponse.data[0].id;
+
     const url = new URL(s3URL);
     const urlBeforeQuery = url.origin + url.pathname;
     let resourceId;
 
-    if (link.includes("youtube")) {
+    if (link.includes("youtube") || link.includes("youtu.be")) {
       // Create video resource
       const videoResponse = await backend.post("/classes-videos", {
         title: title,
@@ -75,6 +80,7 @@ export const ControllerModal = ({ autoOpen = true }) => {
         description: description,
         mediaUrl: link,
         classId: clsId,
+        teacherId: teacherId,
       });
 
       console.log("Video Response:", videoResponse);
@@ -99,6 +105,7 @@ export const ControllerModal = ({ autoOpen = true }) => {
         s3_url: urlBeforeQuery,
         description: title,
         media_url: link,
+        teacher_id: teacherId,
       });
 
       resourceId = articleResponse.data.id;

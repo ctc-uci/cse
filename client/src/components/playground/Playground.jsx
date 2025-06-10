@@ -1,23 +1,12 @@
-import { Button, useToast } from "@chakra-ui/react";
+import { Box, Button, Text, VStack } from "@chakra-ui/react";
+
+import { MdCheck, MdCheckCircle } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 export const Playground = () => {
-  const toast = useToast();
+  const title =
+    "classtitlethatisverylongandshouldbreakotherwiseiamgoingtohaveissueswiththelayout";
+  const navigate = useNavigate();
 
-  return (
-    <div>
-      <Button
-        onClick={() =>
-          toast({
-            title: "Account created.",
-            description: "We've created your account for you.",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-          })
-        }
-      >
-        Show Toast
-      </Button>
-    </div>
-  );
+  return <></>;
 };

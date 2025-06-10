@@ -5,10 +5,7 @@ import {
   Box,
   Center,
   Flex,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftAddon,
+  HStack,
   Tab,
   TabList,
   TabPanel,
@@ -17,14 +14,12 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { IoSearch } from "react-icons/io5";
-
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { Navbar } from "../navbar/Navbar";
+import { SearchBar } from "../searchbar/SearchBar";
 import { NewsCard } from "./NewsCard";
 import { ControllerModal } from "./ResourceFlow/ResourceFlowController";
-import { SearchBar } from "../searchbar/SearchBar";
 import { UploadComponent } from "./UploadComponent";
 import { VideoCard } from "./VideoCard";
 
@@ -37,7 +32,6 @@ export const Resources = () => {
   const [tagFilter, setTagFilter] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
-  const [tab, setTab] = useState();
 
   const { role } = useAuthContext();
 
@@ -143,17 +137,30 @@ export const Resources = () => {
 
   const handleSearch = async (query) => {
     try {
-      if (tabIndex === 0) {
-        const res = await backend.get(`/classes-videos/with-tags/search/${query}`);
-        setVideos(res.data);
-      } else if (tabIndex === 1) {
-        const res = await backend.get(`/articles/with-tags/search/${query}`);
-        setArticles(res.data);
+      if (!query) {
+        if (tabIndex === 0) {
+          const res = await backend.get("/classes-videos/with-tags");
+          setVideos(res.data);
+        }
+        if (tabIndex === 1) {
+          const res = await backend.get("/articles/with-tags");
+          setArticles(res.data);
+        }
+      } else {
+        if (tabIndex === 0) {
+          const res = await backend.get(
+            `/classes-videos/with-tags/search/${query}`
+          );
+          setVideos(res.data);
+        } else if (tabIndex === 1) {
+          const res = await backend.get(`/articles/with-tags/search/${query}`);
+          setArticles(res.data);
+        }
       }
     } catch (err) {
       console.log("Error fetching search:", err);
     }
-  }
+  };
 
   useEffect(() => {
     if (tabIndex == 0) {
@@ -164,42 +171,90 @@ export const Resources = () => {
       searchArticles();
     }
     fetchNews(); // Fetch news initially
-    fetchTags();   // Fetch tags initially
+    fetchTags(); // Fetch tags initially
   }, [tabIndex]);
 
   return (
-    <Box position="relative" pb="70px" minHeight="100vh">
-    <Flex direction="column" p={4}>
-      <SearchBar
-        onSearch={handleSearch}
-        tags={tags}
-        tagFilter={tagFilter}
-        backend={backend}
-        onTag={handleFilterToggle}
-      />
-
+    <Box
+      position="relative"
+      pb="70px"
+      minHeight="100vh"
+    >
+      <Flex
+        direction="column"
+        p={4}
+      >
         {/* place Videos and News cards into separate tabs */}
         <Tabs
           colorScheme="purple"
-          mt={4}
           index={tabIndex}
           onChange={(index) => setTabIndex(index)}
         >
           <Center>
             <TabList>
-              <Tab fontWeight="bold">Videos</Tab>
-              <Tab fontWeight="bold">Articles</Tab>
+              <Tab
+                fontWeight="bold"
+                _selected={{
+                  borderBottom: "2px",
+                  borderColor: "purple.600",
+                  fontWeight: "bold",
+                  color: "purple.600",
+                }}
+              >
+                Videos
+              </Tab>
+              <Tab
+                fontWeight="bold"
+                _selected={{
+                  borderBottom: "2px",
+                  borderColor: "purple.600",
+                  fontWeight: "bold",
+                  color: "purple.600",
+                }}
+              >
+                Articles
+              </Tab>
             </TabList>
           </Center>
           <TabPanels>
             <TabPanel>
-              <Text
-                fontWeight="bold"
-                mt={4}
-                mb={2}
-              >
-                Videos
-              </Text>
+              <Box mb={4}>
+                <SearchBar
+                  onSearch={handleSearch}
+                  tags={tags}
+                  tagFilter={tagFilter}
+                  backend={backend}
+                  onTag={handleFilterToggle}
+                />
+              </Box>
+              {role !== "student" && (
+                <HStack
+                  align="center"
+                  justify="center"
+                  mb={4}
+                  bg="gray.50"
+                  border="1px"
+                  borderRadius="lg"
+                  borderColor={"gray.300"}
+                  onClick={handleAddButtonClick}
+                  cursor="pointer"
+                  p={4}
+                >
+                  <Text
+                    fontWeight={"bold"}
+                    fontSize={"xl"}
+                  >
+                    Add a Video
+                  </Text>
+                  <Text
+                    fontSize={"2xl"}
+                    fontWeight={"bold"}
+                  >
+                    +
+                  </Text>
+                </HStack>
+              )}
+
               <Flex
                 wrap="wrap"
                 gap={4}
@@ -221,6 +276,8 @@ export const Resources = () => {
                         classId={video.classId}
                         classTitle={video.classTitle}
                         mediaUrl={video.mediaUrl}
+                        firstName={video.firstName}
+                        lastName={video.lastName}
                         tags={video.tags?.map((tag) => tags[tag] || [])}
                       />
                     );
@@ -229,13 +286,42 @@ export const Resources = () => {
               </Flex>
             </TabPanel>
             <TabPanel>
-              <Text
-                fontWeight="bold"
-                mt={4}
-                mb={2}
-              >
-                Articles
-              </Text>
+              <Box mb={4}>
+                <SearchBar
+                  onSearch={handleSearch}
+                  tags={tags}
+                  tagFilter={tagFilter}
+                  backend={backend}
+                  onTag={handleFilterToggle}
+                />
+              </Box>
+              {role !== "student" && (
+                <HStack
+                  align="center"
+                  justify="center"
+                  mb={4}
+                  bg="gray.50"
+                  border="1px"
+                  borderRadius="lg"
+                  borderColor={"gray.300"}
+                  onClick={handleAddButtonClick}
+                  cursor="pointer"
+                  p={4}
+                >
+                  <Text
+                    fontWeight={"bold"}
+                    fontSize={"xl"}
+                  >
+                    Add an Article
+                  </Text>
+                  <Text
+                    fontSize={"2xl"}
+                    fontWeight={"bold"}
+                  >
+                    +
+                  </Text>
+                </HStack>
+              )}
               <Flex
                 wrap="wrap"
                 gap={4}
@@ -254,6 +340,8 @@ export const Resources = () => {
                         S3Url={article.s3Url}
                         description={article.description}
                         mediaUrl={article.mediaUrl}
+                        firstName={article.firstName}
+                        lastName={article.lastName}
                         tags={article.tags?.map((tag) => tags[tag] || [])}
                       />
                     );
@@ -266,21 +354,6 @@ export const Resources = () => {
 
         {/* <UploadComponent /> */}
       </Flex>
-      {role === "teacher" && (
-        <IconButton
-          icon={<span style={{ fontSize: "24px" }}>+</span>}
-          colorScheme="purple"
-          size="lg"
-          isRound
-          position="fixed"
-          bottom="95px"
-          right="24px"
-          zIndex={5}
-          boxShadow="lg"
-          aria-label="Add new item"
-          onClick={handleAddButtonClick}
-        />
-      )}
       {showModal && <ControllerModal autoOpen={true} />}
       <Navbar />
     </Box>

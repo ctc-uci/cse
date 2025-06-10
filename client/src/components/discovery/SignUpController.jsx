@@ -17,59 +17,36 @@ function SignUpController({
   setOpenRootModal,
   class_id = null,
   event_id = null,
+  tags = [],
   ...infoProps
 }) {
   const { backend } = useBackendContext();
   const { currentUser } = useAuthContext();
   const [openCoreqModal, setOpenCoreqModal] = useState(false);
   const [corequisites, setCorequisites] = useState([]);
+  // Is null as a initial state in this case okay? Semantically it makes sense to me.
+  const [modalIdentity, setModalIdentity] = useState(null);
+  const [coReqResponse, setCoreqResponse] = useState(null);
+  const [filteredCorequisites, setFilteredCorequisites] = useState([]);
+  const [tag, setTags] = useState([]);
+  const [teacherName, setTeacherName] = useState("");
 
   const fetchCorequirements = useCallback(async () => {
-    const id = class_id !== null ? class_id : event_id;
-    const COREQUESITE_ROUTE =
-      class_id !== null
-        ? `/classes/corequisites/${id}`
-        : `/events/corequisites/${id}`;
+    const id = class_id ?? event_id;
+    const userId = user.data[0].id;
 
-    const ENROLLMENT_ROUTE =
-      class_id === null ? "/class-enrollments" : "/event-enrollments";
-
-    const fetchEnrollments = async (coreq) => {
-      try {
-        const enrollment = await backend
-          .get(ENROLLMENT_ROUTE)
-          .then((res) => res.data);
-
-        const user = await backend
-          .get(`/users/${currentUser.uid}`)
-          .then((res) => res.data[0]);
-
-        const userEnrollments = enrollment
-          .filter((event) => event.studentId === user.id)
-          .map((event) => {
-            if (class_id === null) {
-              return event.classId;
-            } else {
-              return event.eventId;
-            }
-          });
-
-        const corequisitesWithEnrollmentStatus = coreq.map((coreq) => {
-          if (userEnrollments.includes(coreq.id)) {
-            return { ...coreq, enrolled: true };
-          }
-          return coreq;
-        });
-        setCorequisites(corequisitesWithEnrollmentStatus);
-      } catch (error) {
-        console.error("Error fetching enrolled events or users:", error);
-      }
-    };
-
-    const response = await backend.get(COREQUESITE_ROUTE);
-    const coreq = response.data.map((coreq) => ({ ...coreq, enrolled: false }));
-    setCorequisites(coreq);
-    await fetchEnrollments(coreq);
+    if (class_id !== null) {
+      // For classes, get associated event corequisite (max 1 per class)
+      const classCoReqResponse = await backend.get(
+        `/classes/corequisites/${id}/${userId}`
+      );
+      setCoreqResponse(classCoReqResponse.data);
+    } else {
+      const response = await backend.get(
+        `/events/corequisites/${id}/${userId}`
+      );
+      setCoreqResponse(response.data);
+    }
   }, [backend, class_id, event_id, currentUser.uid]);
 
   const toggleRootModal = () => {
@@ -81,14 +58,56 @@ function SignUpController({
   };
 
   useEffect(() => {
+    if (coReqResponse) {
+      // is this check to see an event okay? Will classes get call times in the future?
+      // console.log("CoReqResponse: ", coReqResponse);
+      const coreqs = coReqResponse.map((coreq) => {
+        const userId = user.data[0].id;
+        // No need to check userId anymore, coreq response will only return the rows for studentId
+        if (userId === coreq.studentId) {
+          return {
+            ...coreq,
+            isEvent: coreq.callTime ? true : false,
+          };
+        } else {
+          return {
+            ...coreq,
+            isEvent: coreq.callTime ? true : false,
+          };
+        }
+      });
+
+      // filter out the class associated with the card the user is currently on.
+      const postProcessedCoreqs = coreqs.filter((coreq) => {
+        if (class_id) {
+          return class_id !== coreq.id;
+        }
+
+        if (event_id) {
+          return event_id !== coreq.id;
+        }
+      });
+      // console.log("Filtered Coreqs: ", postProcessedCoreqs);
+      setCorequisites(coreqs);
+      setFilteredCorequisites(postProcessedCoreqs);
+    }
+  }, [coReqResponse]);
+
+  useEffect(() => {
     if (openRootModal) {
       fetchCorequirements();
     }
   }, [fetchCorequirements, openRootModal]);
 
+  useEffect(() => {
+    // console.log(modalIdentity);
+  }, [modalIdentity]);
+
   if (class_id !== null && event_id !== null) {
     throw new Error("Cannot have both class_id and event_id");
   }
+
+  // console.log("SignUpController Rendered:", infoProps.title, class_id, event_id);
   return (
     <>
       {class_id ? (
@@ -96,31 +115,46 @@ function SignUpController({
           isOpenProp={openRootModal}
           id={class_id}
           {...infoProps}
-          corequisites={corequisites}
+          corequisites={filteredCorequisites}
+          filteredCorequisites={filteredCorequisites}
           isCorequisiteSignUp={false}
           handleClose={toggleRootModal}
           handleResolveCoreq={toggleCoreqModal}
           user={user}
+          modalIdentity={modalIdentity}
+          setModalIdentity={setModalIdentity}
+          tags={tags}
         />
       ) : (
         <EventInfoModal
           isOpenProp={openRootModal}
           id={event_id}
           {...infoProps}
-          corequisites={corequisites}
+          corequisites={filteredCorequisites}
           isCorequisiteSignUp={false}
           handleClose={toggleRootModal}
           handleResolveCoreq={toggleCoreqModal}
           user={user}
+          modalIdentity={modalIdentity}
+          setModalIdentity={setModalIdentity}
+          tags={tags}
         />
       )}
 
       <CoReqWarningModal
+        user={user}
         origin={class_id ? "CLASS" : "EVENT"}
+        title={infoProps.title}
         isOpenProp={openCoreqModal}
+        class_id={class_id}
+        event_id={event_id}
+        {...infoProps}
         lstCorequisites={corequisites}
         handleClose={toggleCoreqModal}
         killModal={() => setOpenCoreqModal(false)}
+        modalIdentity={modalIdentity}
+        setModalIdentity={setModalIdentity}
+        filteredCorequisites={filteredCorequisites}
       />
 
       {/* <Button onClick={() => setOpenRootModal(true)}>View Details</Button> */}

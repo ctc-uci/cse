@@ -8,13 +8,15 @@ import App from "./App.tsx";
 import "@fontsource-variable/inter";
 
 const colors = {
-  brand: {},
+  purple: {
+    100: "#6B46C1",
+  },
 };
 
 const fonts = {
-    body: `'inter', sans-serif`,
-    heading: `'inter', sans-serif`,
-}
+  body: `'inter', sans-serif`,
+  heading: `'inter', sans-serif`,
+};
 
 const theme = extendTheme({ colors, fonts });
 

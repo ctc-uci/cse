@@ -16,6 +16,7 @@ export const getDefaultDate = (dateString?: string) => {
 };
 
 export const isDefaultDate = (date: string) => {
+  if (!date) return true;
   return date.split("T")[0] === "1970-01-01";
 };
 

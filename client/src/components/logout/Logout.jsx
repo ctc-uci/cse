@@ -16,8 +16,7 @@ const Logout = ({ cookies }) => {
 
   const handleLogout = async () => {
     try {
-      await logout("/login", navigate, cookies);
-      navigate("/signup");
+      await logout("/landing", navigate, cookies);
     } catch (err) {
       setErrorMessage(err.message);
     }
@@ -29,7 +28,7 @@ const Logout = ({ cookies }) => {
       <Button
         type="submit"
         onClick={handleLogout}
-        bg="#6B46C1"
+        bg="purple.600"
         color="white"
         height="6.407vh"
         // width calculated from figma hi-fi

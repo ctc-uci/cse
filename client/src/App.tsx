@@ -16,8 +16,8 @@ import ClassDashboard, {
   OverallClassDashboard,
 } from "./components/dashboard/classDashboard/ClassDashboard";
 import ClassInfoDashboard from "./components/dashboard/classInfoDashboard/ClassInfoDashboard";
-import EventInfoDashboard from "./components/dashboard/eventInfoDashboard/EventInfoDashboard";
 import { Dashboard, DashboardHome } from "./components/dashboard/Dashboard";
+import EventInfoDashboard from "./components/dashboard/eventInfoDashboard/EventInfoDashboard";
 import SettingsDashboard from "./components/dashboard/settingsDashboard/SettingsDashboard";
 import { StudentDashboard } from "./components/dashboard/studentDashboard/StudentDashboard";
 import { StudentInfoDashboard } from "./components/dashboard/studentInfoDashboard/StudentInfoDashboard";
@@ -26,7 +26,6 @@ import { TeacherInfoDashboard } from "./components/dashboard/teacherInfoDashboar
 import { Discovery } from "./components/discovery/Discovery";
 import { CreateEvent } from "./components/forms/createEvent";
 import { Login } from "./components/login/Login";
-import { Landing } from "./components/signup/Landing";
 import { L } from "./components/logout/Logout";
 import { Playground } from "./components/playground/Playground";
 import { Profile } from "./components/profile/Profile";
@@ -34,14 +33,15 @@ import { Settings } from "./components/profile/Settings";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Resources } from "./components/resources/Resources";
 import { Reviews } from "./components/reviews/Reviews";
+import { Landing } from "./components/signup/Landing";
 import { Signup } from "./components/signup/Signup";
 import Request from "./components/teacher-signup/requests/Request";
 import { TeacherSignup } from "./components/teacher-signup/TeacherSignup";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BackendProvider } from "./contexts/BackendContext";
 import { RoleProvider } from "./contexts/RoleContext";
-import { ForgotPasswordConfirmation } from "./utils/auth/ForgotPasswordConfirmation"
 import { ForgotPassword } from "./utils/auth/ForgotPassword";
+import { ForgotPasswordConfirmation } from "./utils/auth/ForgotPasswordConfirmation";
 
 const App = () => {
   return (
