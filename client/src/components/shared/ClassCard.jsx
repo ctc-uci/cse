@@ -11,14 +11,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { FaMicrophoneAlt, FaMusic } from "react-icons/fa";
-import {
-  GiAbstract001,
-  GiBallerinaShoes,
-  GiBoombox,
-  GiCartwheel,
-  GiTambourine,
-} from "react-icons/gi";
+// import { FaMicrophoneAlt, FaMusic } from "react-icons/fa";
+// import {
+//   GiAbstract001,
+//   GiBallerinaShoes,
+//   GiBoombox,
+//   GiCartwheel,
+//   GiTambourine,
+// } from "react-icons/gi";
 import { useLocation } from "react-router-dom";
 
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -49,24 +49,23 @@ export const ClassCard = memo(
 
     const getIcon = () => {
       const iconSize = 50;
-      // console.log("tags", tags);
       switch (tags[0]?.id) {
         case 1:
-          return <FaMusic size={iconSize} />;
+          return <Image src="/card_images/fan.svg" alt="Classical dance icon" boxSize={iconSize}/>;
         case 2:
-          return <GiBallerinaShoes size={iconSize} />;
+          return <Image src="/card_images/shoes.svg" alt="Ballet dance icon" boxSize={iconSize}/>;
         case 3:
-          return <FaMicrophoneAlt size={iconSize} />;
+          return <Image src="/card_images/not_iems.svg" alt="Kpop dance icon" boxSize={iconSize}/>;
         case 4:
-          return <GiBoombox size={iconSize} />;
+          return <Image src="/card_images/mic.svg" alt="Hip Hop dance icon" boxSize={iconSize}/>;
         case 5:
-          return <GiAbstract001 size={iconSize} />;
+          return <Image src="/card_images/music.svg" alt="Contemporary dance icon" boxSize={iconSize}/>;
         case 6:
-          return <GiCartwheel size={iconSize} />;
+          return <Image src="/card_images/gymnastics.svg" alt="Tumbling dance icon" boxSize={iconSize}/>;
         case 7:
-          return <GiTambourine size={iconSize} />;
+          return <Image src="/card_images/flute.svg" alt="Folklore dance icon" boxSize={iconSize}/>;
         default:
-          return <FaMusic size={iconSize} />;
+          return <Image src="/card_images/dancer.svg" alt="Dance icon" boxSize={iconSize}/>;
       }
     };
 
