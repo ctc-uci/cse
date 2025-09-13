@@ -21,7 +21,7 @@
     "@fontsource-variable/inter": "^5.2.5",
     "@hookform/resolvers": "^3.9.0",
     "@react-email/components": "0.0.32",
-    "axios": "^1.7.4",
+    "axios": "^1.12.0",
     "firebase": "10.12.5",
     "framer-motion": "^11.3.27",
     "npo-client-template": "file:",
