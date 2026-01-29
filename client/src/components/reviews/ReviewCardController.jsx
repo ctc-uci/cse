@@ -30,7 +30,10 @@ function ReviewCardController(props) {
     fetchStudent();
   }, [backend, student_id]);
   return (
-    <Card position="relative">
+    <Card
+      position="relative"
+      width="100%"
+    >
       {currentUser.uid === student?.firebaseUid && (
         <Button
           position={"absolute"}

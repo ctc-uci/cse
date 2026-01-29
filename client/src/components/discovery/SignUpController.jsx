@@ -4,7 +4,7 @@ import { Button } from "@chakra-ui/react";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import ClassInfoModal from "./ClassInfoModal";
+import ClassInfoView from "./ClassInfoView";
 import CoReqWarningModal from "./CoReqWarningModal";
 import EventInfoModal from "./EventInfoModal";
 
@@ -33,6 +33,9 @@ function SignUpController({
 
   const fetchCorequirements = useCallback(async () => {
     const id = class_id ?? event_id;
+    if (!user?.data?.[0]?.id) {
+      return;
+    }
     const userId = user.data[0].id;
 
     if (class_id !== null) {
@@ -47,18 +50,22 @@ function SignUpController({
       );
       setCoreqResponse(response.data);
     }
-  }, [backend, class_id, event_id, currentUser.uid]);
+  }, [backend, class_id, event_id, user]);
 
   const toggleRootModal = () => {
     setOpenRootModal(!openRootModal);
   };
+
+  const closeRootModal = useCallback(() => {
+    setOpenRootModal(false);
+  }, []);
   const toggleCoreqModal = () => {
     toggleRootModal();
     setOpenCoreqModal(true);
   };
 
   useEffect(() => {
-    if (coReqResponse) {
+    if (coReqResponse && user?.data?.[0]?.id) {
       // is this check to see an event okay? Will classes get call times in the future?
       // console.log("CoReqResponse: ", coReqResponse);
       const coreqs = coReqResponse.map((coreq) => {
@@ -91,7 +98,7 @@ function SignUpController({
       setCorequisites(coreqs);
       setFilteredCorequisites(postProcessedCoreqs);
     }
-  }, [coReqResponse]);
+  }, [coReqResponse, user]);
 
   useEffect(() => {
     if (openRootModal) {
@@ -111,14 +118,14 @@ function SignUpController({
   return (
     <>
       {class_id ? (
-        <ClassInfoModal
+        <ClassInfoView
           isOpenProp={openRootModal}
           id={class_id}
           {...infoProps}
           corequisites={filteredCorequisites}
           filteredCorequisites={filteredCorequisites}
           isCorequisiteSignUp={false}
-          handleClose={toggleRootModal}
+          handleClose={closeRootModal}
           handleResolveCoreq={toggleCoreqModal}
           user={user}
           modalIdentity={modalIdentity}
