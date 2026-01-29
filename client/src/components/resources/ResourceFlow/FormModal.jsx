@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  Badge,
   Button,
   Flex,
   FormControl,
   FormLabel,
-  HStack,
   IconButton,
   Input,
   Modal,
@@ -21,9 +19,9 @@ import {
 } from "@chakra-ui/react";
 
 import { AiOutlineArrowLeft } from "react-icons/ai";
-import { IoCloseSharp } from "react-icons/io5";
 
 import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
+import { TagSelector } from "../../shared/TagSelector";
 import { ProgressBar } from "./ProgressBar";
 import { UploadComponent } from "./UploadComponent";
 
@@ -37,7 +35,7 @@ export const FormModal = ({
   setDescription,
   link,
   setLink,
-  s3URL,
+  s3URL: _s3URL,
   setS3URL,
   tags,
   setTags,
@@ -194,67 +192,15 @@ export const FormModal = ({
             <br />
             <FormControl mb={1}>
               <FormLabel>Select tags</FormLabel>
-              <Flex
-                gap={3}
-                flexWrap="wrap"
-                width="100%"
-              >
-                {Object.keys(allTags).map((tag) => {
-                  const isSelected = tags.includes(allTags[tag]);
-                  return (
-                    <Badge
-                      key={tag}
-                      onClick={handleClassFilterToggle(tag)}
-                      rounded="full"
-                      border={isSelected ? "none" : "1px solid"}
-                      borderColor="gray.300"
-                      color={isSelected ? "purple.800" : "gray.600"}
-                      bg={isSelected ? "purple.100" : "white"}
-                      textTransform="none"
-                      cursor="pointer"
-                      position="relative"
-                      display="inline-flex"
-                      alignItems="center"
-                      h="28px"
-                      transition="all 0.2s ease-in-out"
-                    >
-                      <Text
-                        px={2}
-                        pr={isSelected ? 5 : 2}
-                        fontWeight={isSelected ? 500 : 400}
-                        lineHeight="1"
-                        transition="font-weight 0.2s ease-in-out, padding-right 0.2s ease-in-out"
-                      >
-                        {tag.charAt(0).toUpperCase() +
-                          tag.slice(1).toLowerCase()}
-                      </Text>
-                      {isSelected && (
-                        <IconButton
-                          bg="transparent"
-                          aria-label="Close"
-                          icon={
-                            <IoCloseSharp
-                              color="purple.800"
-                              opacity={0.5}
-                            />
-                          }
-                          variant="unstyled"
-                          position="absolute"
-                          right="4px"
-                          top="50%"
-                          transform="translateY(-50%)"
-                          w="16px"
-                          h="16px"
-                          minW="16px"
-                          p={0}
-                          m={0}
-                          transition="opacity 0.2s ease-in-out"
-                        />
-                      )}
-                    </Badge>
-                  );
-                })}
-              </Flex>
+              <TagSelector
+                tags={allTags}
+                selectedTags={tags}
+                onTagToggle={(tagName) => {
+                  handleClassFilterToggle(tagName)();
+                }}
+                scrollable={false}
+                reverseMapping={true}
+              />
             </FormControl>
             <br />
             <FormControl mb={1}>
