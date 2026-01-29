@@ -4,29 +4,21 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Card,
   Divider,
-  Flex,
   HStack,
   IconButton,
   Image,
   List,
-  ListIcon,
-  ListItem,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
-
-import { FaPencilAlt, FaTimesCircle } from "react-icons/fa";
-import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -262,7 +254,6 @@ const ClassInfoModal = ({
                   </Text>
                 )}
               </Box>
-
               <Box>
                 <Text
                   fontWeight="bold"
@@ -301,26 +292,23 @@ const ClassInfoModal = ({
                 )}
               </Box>
             </VStack>
+            <br />
+            <Divider orientation="horizontal" />
+            <br />
+            {role === "student" && (
+              <Button
+                width="100%"
+                py={3}
+                bg="purple.600"
+                color="white"
+                onClick={classSignUp}
+              >
+                Sign Up
+              </Button>
+            )}
+            <br />
+            <PublishedReviews classId={id} />
           </ModalBody>
-          <Flex
-            justifyContent="center"
-            width="100%"
-          >
-            <ModalFooter>
-              {role === "student" && (
-                <Button
-                  width="100%"
-                  p={7}
-                  bg="purple.600"
-                  color="white"
-                  onClick={classSignUp}
-                >
-                  Sign up
-                </Button>
-              )}
-            </ModalFooter>
-          </Flex>
-          <PublishedReviews classId={id} />
         </ModalContent>
         {/* <PublishedReviews
           title={title}
