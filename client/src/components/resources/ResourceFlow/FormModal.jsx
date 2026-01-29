@@ -199,32 +199,36 @@ export const FormModal = ({
                 flexWrap="wrap"
                 width="100%"
               >
-                {Object.keys(allTags).map((tag) => (
-                  <Badge
-                    key={tag}
-                    onClick={handleClassFilterToggle(tag)}
-                    rounded="full"
-                    border={tags.includes(allTags[tag]) ? "none" : "1px solid"}
-                    borderColor="gray.300"
-                    color={
-                      tags.includes(allTags[tag]) ? "purple.800" : "gray.600"
-                    }
-                    bg={tags.includes(allTags[tag]) ? "purple.100" : "white"}
-                    textTransform="none"
-                    cursor="pointer"
-                    transition="all 0.2s ease-in-out"
-                  >
-                    <HStack>
+                {Object.keys(allTags).map((tag) => {
+                  const isSelected = tags.includes(allTags[tag]);
+                  return (
+                    <Badge
+                      key={tag}
+                      onClick={handleClassFilterToggle(tag)}
+                      rounded="full"
+                      border={isSelected ? "none" : "1px solid"}
+                      borderColor="gray.300"
+                      color={isSelected ? "purple.800" : "gray.600"}
+                      bg={isSelected ? "purple.100" : "white"}
+                      textTransform="none"
+                      cursor="pointer"
+                      position="relative"
+                      display="inline-flex"
+                      alignItems="center"
+                      h="28px"
+                      transition="all 0.2s ease-in-out"
+                    >
                       <Text
-                        p={1}
-                        fontWeight={
-                          tags.includes(allTags[tag]) ? "bold" : "normal"
-                        }
+                        px={2}
+                        pr={isSelected ? 5 : 2}
+                        fontWeight={isSelected ? 500 : 400}
+                        lineHeight="1"
+                        transition="font-weight 0.2s ease-in-out, padding-right 0.2s ease-in-out"
                       >
                         {tag.charAt(0).toUpperCase() +
                           tag.slice(1).toLowerCase()}
                       </Text>
-                      {tags.includes(allTags[tag]) && (
+                      {isSelected && (
                         <IconButton
                           bg="transparent"
                           aria-label="Close"
@@ -235,16 +239,21 @@ export const FormModal = ({
                             />
                           }
                           variant="unstyled"
-                          minW={0}
-                          h="auto"
+                          position="absolute"
+                          right="4px"
+                          top="50%"
+                          transform="translateY(-50%)"
+                          w="16px"
+                          h="16px"
+                          minW="16px"
                           p={0}
                           m={0}
-                          ml={-2}
+                          transition="opacity 0.2s ease-in-out"
                         />
                       )}
-                    </HStack>
-                  </Badge>
-                ))}
+                    </Badge>
+                  );
+                })}
               </Flex>
             </FormControl>
             <br />

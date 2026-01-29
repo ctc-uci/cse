@@ -7,18 +7,12 @@ import App from "./App.tsx";
 
 import "@fontsource-variable/inter";
 
-const colors = {
-  purple: {
-    100: "#6B46C1",
-  },
-};
-
 const fonts = {
   body: `'inter', sans-serif`,
   heading: `'inter', sans-serif`,
 };
 
-const theme = extendTheme({ colors, fonts });
+const theme = extendTheme({ fonts });
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
