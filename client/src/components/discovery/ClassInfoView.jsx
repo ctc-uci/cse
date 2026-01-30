@@ -14,7 +14,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -47,6 +47,7 @@ const ClassInfoView = ({
   const { currentUser, role } = useAuthContext();
   const { backend } = useBackendContext();
   const routerLocation = useLocation();
+  const navigate = useNavigate();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
@@ -165,8 +166,10 @@ const ClassInfoView = ({
   useEffect(() => {
     if (isOpenProp && routerLocation.state?.forceRefresh) {
       handleClose();
+      // Clear the forceRefresh state to prevent it from affecting future opens
+      navigate(routerLocation.pathname, { replace: true, state: {} });
     }
-  }, [routerLocation.state, isOpenProp, handleClose]);
+  }, [routerLocation.state, isOpenProp, handleClose, navigate, routerLocation.pathname]);
 
   if (!isOpenProp) {
     return null;

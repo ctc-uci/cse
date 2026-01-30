@@ -1,38 +1,25 @@
 import { memo, useEffect, useState } from "react";
 
-// import { MdArrowBackIosNew, MdMoreHoriz } from "react-icons/md";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Divider,
-  Flex,
-  Grid,
-  GridItem,
-  Heading,
   HStack,
   IconButton,
   List,
-  ListIcon,
-  ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
 
-// import { useAuthContext } from "../../contexts/hooks/useAuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { formatDate, formatTime } from "../../utils/formatDateTime";
 import PublishedReviews from "../reviews/classReview";
 
-export const ViewModal = ({
+export const ViewView = ({
   isOpen,
   onClose,
   setCurrentModal,
@@ -50,6 +37,8 @@ export const ViewModal = ({
   };
 
   const { backend } = useBackendContext();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
   const [corequisites, setCorequisites] = useState([]);
 
   useEffect(() => {
@@ -136,8 +125,9 @@ export const ViewModal = ({
             <Text
               mt={1}
               fontSize={"md"}
+              fontStyle="italic"
             >
-              <em>No prerequisites for this class</em>
+              No prerequisites for this class
             </Text>
           )}
         </Box>
@@ -164,8 +154,11 @@ export const ViewModal = ({
               </Tag>
             ))
           ) : (
-            <Text fontSize={"md"}>
-              <em>No performances for this class</em>
+            <Text
+              fontSize={"md"}
+              fontStyle="italic"
+            >
+              No performances for this class
             </Text>
           )}
         </Box>
@@ -173,76 +166,113 @@ export const ViewModal = ({
       </VStack>
     </>
   );
+
+  // Close the view when navigating away from bookings
+  useEffect(() => {
+    if (isOpen && routerLocation.pathname !== "/bookings") {
+      onClose();
+    }
+  }, [routerLocation.pathname, isOpen, onClose]);
+
+  // Close the view when location state changes (force refresh from navbar)
+  useEffect(() => {
+    if (isOpen && routerLocation.state?.forceRefresh) {
+      onClose();
+      // Clear the forceRefresh state to prevent it from affecting future opens
+      navigate(routerLocation.pathname, { replace: true, state: {} });
+    }
+  }, [routerLocation.state, isOpen, onClose, navigate, routerLocation.pathname]);
+
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Modal
-      size="full"
-      isOpen={isOpen}
-      onClose={onClose}
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      bg="white"
+      zIndex={1000}
+      overflowY="auto"
+      pb={20}
     >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          <VStack
-            align={"start"}
+      <Box
+        maxW="100%"
+        px={6}
+        py={4}
+      >
+        <VStack
+          align="start"
+          spacing={4}
+          mb={4}
+        >
+          <IconButton
+            icon={<ArrowBackIcon />}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Back"
+            variant="ghost"
+            fontSize={"2xl"}
+            p={4}
+            ml={-4}
+          />
+          <List>
+            {tags.map((tag, index) => (
+              <Tag
+                key={index}
+                mr={1}
+                mb={1}
+                mt={1}
+                borderRadius={"full"}
+                bg="white"
+                textColor="gray.600"
+                borderColor={"gray.300"}
+                borderWidth={1}
+              >
+                {tag.tag[0].toUpperCase() + tag.tag.slice(1)}
+              </Tag>
+            ))}
+          </List>
+          <Text
+            justifyContent="center"
             wordBreak={"break-word"}
+            fontWeight={"bold"}
           >
-            <IconButton
-              icon={<ArrowBackIcon />}
-              onClick={onClose}
-              aria-label="Back"
-              variant="ghost"
-              fontSize={"2xl"}
-              p={4}
-              ml={-4}
-            />
-            <List>
-              {tags.map((tag, index) => (
-                <Tag
-                  key={index}
-                  mr={1}
-                  mb={1}
-                  mt={1}
-                  borderRadius={"full"}
-                  bg="white"
-                  textColor="gray.600"
-                  borderColor={"gray.300"}
-                  borderWidth={1}
-                >
-                  {tag.tag[0].toUpperCase() + tag.tag.slice(1)}
-                </Tag>
-              ))}
-            </List>
-            <Text
-              justifyContent="center"
-              wordBreak={"break-word"}
-              fontWeight={"bold"}
+            {card?.title ?? "Create a Class/Draft"}
+          </Text>
+        </VStack>
+        <Box>
+          {viewInfo}
+          {!isAttended && !card?.attendance && (
+            <Box
+              mt={6}
+              textAlign="center"
             >
-              {card?.title ?? "Create a Class/Draft"}
-            </Text>
-          </VStack>
-        </ModalHeader>
-        <ModalBody>{viewInfo}</ModalBody>
-        {!isAttended && !card?.attendance && (
-          <ModalFooter justifyContent="center">
-            <Button
-              width="60%"
-              size="sm"
-              background="purple.600"
-              color="white"
-              mr={3}
-              onClick={onCancel}
-              px={10}
-              py={6}
-            >
-              Cancel RSVP
-            </Button>
-          </ModalFooter>
-        )}
-        <PublishedReviews
-          classId={card?.id}
-          isAttended={isAttended}
-        />
-      </ModalContent>
-    </Modal>
+              <Button
+                width="60%"
+                size="sm"
+                background="purple.600"
+                color="white"
+                onClick={onCancel}
+                px={10}
+                py={6}
+              >
+                Cancel RSVP
+              </Button>
+            </Box>
+          )}
+          <PublishedReviews
+            classId={card?.id}
+            isAttended={isAttended}
+          />
+        </Box>
+      </Box>
+    </Box>
   );
 };

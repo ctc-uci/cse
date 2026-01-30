@@ -6,7 +6,7 @@ import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import ClassInfoView from "./ClassInfoView";
 import CoReqWarningModal from "./CoReqWarningModal";
-import EventInfoModal from "./EventInfoModal";
+import EventInfoView from "./EventInfoView";
 
 /*
 infoProps: title, location, description, level, date, id, capacity, costume
@@ -133,13 +133,13 @@ function SignUpController({
           tags={tags}
         />
       ) : (
-        <EventInfoModal
+        <EventInfoView
           isOpenProp={openRootModal}
           id={event_id}
           {...infoProps}
           corequisites={filteredCorequisites}
           isCorequisiteSignUp={false}
-          handleClose={toggleRootModal}
+          handleClose={closeRootModal}
           handleResolveCoreq={toggleCoreqModal}
           user={user}
           modalIdentity={modalIdentity}

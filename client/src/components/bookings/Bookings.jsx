@@ -58,8 +58,8 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { TeacherCancelModal } from "./TeacherCancelModal";
 import { TeacherConfirmationModal } from "./TeacherConfirmationModal";
 import { TeacherEditModal } from "./TeacherEditModal";
-import { TeacherViewModal } from "./TeacherViewModal";
-import { ViewModal } from "./ViewModal";
+import { TeacherViewView } from "./TeacherViewView";
+import { ViewView } from "./ViewView";
 
 export const Bookings = () => {
   const navigate = useNavigate();
@@ -935,7 +935,7 @@ export const Bookings = () => {
         currentModal === "view" ? (
           // this is always going to be the view for classes
           // events view modal is handled in the event card component
-          <TeacherViewModal
+          <TeacherViewView
             isOpen={isOpen}
             onClose={onCloseModal}
             setCurrentModal={setCurrentModal}
@@ -1007,7 +1007,7 @@ export const Bookings = () => {
         )
       ) : // STUDENT VIEW HERE
       currentModal === "view" ? (
-        <ViewModal
+        <ViewView
           isOpen={isOpen}
           onClose={onClose}
           setCurrentModal={setCurrentModal}

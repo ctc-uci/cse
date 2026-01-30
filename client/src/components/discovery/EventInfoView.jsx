@@ -5,34 +5,23 @@ import {
   Box,
   Button,
   Divider,
-  Flex,
   HStack,
   IconButton,
   Image,
   List,
-  ListIcon,
-  ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
 
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { formatDate, formatTime } from "../../utils/formatDateTime";
 import SuccessSignupModal from "./SuccessSignupModal";
 
-const EventInfoModal = ({
+const EventInfoView = ({
   user,
   isOpenProp,
   handleClose,
@@ -52,6 +41,8 @@ const EventInfoModal = ({
   handleResolveCoreq = () => {},
 }) => {
   const { backend } = useBackendContext();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
@@ -60,31 +51,44 @@ const EventInfoModal = ({
   const [callTime, setCallTime] = useState("");
 
   const getStartTime = async () => {
-    const data = await backend.get(`/events/${id}`);
-    setStartTime(data.data[0].startTime);
-    setEndTime(data.data[0].endTime);
-    setCallTime(data.data[0].callTime);
+    try {
+      const data = await backend.get(`/events/${id}`);
+      if (data?.data?.[0]) {
+        setStartTime(data.data[0].startTime);
+        setEndTime(data.data[0].endTime);
+        setCallTime(data.data[0].callTime);
+      }
+    } catch (error) {
+      console.error("Error fetching event time:", error);
+    }
   };
 
   const enrollInEvent = async () => {
-    // Check if already checked into event
-    const currentCheckIn = await backend.get(`/event-enrollments/test`, {
-      params: {
-        student_id: user.data[0].id,
-        event_id: id,
-      },
-    });
-    if (user.data[0] && !currentCheckIn.data.exists) {
-      const req = await backend.post(`/event-enrollments/`, {
-        student_id: user.data[0].id,
-        event_id: id,
-        attendance: null,
-      });
-      if (req.status === 201) {
-        setOpenSuccessModal(true);
+    try {
+      if (!user?.data?.[0]?.id) {
+        return;
       }
-    } else {
-      console.log("Already signed up for this event!");
+      // Check if already checked into event
+      const currentCheckIn = await backend.get(`/event-enrollments/test`, {
+        params: {
+          student_id: user.data[0].id,
+          event_id: id,
+        },
+      });
+      if (user.data[0] && !currentCheckIn.data.exists) {
+        const req = await backend.post(`/event-enrollments/`, {
+          student_id: user.data[0].id,
+          event_id: id,
+          attendance: null,
+        });
+        if (req.status === 201) {
+          setOpenSuccessModal(true);
+        }
+      } else {
+        console.log("Already signed up for this event!");
+      }
+    } catch (error) {
+      console.error("Error enrolling in event:", error);
     }
   };
 
@@ -109,11 +113,30 @@ const EventInfoModal = ({
   };
 
   useEffect(() => {
-    if (!isOpenProp) {
-      return;
+    if (isOpenProp) {
+      getStartTime();
     }
-    getStartTime();
   }, [isOpenProp]);
+
+  // Close the view when navigating away from discovery
+  useEffect(() => {
+    if (isOpenProp && routerLocation.pathname !== "/discovery") {
+      handleClose();
+    }
+  }, [routerLocation.pathname, isOpenProp, handleClose]);
+
+  // Close the view when location state changes (force refresh from navbar)
+  useEffect(() => {
+    if (isOpenProp && routerLocation.state?.forceRefresh) {
+      handleClose();
+      // Clear the forceRefresh state to prevent it from affecting future opens
+      navigate(routerLocation.pathname, { replace: true, state: {} });
+    }
+  }, [routerLocation.state, isOpenProp, handleClose, navigate, routerLocation.pathname]);
+
+  if (!isOpenProp) {
+    return null;
+  }
 
   return (
     <>
@@ -124,51 +147,66 @@ const EventInfoModal = ({
         isCoreq={isCorequisiteSignUp}
       />
 
-      <Modal
-        isOpen={isOpenProp}
-        size="full"
-        onClose={handleClose}
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="white"
+        zIndex={1000}
+        overflowY="auto"
+        pb={20}
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <VStack align={"start"}>
-              <IconButton
-                icon={<ArrowBackIcon />}
-                onClick={handleClose}
-                aria-label="Back"
-                variant="ghost"
-                fontSize={"2xl"}
-                p={4}
-                ml={-4}
-              />
-              <List>
-                {tags.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    mr={1}
-                    mb={1}
-                    mt={1}
-                    borderRadius={"full"}
-                    bg="white"
-                    textColor="gray.600"
-                    borderColor={"gray.300"}
-                    borderWidth={1}
-                  >
-                    {tag.tag}
-                  </Tag>
-                ))}
-              </List>
-              <Text
-                justifyContent="center"
-                wordBreak={"break-word"}
-                fontWeight={"bold"}
-              >
-                {title}
-              </Text>
-            </VStack>
-          </ModalHeader>
-          <ModalBody>
+        <Box
+          maxW="100%"
+          px={6}
+          py={4}
+        >
+          <VStack
+            align="start"
+            spacing={4}
+            mb={4}
+          >
+            <IconButton
+              icon={<ArrowBackIcon />}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClose();
+              }}
+              aria-label="Back"
+              variant="ghost"
+              fontSize={"2xl"}
+              p={4}
+              ml={-4}
+            />
+            <List>
+              {tags.map((tag, index) => (
+                <Tag
+                  key={index}
+                  mr={1}
+                  mb={1}
+                  mt={1}
+                  borderRadius={"full"}
+                  bg="white"
+                  textColor="gray.600"
+                  borderColor={"gray.300"}
+                  borderWidth={1}
+                >
+                  {tag.tag}
+                </Tag>
+              ))}
+            </List>
+            <Text
+              justifyContent="center"
+              wordBreak={"break-word"}
+              fontWeight={"bold"}
+            >
+              {title}
+            </Text>
+          </VStack>
+          <Box>
             <Text>
               {description
                 ? `Description: ${description}`
@@ -235,36 +273,31 @@ const EventInfoModal = ({
                     <Text
                       mt={1}
                       fontSize={"md"}
+                      fontStyle="italic"
                     >
-                      <em>No prerequisites for this class</em>
+                      No prerequisites for this class
                     </Text>
                   )}
                 </Box>
               </HStack>
             </VStack>
-          </ModalBody>
-          <Flex
-            justifyContent="center"
-            width="100%"
-          >
-            <ModalFooter>
-              <Flex justify="center">
-                <Button
-                  width="100%"
-                  p={7}
-                  bg="purple.600"
-                  color="white"
-                  onClick={eventSignUp}
-                >
-                  Sign Up
-                </Button>
-              </Flex>
-            </ModalFooter>
-          </Flex>
-        </ModalContent>
-      </Modal>
+            <br />
+            <Divider orientation="horizontal" />
+            <br />
+            <Button
+              width="100%"
+              py={3}
+              bg="purple.600"
+              color="white"
+              onClick={eventSignUp}
+            >
+              Sign Up
+            </Button>
+          </Box>
+        </Box>
+      </Box>
     </>
   );
 };
 
-export default EventInfoModal;
+export default EventInfoView;

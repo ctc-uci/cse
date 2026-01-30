@@ -23,7 +23,7 @@ import { useLocation } from "react-router-dom";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { formatDate, formatTime } from "../../utils/formatDateTime";
-import TeacherEventViewModal from "../bookings/teacherView/TeacherEventViewModal";
+import TeacherEventViewView from "../bookings/teacherView/TeacherEventViewView";
 import SignUpController from "../discovery/SignUpController";
 
 export const EventCard = memo(
@@ -193,7 +193,7 @@ export const EventCard = memo(
           tags={tags}
         />
         {role && role !== "student" && (
-          <TeacherEventViewModal
+          <TeacherEventViewView
             isOpenProp={openTeacherModal}
             handleClose={closeTeacherModal}
             id={id}

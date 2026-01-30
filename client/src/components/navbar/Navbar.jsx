@@ -50,13 +50,10 @@ export const Navbar = () => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const handleClick = (e) => {
-            // If clicking Discovery while already on Discovery, force navigation to close any open (i.e. ClassInfoView)
-            if (
-              item.path === "/discovery" &&
-              location.pathname === "/discovery"
-            ) {
+            // If clicking nav item while already on that route, force navigation to close any open views
+            if (item.path === location.pathname) {
               e.preventDefault();
-              navigate("/discovery", {
+              navigate(item.path, {
                 replace: true,
                 state: { forceRefresh: Date.now() },
               });

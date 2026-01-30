@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Center,
-  Container,
   Divider,
   Flex,
   HStack,
@@ -13,22 +12,17 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Tag,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 
-import { AiOutlineArrowLeft } from "react-icons/ai";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import { BiSolidEdit, BiTrash } from "react-icons/bi";
-import { BsChevronLeft } from "react-icons/bs";
-import { FaRegTrashCan } from "react-icons/fa6";
 import { MdMoreHoriz } from "react-icons/md";
+
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { formatDate, formatTime } from "../../utils/formatDateTime";
@@ -36,7 +30,7 @@ import PublishedReviews from "../reviews/classReview";
 import { ClassRSVP } from "../rsvp/classRsvp.jsx";
 import { QRCode } from "./teacherView/qrcode/QRCode.jsx";
 
-export const TeacherViewModal = memo(
+export const TeacherViewView = memo(
   ({
     isOpen,
     onClose,
@@ -47,6 +41,8 @@ export const TeacherViewModal = memo(
     magic,
   }) => {
     const { backend } = useBackendContext();
+    const routerLocation = useLocation();
+    const navigate = useNavigate();
     const [instructorName, setInstructorName] = useState("");
 
     const fetchInstructor = async () => {
@@ -57,7 +53,7 @@ export const TeacherViewModal = memo(
         const res = await backend.get(
           `/classes-taught/instructor/${classData.id}`
         );
-        if (res.data) {
+        if (res?.data?.[0]) {
           const { firstName, lastName } = res.data[0];
           setInstructorName(`${firstName} ${lastName}`);
         }
@@ -68,11 +64,26 @@ export const TeacherViewModal = memo(
     };
 
     useEffect(() => {
-      if (!isOpen) {
-        return;
+      if (isOpen) {
+        fetchInstructor();
       }
-      fetchInstructor();
-    }, [backend, classData?.id, magic]);
+    }, [backend, classData?.id, magic, isOpen]);
+
+    // Close the view when navigating away from bookings
+    useEffect(() => {
+      if (isOpen && routerLocation.pathname !== "/bookings") {
+        onClose();
+      }
+    }, [routerLocation.pathname, isOpen, onClose]);
+
+    // Close the view when location state changes (force refresh from navbar)
+    useEffect(() => {
+      if (isOpen && routerLocation.state?.forceRefresh) {
+        onClose();
+        // Clear the forceRefresh state to prevent it from affecting future opens
+        navigate(routerLocation.pathname, { replace: true, state: {} });
+      }
+    }, [routerLocation.state, isOpen, onClose, navigate, routerLocation.pathname]);
 
     const onCancel = () => {
       setCurrentModal("cancel");
@@ -88,55 +99,78 @@ export const TeacherViewModal = memo(
       onClose: onRSVPClose,
     } = useDisclosure();
 
+    if (!isOpen) {
+      return null;
+    }
+
     return (
       <>
-        <Modal
-          size="full"
-          isOpen={isOpen}
-          onClose={onClose}
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="gray.50"
+          zIndex={1000}
+          overflowY="auto"
+          pb={20}
         >
-          <ModalOverlay>
-            <ModalContent>
-              <ModalHeader>
-                <HStack justify="space-between">
-                  <AiOutlineArrowLeft
-                    cursor="pointer"
-                    onClick={onClose}
-                  />
-                  <Menu bg="gray.50">
-                    <MenuButton
-                      bg="gray.50"
-                      as={IconButton}
-                      icon={<MdMoreHoriz />}
-                    />
-                    <MenuList
-                      backgroundColor="gray.100"
-                      p={0}
-                      minW="auto"
-                      w="110px"
-                      h="80px"
-                    >
-                      <MenuItem
-                        value="edit"
-                        onClick={enterEditMode}
-                        background="transparent"
-                      >
-                        <BiSolidEdit style={{ marginRight: "6px" }} />
-                        Edit
-                      </MenuItem>
-                      <MenuItem
-                        value="delete"
-                        onClick={onCancel}
-                        background="transparent"
-                      >
-                        <BiTrash style={{ marginRight: "6px" }} />
-                        Delete
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </HStack>
-              </ModalHeader>
-              <ModalBody bg="gray.50">
+          <Box
+            maxW="100%"
+            px={6}
+            py={4}
+          >
+            <HStack
+              justify="space-between"
+              mb={4}
+            >
+              <IconButton
+                icon={<ArrowBackIcon />}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onClose();
+                }}
+                aria-label="Back"
+                variant="ghost"
+                fontSize={"2xl"}
+                p={4}
+                ml={-4}
+              />
+              <Menu bg="gray.50">
+                <MenuButton
+                  bg="gray.50"
+                  as={IconButton}
+                  icon={<MdMoreHoriz />}
+                />
+                <MenuList
+                  backgroundColor="gray.100"
+                  p={0}
+                  minW="auto"
+                  w="110px"
+                  h="80px"
+                >
+                  <MenuItem
+                    value="edit"
+                    onClick={enterEditMode}
+                    background="transparent"
+                  >
+                    <BiSolidEdit style={{ marginRight: "6px" }} />
+                    Edit
+                  </MenuItem>
+                  <MenuItem
+                    value="delete"
+                    onClick={onCancel}
+                    background="transparent"
+                  >
+                    <BiTrash style={{ marginRight: "6px" }} />
+                    Delete
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </HStack>
+            <Box>
                 <VStack>
                   <Box
                     bg="white"
@@ -361,10 +395,9 @@ export const TeacherViewModal = memo(
                   />
                   <PublishedReviews classId={classData?.id} />
                 </VStack>
-              </ModalBody>
-            </ModalContent>
-          </ModalOverlay>
-        </Modal>
+            </Box>
+          </Box>
+        </Box>
         <ClassRSVP
           isOpen={isRSVPOpen}
           onClose={onRSVPClose}
