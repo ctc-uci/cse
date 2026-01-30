@@ -182,9 +182,9 @@ const EventInfoView = ({
               ml={-4}
             />
             <List>
-              {tags.map((tag) => (
+              {tags.map((tag, index) => (
                 <Tag
-                  key={tag.id || tag.tag}
+                  key={index}
                   mr={1}
                   mb={1}
                   mt={1}
@@ -259,11 +259,11 @@ const EventInfoView = ({
                     <Box>
                       {corequisites.map((prerequisite) => (
                         <Tag
-                          key={prerequisite.id || prerequisite.title}
                           borderRadius={"full"}
                           bg="purple.200"
                           textColor={"purple.800"}
                           m={1}
+                          key={prerequisite.id}
                         >
                           {prerequisite.title}
                         </Tag>

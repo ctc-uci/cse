@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useState, useRef } from "react";
 
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
@@ -19,7 +19,7 @@ import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { formatDate, formatTime } from "../../utils/formatDateTime";
 import PublishedReviews from "../reviews/classReview";
 
-export const ViewView = ({
+const ViewViewComponent = ({
   isOpen,
   onClose,
   setCurrentModal,
@@ -40,6 +40,7 @@ export const ViewView = ({
   const routerLocation = useLocation();
   const navigate = useNavigate();
   const [corequisites, setCorequisites] = useState([]);
+  const forceRefreshHandledRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -176,12 +177,18 @@ export const ViewView = ({
 
   // Close the view when location state changes (force refresh from navbar)
   useEffect(() => {
-    if (isOpen && routerLocation.state?.forceRefresh) {
+    const forceRefresh = routerLocation.state?.forceRefresh;
+    if (isOpen && forceRefresh && !forceRefreshHandledRef.current) {
+      forceRefreshHandledRef.current = true;
       onClose();
       // Clear the forceRefresh state to prevent it from affecting future opens
       navigate(routerLocation.pathname, { replace: true, state: {} });
     }
-  }, [routerLocation.state, isOpen, onClose, navigate, routerLocation.pathname]);
+    // Reset the ref when the view closes
+    if (!isOpen) {
+      forceRefreshHandledRef.current = false;
+    }
+  }, [routerLocation.state?.forceRefresh, isOpen, onClose, navigate, routerLocation.pathname]);
 
   if (!isOpen) {
     return null;
@@ -223,9 +230,9 @@ export const ViewView = ({
             ml={-4}
           />
           <List>
-            {tags.map((tag) => (
+            {tags.map((tag, index) => (
               <Tag
-                key={tag.id || tag.tag}
+                key={tag.id || `tag-${index}`}
                 mr={1}
                 mb={1}
                 mt={1}
@@ -276,3 +283,18 @@ export const ViewView = ({
     </Box>
   );
 };
+
+export const ViewView = memo(ViewViewComponent, (prevProps, nextProps) => {
+  // Custom comparison function for memo - return true if props are equal (skip render)
+  const propsEqual = (
+    prevProps.isOpen === nextProps.isOpen &&
+    prevProps.card?.id === nextProps.card?.id &&
+    prevProps.isAttended === nextProps.isAttended &&
+    prevProps.type === nextProps.type &&
+    prevProps.coEvents?.length === nextProps.coEvents?.length &&
+    JSON.stringify(prevProps.tags) === JSON.stringify(nextProps.tags) &&
+    prevProps.onClose === nextProps.onClose &&
+    prevProps.setCurrentModal === nextProps.setCurrentModal
+  );
+  return propsEqual;
+});

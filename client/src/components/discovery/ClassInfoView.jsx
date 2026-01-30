@@ -219,9 +219,9 @@ const ClassInfoView = ({
               ml={-4}
             />
             <List>
-              {tags.map((tag) => (
+              {tags.map((tag, index) => (
                 <Tag
-                  key={tag.id || tag.tag}
+                  key={index}
                   mr={1}
                   mb={1}
                   mt={1}

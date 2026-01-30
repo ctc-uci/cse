@@ -552,8 +552,8 @@ function TeacherEventViewView({
                         <Text>No corequisites for this event</Text>
                       ) : (
                         <List>
-                          {corequisites.map((coreq) => (
-                            <ListItem key={coreq.id || coreq.title}>
+                          {corequisites.map((coreq, index) => (
+                            <ListItem key={index}>
                               <ListIcon
                                 as={
                                   coreq.enrolled

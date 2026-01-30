@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 
 import {
   Box,
@@ -19,7 +19,6 @@ import { Navbar } from "../navbar/Navbar";
 import { SearchBar } from "../searchbar/SearchBar";
 import { ClassCard } from "../shared/ClassCard";
 import { EventCard } from "../shared/EventCard";
-import { use } from "react";
 
 export const Discovery = () => {
   // Active Tab Logic
@@ -144,21 +143,27 @@ export const Discovery = () => {
   );
 
   // Tag filter handlers
-  const handleFilterToggle = useCallback((id) => () => {
+  const handleFilterToggle = useCallback(
+    (id) => () => {
       setTagFilter((prev) => ({
         ...prev,
         [id]: !prev[id],
       }));
       setLastToggledTag(id);
-    }, []);
+    },
+    []
+  );
 
-  const handleClassFilterToggle = useCallback((id) => () => {
+  const handleClassFilterToggle = useCallback(
+    (id) => () => {
       setTagFilter((prev) => ({
         ...prev,
         [id]: !prev[id],
       }));
       setLastToggledTag(id);
-    }, []);
+    },
+    []
+  );
 
   // Fetch user data
   useEffect(() => {
@@ -262,7 +267,15 @@ export const Discovery = () => {
         fetchAllClasses();
       }
     }
-  }, [tagFilter, lastToggledTag, fetchAllEvents, fetchAllClasses, fetchEventsByTag, fetchClassesByTag, tabIndex]);
+  }, [
+    tagFilter,
+    lastToggledTag,
+    fetchAllEvents,
+    fetchAllClasses,
+    fetchEventsByTag,
+    fetchClassesByTag,
+    tabIndex,
+  ]);
 
   return (
     <Box>
@@ -323,9 +336,13 @@ export const Discovery = () => {
                   justify="center"
                 >
                   {classes.map((classItem, index) => {
-                    const isFilterActive = Object.values(tagFilter).some(Boolean);
+                    const isFilterActive =
+                      Object.values(tagFilter).some(Boolean);
                     const classTags = classTagsMap[classItem.id] || [];
-                    if (!isFilterActive || classTags.some(tag => tagFilter[tag.id])) {
+                    if (
+                      !isFilterActive ||
+                      classTags.some((tag) => tagFilter[tag.id])
+                    ) {
                       return (
                         <ClassCard
                           id={classItem.id}
@@ -366,13 +383,17 @@ export const Discovery = () => {
                   wrap="wrap"
                   justify="center"
                 >
-                  {events.map((eventItem) => {
-                    const isFilterActive = Object.values(tagFilter).some(Boolean);
+                  {events.map((eventItem, index) => {
+                    const isFilterActive =
+                      Object.values(tagFilter).some(Boolean);
                     const eventTags = eventTagsMap[eventItem.id] || [];
-                    if (!isFilterActive || eventTags.some(tag => tagFilter[tag.id])) {
+                    if (
+                      !isFilterActive ||
+                      eventTags.some((tag) => tagFilter[tag.id])
+                    ) {
                       return (
                         <EventCard
-                          key={eventItem.id}
+                          key={index}
                           title={eventItem.title}
                           location={eventItem.location}
                           description={eventItem.description}
