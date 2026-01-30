@@ -366,13 +366,13 @@ export const Discovery = () => {
                   wrap="wrap"
                   justify="center"
                 >
-                  {events.map((eventItem, index) => {
+                  {events.map((eventItem) => {
                     const isFilterActive = Object.values(tagFilter).some(Boolean);
                     const eventTags = eventTagsMap[eventItem.id] || [];
                     if (!isFilterActive || eventTags.some(tag => tagFilter[tag.id])) {
                       return (
                         <EventCard
-                          key={index}
+                          key={eventItem.id}
                           title={eventItem.title}
                           location={eventItem.location}
                           description={eventItem.description}

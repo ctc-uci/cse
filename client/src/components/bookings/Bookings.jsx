@@ -717,7 +717,7 @@ export const Bookings = () => {
                       ) {
                         return (
                           <ClassTeacherCard
-                            key={index}
+                            key={classItem.id}
                             setSelectedCard={setSelectedCard}
                             {...classItem}
                             performance={coEvents}
