@@ -27,6 +27,16 @@ export const TeacherCancelModal = ({
     setCurrentModal("view");
   };
   const onConfirm = async () => {
+    if (!classData?.id) {
+      toast({
+        title: "Error: Class data is missing",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
     try {
       await backend.delete(`/classes/${classData.id}`);
       setCurrentModal("confirmation");
@@ -53,7 +63,7 @@ export const TeacherCancelModal = ({
         <ModalCloseButton />
         <ModalBody textAlign="center">
           <Text>
-            You are deleting {classData.title}. This action can't be undone.
+            You are deleting {classData?.title || "this class"}. This action can't be undone.
           </Text>
         </ModalBody>
 
