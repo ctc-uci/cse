@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 
 import {
   Box,
@@ -58,8 +58,8 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { TeacherCancelModal } from "./TeacherCancelModal";
 import { TeacherConfirmationModal } from "./TeacherConfirmationModal";
 import { TeacherEditModal } from "./TeacherEditModal";
-import { TeacherViewModal } from "./TeacherViewModal";
-import { ViewModal } from "./ViewModal";
+import { TeacherViewView } from "./TeacherViewView";
+import { ViewView } from "./ViewView";
 
 export const Bookings = () => {
   const navigate = useNavigate();
@@ -69,10 +69,8 @@ export const Bookings = () => {
   const [currentModal, setCurrentModal] = useState("view");
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
-  const [drafts, setDrafts] = useState([]);
   const [draftClasses, setDraftClasses] = useState([]);
   const [draftEvents, setDraftEvents] = useState([]);
-  const [attended, setAttended] = useState([]);
   const [selectedCard, setSelectedCard] = useState();
   const [cardType, setCardType] = useState();
   const [user_id, setUserId] = useState();
@@ -95,12 +93,22 @@ export const Bookings = () => {
         backend.get(`/class-enrollments/student/${user_id}`),
         backend.get(`/class-tags/enrolled-class-tags/${user_id}`),
       ]);
-      setClasses(classesRes.data);
+      setClasses(prev => {
+        const newData = classesRes.data;
+        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
       const newClassTagsMap = {};
       classTagsRes.data.forEach((item) => {
         newClassTagsMap[item.classId] = item.tagArray;
       });
-      setClassTagsMap(newClassTagsMap);
+      setClassTagsMap(prev => {
+        const prevStr = JSON.stringify(prev);
+        const newStr = JSON.stringify(newClassTagsMap);
+        return prevStr === newStr ? prev : newClassTagsMap;
+      });
     } catch (error) {
       console.error("Error reloading student classes:", error);
     }
@@ -112,12 +120,22 @@ export const Bookings = () => {
         backend.get(`/event-enrollments/student/${user_id}`),
         backend.get(`/event-tags/enrolled-event-tags/${user_id}`),
       ]);
-      setEvents(eventsRes.data);
+      setEvents(prev => {
+        const newData = eventsRes.data;
+        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
       const newEventTagsMap = {};
       eventTagsRes.data.forEach((item) => {
         newEventTagsMap[item.eventId] = item.tagArray;
       });
-      setEventTagsMap(newEventTagsMap);
+      setEventTagsMap(prev => {
+        const prevStr = JSON.stringify(prev);
+        const newStr = JSON.stringify(newEventTagsMap);
+        return prevStr === newStr ? prev : newEventTagsMap;
+      });
     } catch (error) {
       console.error("Error reloading student events:", error);
     }
@@ -130,13 +148,29 @@ export const Bookings = () => {
         backend.get(`/classes/drafts`),
         backend.get(`/class-tags/all-class-tags`),
       ]);
-      setClasses(classesRes.data);
-      setDraftClasses(classDraftsRes.data);
+      setClasses(prev => {
+        const newData = classesRes.data;
+        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
+      setDraftClasses(prev => {
+        const newData = classDraftsRes.data;
+        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
       const newClassTagsMap = {};
       classTagsRes.data.forEach((item) => {
         newClassTagsMap[item.classId] = item.tagArray;
       });
-      setClassTagsMap(newClassTagsMap);
+      setClassTagsMap(prev => {
+        const prevStr = JSON.stringify(prev);
+        const newStr = JSON.stringify(newClassTagsMap);
+        return prevStr === newStr ? prev : newClassTagsMap;
+      });
     } catch (error) {
       console.error("Error reloading teacher classes:", error);
     }
@@ -149,13 +183,29 @@ export const Bookings = () => {
         backend.get(`/events/drafts`),
         backend.get(`/event-tags/all-event-tags`),
       ]);
-      setEvents(eventsRes.data);
-      setDraftEvents(eventDraftsRes.data);
+      setEvents(prev => {
+        const newData = eventsRes.data;
+        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
+      setDraftEvents(prev => {
+        const newData = eventDraftsRes.data;
+        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+          return newData;
+        }
+        return prev;
+      });
       const newEventTagsMap = {};
       eventTagsRes.data.forEach((item) => {
         newEventTagsMap[item.eventId] = item.tagArray;
       });
-      setEventTagsMap(newEventTagsMap);
+      setEventTagsMap(prev => {
+        const prevStr = JSON.stringify(prev);
+        const newStr = JSON.stringify(newEventTagsMap);
+        return prevStr === newStr ? prev : newEventTagsMap;
+      });
     } catch (error) {
       console.error("Error reloading teacher events:", error);
     }
@@ -198,14 +248,47 @@ export const Bookings = () => {
           });
           // console.log("Event Tags Map:", newEventTagsMap);
 
-          // Set all the state
-          setClassTagsMap(newClassTagsMap);
-          setEventTagsMap(newEventTagsMap);
-          setClasses(allClasses);
-          setEvents(eventsRes.data);
-          setDraftEvents(draftEventsRes.data);
-          setDraftClasses(allDraftClasses);
-          setAllEvents(allEventsRes.data);
+          // Set all the state - only update if data actually changed
+          setClassTagsMap(prev => {
+            const prevStr = JSON.stringify(prev);
+            const newStr = JSON.stringify(newClassTagsMap);
+            return prevStr === newStr ? prev : newClassTagsMap;
+          });
+          setEventTagsMap(prev => {
+            const prevStr = JSON.stringify(prev);
+            const newStr = JSON.stringify(newEventTagsMap);
+            return prevStr === newStr ? prev : newEventTagsMap;
+          });
+          setClasses(prev => {
+            if (prev.length !== allClasses.length || prev.some((c, i) => c.id !== allClasses[i]?.id)) {
+              return allClasses;
+            }
+            return prev;
+          });
+          setEvents(prev => {
+            if (prev.length !== eventsRes.data.length || prev.some((e, i) => e.id !== eventsRes.data[i]?.id)) {
+              return eventsRes.data;
+            }
+            return prev;
+          });
+          setDraftEvents(prev => {
+            if (prev.length !== draftEventsRes.data.length || prev.some((e, i) => e.id !== draftEventsRes.data[i]?.id)) {
+              return draftEventsRes.data;
+            }
+            return prev;
+          });
+          setDraftClasses(prev => {
+            if (prev.length !== allDraftClasses.length || prev.some((c, i) => c.id !== allDraftClasses[i]?.id)) {
+              return allDraftClasses;
+            }
+            return prev;
+          });
+          setAllEvents(prev => {
+            if (prev.length !== allEventsRes.data.length || prev.some((e, i) => e.id !== allEventsRes.data[i]?.id)) {
+              return allEventsRes.data;
+            }
+            return prev;
+          });
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -224,8 +307,18 @@ export const Bookings = () => {
           ]);
           const enrolledClasses = enrolledClassesRes.data;
           const enrolledEvents = enrolledEventsRes.data;
-          setClasses(enrolledClasses);
-          setEvents(enrolledEvents);
+          setClasses(prev => {
+            if (prev.length !== enrolledClasses.length || prev.some((c, i) => c.id !== enrolledClasses[i]?.id)) {
+              return enrolledClasses;
+            }
+            return prev;
+          });
+          setEvents(prev => {
+            if (prev.length !== enrolledEvents.length || prev.some((e, i) => e.id !== enrolledEvents[i]?.id)) {
+              return enrolledEvents;
+            }
+            return prev;
+          });
 
           const newClassTagsMap = {};
           const newEventTagsMap = {};
@@ -243,8 +336,16 @@ export const Bookings = () => {
             newEventTagsMap[item.eventId] = item.tagArray;
           });
           // console.log("Student Event Tags Map:", newEventTagsMap);
-          setClassTagsMap(newClassTagsMap);
-          setEventTagsMap(newEventTagsMap);
+          setClassTagsMap(prev => {
+            const prevStr = JSON.stringify(prev);
+            const newStr = JSON.stringify(newClassTagsMap);
+            return prevStr === newStr ? prev : newClassTagsMap;
+          });
+          setEventTagsMap(prev => {
+            const prevStr = JSON.stringify(prev);
+            const newStr = JSON.stringify(newEventTagsMap);
+            return prevStr === newStr ? prev : newEventTagsMap;
+          });
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -253,12 +354,53 @@ export const Bookings = () => {
     }
   }, [backend, currentUser, refresh, role]);
 
-  useEffect(() => {
+  // Use refs to track previous values and prevent unnecessary recalculations
+  const prevClassesRef = useRef();
+  const prevEventsRef = useRef();
+  const prevAttendedRef = useRef([]);
+  
+  // Use useMemo with deep comparison to prevent re-render loops
+  const attended = useMemo(() => {
+    // Deep comparison: check if arrays have same IDs
+    const classesIds = classes.map(c => c.id).join(',');
+    const eventsIds = events.map(e => e.id).join(',');
+    const prevClassesIds = prevClassesRef.current ? prevClassesRef.current.map(c => c.id).join(',') : '';
+    const prevEventsIds = prevEventsRef.current ? prevEventsRef.current.map(e => e.id).join(',') : '';
+    
+    if (classesIds === prevClassesIds && eventsIds === prevEventsIds && prevAttendedRef.current.length > 0) {
+      return prevAttendedRef.current;
+    }
+    
+    prevClassesRef.current = classes;
+    prevEventsRef.current = events;
     const attendedClasses = classes.filter((c) => c.attendance !== null);
     const attendedEvents = events.filter((e) => e.attendance !== null);
-    setAttended([...attendedClasses, ...attendedEvents]);
-    setDrafts([...draftClasses, ...draftEvents]);
-  }, [classes, events, draftClasses, draftEvents]);
+    const result = [...attendedClasses, ...attendedEvents];
+    prevAttendedRef.current = result;
+    return result;
+  }, [classes, events]);
+
+  const drafts = useMemo(() => {
+    return [...draftClasses, ...draftEvents];
+  }, [draftClasses, draftEvents]);
+
+  // Memoize callbacks and props to prevent unnecessary re-renders
+  const handleSetCurrentModal = useCallback((modal) => {
+    setCurrentModal(modal);
+  }, []);
+
+  // Memoize coEvents to prevent unnecessary re-renders
+  const coEventsIdString = useMemo(() => coEvents.map(e => e?.id).filter(Boolean).join(','), [coEvents]);
+  const memoizedCoEvents = useMemo(() => {
+    return coEvents;
+  }, [coEventsIdString]);
+  
+  const memoizedViewViewTags = useMemo(() => {
+    if (!selectedCard?.id) return [];
+    return cardType === "class"
+      ? classTagsMap[selectedCard.id] || []
+      : eventTagsMap[selectedCard.id] || [];
+  }, [cardType, selectedCard?.id, classTagsMap, eventTagsMap]);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -357,7 +499,6 @@ export const Bookings = () => {
         );
       }
     }
-    console.log(classTagsMap);
   };
 
   const onCloseEditModal = () => {
@@ -467,14 +608,33 @@ export const Bookings = () => {
   //   return true;
   // };
 
-  const updateModal = (item, type = "class") => {
+  const loadCorequisites = useCallback(async (classId) => {
+    try {
+      const response = await backend.get(`classes/corequisites/${classId}`);
+
+      if (response.status === 200) {
+        setCoEvents(prev => {
+          const newData = response.data || [];
+          if (!prev || prev.length !== newData.length || prev.some((e, i) => e?.id !== newData[i]?.id)) {
+            return newData;
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching corequisite enrollment:", error);
+      setCoEvents([]);
+    }
+  }, [backend]);
+
+  const updateModal = useCallback((item, type = "class") => {
     if (type === "class") loadCorequisites(item.id);
     setSelectedCard(item);
     setCardType(type);
     const isAttended = attended.some((attendedItem) => attendedItem === item);
     setIsAttendedItem(isAttended);
     onOpen();
-  };
+  }, [attended, onOpen, loadCorequisites]);
 
   const handleCancelEnrollment = async (itemId) => {
     if (!user_id) {
@@ -510,17 +670,6 @@ export const Bookings = () => {
     }
   };
 
-  const loadCorequisites = async (classId) => {
-    try {
-      const response = await backend.get(`classes/corequisites/${classId}`);
-
-      if (response.status === 200) {
-        setCoEvents(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching corequisite enrollment:", error);
-    }
-  };
   const handleClassSearch = async (query) => {
     try {
       if (!query || query.trim() === "") {
@@ -717,7 +866,7 @@ export const Bookings = () => {
                       ) {
                         return (
                           <ClassTeacherCard
-                            key={index}
+                            key={classItem.id || `class-${index}`}
                             setSelectedCard={setSelectedCard}
                             {...classItem}
                             performance={coEvents}
@@ -861,7 +1010,7 @@ export const Bookings = () => {
                       if (!item.callTime) {
                         return (
                           <ClassTeacherCard
-                            key={item.id}
+                            key={`draft-class-${item.id}`}
                             {...item}
                             onClick={() => updateModal(item, "class")}
                             setSelectedCard={setSelectedCard}
@@ -873,7 +1022,7 @@ export const Bookings = () => {
                       } else if (item.callTime) {
                         return (
                           <EventCard
-                            key={item.id}
+                            key={`draft-event-${item.id}`}
                             id={item.id}
                             title={item.title}
                             location={item.location}
@@ -901,26 +1050,28 @@ export const Bookings = () => {
                     <Text>No draft events or classes</Text>
                   )
                 ) : attended.length > 0 ? (
-                  attended.map((item) => {
+                  attended.map((item, index) => {
+                    const itemTags = classTagsMap[item.id] || eventTagsMap[item.id] || [];
+                    const uniqueKey = item.id ? `${item.callTime ? 'event' : 'class'}-${item.id}` : `attended-${index}`;
                     return !item.callTime ? (
                       <ClassCard
-                        key={item.id}
+                        key={uniqueKey}
                         {...item}
                         onClick={() => {
                           updateModal(item, "class");
                         }}
-                        tags={classTagsMap[item.id] || []}
+                        tags={itemTags}
                       />
                     ) : (
                       <EventCard
-                        key={item.id}
+                        key={uniqueKey}
                         {...item}
                         onClick={() => {
                           updateModal(item, "event");
                         }}
                         magic={refresh}
                         triggerRefresh={triggerRefresh}
-                        tags={eventTagsMap[item.id] || []}
+                        tags={itemTags}
                       />
                     );
                   })
@@ -931,112 +1082,112 @@ export const Bookings = () => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      {role !== "student" ? (
-        currentModal === "view" ? (
-          // this is always going to be the view for classes
-          // events view modal is handled in the event card component
-          <TeacherViewModal
-            isOpen={isOpen}
-            onClose={onCloseModal}
-            setCurrentModal={setCurrentModal}
-            classData={selectedCard}
-            performances={coEvents}
-            setPerformances={setCoEvents}
-            tags={classTagsMap[selectedCard?.id] || []}
-            magic={magic}
-          />
+        {role !== "student" ? (
+          currentModal === "view" && isOpen ? (
+            <>
+              <TeacherViewView
+                key={`teacher-view-${selectedCard?.id || 'none'}`}
+                isOpen={isOpen}
+                onClose={onCloseModal}
+                setCurrentModal={setCurrentModal}
+                classData={selectedCard}
+                performances={coEvents}
+                setPerformances={setCoEvents}
+                tags={classTagsMap[selectedCard?.id] || []}
+                magic={magic}
+              />
+            </>
+          ) : currentModal === "confirmation" ? (
+            <TeacherConfirmationModal
+              isOpen={isOpen}
+              onClose={onCloseModal}
+            />
+          ) : currentModal === "edit" ? (
+            <TeacherEditModal
+              isOpen={isOpen}
+              onClose={onCloseEditModal}
+              setCurrentModal={setCurrentModal}
+              classData={selectedCard}
+              setClassData={setSelectedCard}
+              performances={allEvents}
+              setRefresh={reloadTeacherClasses}
+              coreqId={coreqId}
+              tags={classTagsMap[selectedCard?.id] || []}
+            />
+          ) : currentModal === "create" ? (
+            <Modal
+              size="full"
+              isOpen={isOpen}
+              onClose={onCloseModal}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>
+                  <HStack justify="space-between">
+                    <MdArrowBackIosNew onClick={onCloseModal} />
+                    <Heading size="lg">
+                      {tabIndex === 0 ? "New Class" : "New Event"}
+                    </Heading>{" "}
+                    {/* Will add from prop */}
+                    <MdMoreHoriz opacity={0} />
+                  </HStack>
+                </ModalHeader>
+                <ModalBody>
+                  {tabIndex === 0 ? (
+                    <CreateClassForm
+                      closeModal={onCloseModal}
+                      modalData={selectedCard}
+                      reloadCallback={reloadClassesAndDrafts}
+                    />
+                  ) : (
+                    <CreateEvent
+                      isOpen={isOpen}
+                      onClose={onCloseModal}
+                      // triggerRefresh={reloadClassesAndDrafts}
+                    />
+                  )}
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+          ) : (
+            <TeacherCancelModal
+              isOpen={isOpen}
+              onClose={onCloseModal}
+              setCurrentModal={setCurrentModal}
+              classData={selectedCard}
+            />
+          )
+        ) : // STUDENT VIEW HERE
+        currentModal === "view" && isOpen ? (
+          <>
+            <ViewView
+              key={`view-${selectedCard?.id || 'none'}`}
+              isOpen={isOpen}
+              onClose={onClose}
+              setCurrentModal={handleSetCurrentModal}
+              card={selectedCard}
+              coEvents={memoizedCoEvents}
+              type={cardType}
+              isAttended={isAttendedItem}
+              tags={memoizedViewViewTags}
+            />
+          </>
         ) : currentModal === "confirmation" ? (
-          <TeacherConfirmationModal
+          <ConfirmationModal
             isOpen={isOpen}
             onClose={onCloseModal}
+            card={selectedCard}
           />
-        ) : currentModal === "edit" ? (
-          <TeacherEditModal
-            isOpen={isOpen}
-            onClose={onCloseEditModal}
-            setCurrentModal={setCurrentModal}
-            classData={selectedCard}
-            setClassData={setSelectedCard}
-            performances={allEvents}
-            setRefresh={reloadTeacherClasses}
-            coreqId={coreqId}
-            tags={classTagsMap[selectedCard?.id] || []}
-          />
-        ) : currentModal === "create" ? (
-          <Modal
-            size="full"
-            isOpen={isOpen}
-            onClose={onCloseModal}
-          >
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>
-                <HStack justify="space-between">
-                  <MdArrowBackIosNew onClick={onCloseModal} />
-                  <Heading size="lg">
-                    {tabIndex === 0 ? "New Class" : "New Event"}
-                  </Heading>{" "}
-                  {/* Will add from prop */}
-                  <MdMoreHoriz opacity={0} />
-                </HStack>
-              </ModalHeader>
-              <ModalBody>
-                {tabIndex === 0 ? (
-                  <CreateClassForm
-                    closeModal={onCloseModal}
-                    modalData={selectedCard}
-                    reloadCallback={reloadClassesAndDrafts}
-                  />
-                ) : (
-                  <CreateEvent
-                    isOpen={isOpen}
-                    onClose={onCloseModal}
-                    // triggerRefresh={reloadClassesAndDrafts}
-                  />
-                )}
-              </ModalBody>
-            </ModalContent>
-          </Modal>
         ) : (
-          <TeacherCancelModal
+          <CancelModal
             isOpen={isOpen}
             onClose={onCloseModal}
             setCurrentModal={setCurrentModal}
-            classData={selectedCard}
+            card={selectedCard}
+            handleEvent={() => handleCancelEnrollment(selectedCard.id)}
+            type={cardType}
           />
-        )
-      ) : // STUDENT VIEW HERE
-      currentModal === "view" ? (
-        <ViewModal
-          isOpen={isOpen}
-          onClose={onClose}
-          setCurrentModal={setCurrentModal}
-          card={selectedCard}
-          coEvents={coEvents}
-          type={cardType}
-          isAttended={isAttendedItem}
-          tags={
-            cardType === "class"
-              ? classTagsMap[selectedCard?.id]
-              : eventTagsMap[selectedCard?.id] || []
-          }
-        />
-      ) : currentModal === "confirmation" ? (
-        <ConfirmationModal
-          isOpen={isOpen}
-          onClose={onCloseModal}
-          card={selectedCard}
-        />
-      ) : (
-        <CancelModal
-          isOpen={isOpen}
-          onClose={onCloseModal}
-          setCurrentModal={setCurrentModal}
-          card={selectedCard}
-          handleEvent={() => handleCancelEnrollment(selectedCard.id)}
-          type={cardType}
-        />
-      )}
+        )}
       </Flex>
       <Navbar />
     </Box>

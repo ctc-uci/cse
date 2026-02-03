@@ -72,9 +72,12 @@ function SuccessSignupModal({
                     ))}
                   </List>
                 ) : (
-                  <Text fontWeight="bold">
+                  <Box
+                    as="span"
+                    fontWeight="bold"
+                  >
                     {title ? title[0] : "No title detected"}
-                  </Text>
+                  </Box>
                 )}
               </Text>
             </VStack>

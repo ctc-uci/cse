@@ -4,29 +4,17 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Card,
   Divider,
-  Flex,
   HStack,
   IconButton,
   Image,
   List,
-  ListIcon,
-  ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
 
-import { FaPencilAlt, FaTimesCircle } from "react-icons/fa";
-import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -34,7 +22,7 @@ import { formatDate, formatTime } from "../../utils/formatDateTime";
 import PublishedReviews from "../reviews/classReview";
 import SuccessSignupModal from "./SuccessSignupModal";
 
-const ClassInfoModal = ({
+const ClassInfoView = ({
   // userid,
   isOpenProp,
   title,
@@ -58,6 +46,8 @@ const ClassInfoModal = ({
 }) => {
   const { currentUser, role } = useAuthContext();
   const { backend } = useBackendContext();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
@@ -70,29 +60,45 @@ const ClassInfoModal = ({
   const [coClasses, setCoClasses] = useState([]);
 
   const getTeacherName = async () => {
-    const teacherName = await backend.get(`/classes-taught/instructor/${id}`);
-    setTeacherName(
-      teacherName.data[0].firstName + " " + teacherName.data[0].lastName
-    );
+    try {
+      const teacherName = await backend.get(`/classes-taught/instructor/${id}`);
+      if (teacherName?.data?.[0]) {
+        setTeacherName(
+          teacherName.data[0].firstName + " " + teacherName.data[0].lastName
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching teacher name:", error);
+    }
   };
 
   const getStartTime = async () => {
-    const data = await backend.get(`/scheduled-classes/${id}`);
-    setStartTime(data.data[0].startTime);
-    setEndTime(data.data[0].endTime);
+    try {
+      const data = await backend.get(`/scheduled-classes/${id}`);
+      if (data?.data?.[0]) {
+        setStartTime(data.data[0].startTime);
+        setEndTime(data.data[0].endTime);
+      }
+    } catch (error) {
+      console.error("Error fetching start time:", error);
+    }
   };
 
   const enrollInClass = async () => {
-    const users = await backend.get(`/users/${currentUser.uid}`);
-    if (users.data[0]) {
-      const req = await backend.post(`/class-enrollments`, {
-        studentId: users.data[0].id,
-        classId: id,
-        attendance: null,
-      });
-      if (req.status === 201) {
-        setOpenSuccessModal(true);
+    try {
+      const users = await backend.get(`/users/${currentUser.uid}`);
+      if (users?.data?.[0]) {
+        const req = await backend.post(`/class-enrollments`, {
+          studentId: users.data[0].id,
+          classId: id,
+          attendance: null,
+        });
+        if (req.status === 201) {
+          setOpenSuccessModal(true);
+        }
       }
+    } catch (error) {
+      console.error("Error enrolling in class:", error);
     }
   };
 
@@ -117,15 +123,27 @@ const ClassInfoModal = ({
   };
 
   const initClass = async () => {
-    const classData = await backend.get(`/classes/${id}`);
-    setDescription(classData.data[0].description);
-    setCapacity(classData.data[0].capacity);
-    setLevel(classData.data[0].level);
+    try {
+      const classData = await backend.get(`/classes/${id}`);
+      if (classData?.data?.[0]) {
+        setDescription(classData.data[0].description);
+        setCapacity(classData.data[0].capacity);
+        setLevel(classData.data[0].level);
+      }
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+    }
   };
 
   const getCoClasses = async () => {
-    const response = await backend.get(`/corequisites/class/${id}`);
-    setCoClasses(response.data);
+    try {
+      const response = await backend.get(`/corequisites/class/${id}`);
+      if (response?.data) {
+        setCoClasses(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching co-classes:", error);
+    }
   };
 
   useEffect(() => {
@@ -137,6 +155,26 @@ const ClassInfoModal = ({
     }
   }, [isOpenProp]);
 
+  // Close the view when navigating away from discovery
+  useEffect(() => {
+    if (isOpenProp && routerLocation.pathname !== "/discovery") {
+      handleClose();
+    }
+  }, [routerLocation.pathname, isOpenProp, handleClose]);
+
+  // Close the view when location state changes (force refresh from navbar)
+  useEffect(() => {
+    if (isOpenProp && routerLocation.state?.forceRefresh) {
+      handleClose();
+      // Clear the forceRefresh state to prevent it from affecting future opens
+      navigate(routerLocation.pathname, { replace: true, state: {} });
+    }
+  }, [routerLocation.state, isOpenProp, handleClose, navigate, routerLocation.pathname]);
+
+  if (!isOpenProp) {
+    return null;
+  }
+
   return (
     <>
       <SuccessSignupModal
@@ -146,52 +184,66 @@ const ClassInfoModal = ({
         isCoreq={isCorequisiteSignUp}
       />
 
-      <Modal
-        size={"full"}
-        isOpen={isOpenProp}
-        onClose={handleClose}
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="white"
+        zIndex={1000}
+        overflowY="auto"
+        pb={20}
       >
-        <ModalOverlay />
-        <ModalContent paddingRight="5vw">
-          <ModalHeader>
-            <VStack align="start">
-              <IconButton
-                icon={<ArrowBackIcon />}
-                onClick={handleClose}
-                aria-label="Back"
-                variant="ghost"
-                fontSize={"2xl"}
-                p={4}
-                ml={-4}
-              />
-              <List>
-                {tags.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    mr={1}
-                    mb={1}
-                    mt={1}
-                    borderRadius={"full"}
-                    bg="white"
-                    textColor="gray.600"
-                    borderColor={"gray.300"}
-                    borderWidth={1}
-                  >
-                    {tag.tag}
-                  </Tag>
-                ))}
-              </List>
-              <Text
-                justifyContent="center"
-                wordBreak={"break-word"}
-                fontWeight={"bold"}
-              >
-                {title}
-              </Text>
-            </VStack>
-          </ModalHeader>
-          {/* <ModalCloseButton /> */}
-          <ModalBody>
+        <Box
+          maxW="100%"
+          px={6}
+          py={4}
+        >
+          <VStack
+            align="start"
+            spacing={4}
+            mb={4}
+          >
+            <IconButton
+              icon={<ArrowBackIcon />}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClose();
+              }}
+              aria-label="Back"
+              variant="ghost"
+              fontSize={"2xl"}
+              p={4}
+              ml={-4}
+            />
+            <List>
+              {tags.map((tag, index) => (
+                <Tag
+                  key={index}
+                  mr={1}
+                  mb={1}
+                  mt={1}
+                  borderRadius={"full"}
+                  bg="white"
+                  textColor="gray.600"
+                  borderColor={"gray.300"}
+                  borderWidth={1}
+                >
+                  {tag.tag}
+                </Tag>
+              ))}
+            </List>
+            <Text
+              justifyContent="center"
+              wordBreak={"break-word"}
+              fontWeight={"bold"}
+            >
+              {title}
+            </Text>
+          </VStack>
+          <Box>
             <Text>Taught by {teacherName ? teacherName : "Unknown"}</Text>
             <Text>
               {description
@@ -257,12 +309,12 @@ const ClassInfoModal = ({
                   <Text
                     mt={1}
                     fontSize={"md"}
+                    fontStyle="italic"
                   >
-                    <em>No prerequisites for this class</em>
+                    No prerequisites for this class
                   </Text>
                 )}
               </Box>
-
               <Box>
                 <Text
                   fontWeight="bold"
@@ -295,44 +347,34 @@ const ClassInfoModal = ({
                   <Text
                     mt={1}
                     fontSize={"md"}
+                    fontStyle="italic"
                   >
-                    <em>No performances for this class</em>
+                    No performances for this class
                   </Text>
                 )}
               </Box>
             </VStack>
-          </ModalBody>
-          <Flex
-            justifyContent="center"
-            width="100%"
-          >
-            <ModalFooter>
-              {role === "student" && (
-                <Button
-                  width="100%"
-                  p={7}
-                  bg="purple.600"
-                  color="white"
-                  onClick={classSignUp}
-                >
-                  Sign up
-                </Button>
-              )}
-            </ModalFooter>
-          </Flex>
-          <PublishedReviews classId={id} />
-        </ModalContent>
-        {/* <PublishedReviews
-          title={title}
-          location={location}
-          description={description}
-          level={level}
-          date={date}
-          id={id}
-        ></PublishedReviews> */}
-      </Modal>
+            <br />
+            <Divider orientation="horizontal" />
+            <br />
+            {role === "student" && (
+              <Button
+                width="100%"
+                py={3}
+                bg="purple.600"
+                color="white"
+                onClick={classSignUp}
+              >
+                Sign Up
+              </Button>
+            )}
+            <br />
+            <PublishedReviews classId={id} />
+          </Box>
+        </Box>
+      </Box>
     </>
   );
 };
 
-export default ClassInfoModal;
+export default ClassInfoView;

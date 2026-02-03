@@ -38,12 +38,14 @@ const PublishedReviews = ({ classId, isAttended = false }) => {
   }
   return (
     <Stack
-      padding="1rem"
       spacing="2"
+      width="100%"
+      mt={10}
     >
       <Text
-        fontSize="xl"
-        fontWeight="bold"
+        fontSize="18px"
+        fontWeight={600}
+        lineHeight="28px"
       >
         Reviews
       </Text>

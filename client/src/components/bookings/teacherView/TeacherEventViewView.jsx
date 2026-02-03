@@ -6,10 +6,8 @@ import {
   Center,
   Divider,
   Flex,
-  Heading,
   HStack,
   IconButton,
-  Image,
   List,
   ListIcon,
   ListItem,
@@ -19,9 +17,7 @@ import {
   MenuList,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Text,
@@ -30,7 +26,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { AiOutlineArrowLeft } from "react-icons/ai";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import { BiSolidEdit } from "react-icons/bi";
 import { BsChevronLeft } from "react-icons/bs";
 import {
@@ -39,6 +35,8 @@ import {
   FaRegTrashCan,
 } from "react-icons/fa6";
 import { MdMoreHoriz } from "react-icons/md";
+
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
@@ -51,7 +49,7 @@ import { EventRSVP } from "../../rsvp/eventRsvp";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { QRCode } from "./qrcode/QRCode.jsx";
 
-function TeacherEventViewModal({
+function TeacherEventViewView({
   isOpenProp,
   handleClose,
   title,
@@ -75,6 +73,8 @@ function TeacherEventViewModal({
 }) {
   const { currentUser, role } = useAuthContext();
   const { backend } = useBackendContext();
+  const routerLocation = useLocation();
+  const navigate = useNavigate();
   const formattedDate = formatDate(date);
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
@@ -92,15 +92,19 @@ function TeacherEventViewModal({
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const enrollInEvent = async () => {
-    const users = await backend.get(`/users/${currentUser.uid}`);
-    if (users.data[0]) {
-      const req = await backend.post(`/event-enrollments/`, {
-        student_id: users.data[0].id,
-        event_id: id,
-      });
-      if (req.status === 201) {
-        setOpenSuccessModal(true);
+    try {
+      const users = await backend.get(`/users/${currentUser.uid}`);
+      if (users?.data?.[0]) {
+        const req = await backend.post(`/event-enrollments/`, {
+          student_id: users.data[0].id,
+          event_id: id,
+        });
+        if (req.status === 201) {
+          setOpenSuccessModal(true);
+        }
       }
+    } catch (error) {
+      console.error("Error enrolling in event:", error);
     }
   };
 
@@ -196,6 +200,22 @@ function TeacherEventViewModal({
 
   const tagData = tags;
 
+  // Close the view when navigating away from bookings
+  useEffect(() => {
+    if (isOpenProp && routerLocation.pathname !== "/bookings") {
+      handleClose();
+    }
+  }, [routerLocation.pathname, isOpenProp, handleClose]);
+
+  // Close the view when location state changes (force refresh from navbar)
+  useEffect(() => {
+    if (isOpenProp && routerLocation.state?.forceRefresh) {
+      handleClose();
+      // Clear the forceRefresh state to prevent it from affecting future opens
+      navigate(routerLocation.pathname, { replace: true, state: {} });
+    }
+  }, [routerLocation.state, isOpenProp, handleClose, navigate, routerLocation.pathname]);
+
   return (
     <>
       <SuccessSignupModal
@@ -275,53 +295,74 @@ function TeacherEventViewModal({
           onClose={handleCloseConfirmation}
         />
       ) : (
-        <Modal
-          isOpen={isOpenProp}
-          size="full"
-          onClose={handleClose}
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader bg="gray.50">
-              <HStack justify="space-between">
-                <AiOutlineArrowLeft
-                  cursor="pointer"
-                  onClick={handleClose}
-                />
-                <Menu>
-                  <MenuButton
-                    bg="gray.50"
-                    as={IconButton}
-                    icon={<MdMoreHoriz />}
+        <>
+          {isOpenProp && (
+            <Box
+              position="fixed"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              bg="gray.50"
+              zIndex={1000}
+              overflowY="auto"
+              pb={20}
+            >
+              <Box
+                maxW="100%"
+                px={6}
+                py={4}
+              >
+                <HStack
+                  justify="space-between"
+                  mb={4}
+                >
+                  <IconButton
+                    icon={<ArrowBackIcon />}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleClose();
+                    }}
+                    aria-label="Back"
+                    variant="ghost"
+                    fontSize={"2xl"}
+                    p={4}
+                    ml={-4}
                   />
-                  <MenuList
-                    backgroundColor="gray.100"
-                    p={0}
-                    minW="auto"
-                    w="110px"
-                    h="80px"
-                  >
-                    <MenuItem
-                      background="transparent"
-                      fontSize="md"
-                      onClick={handleEditEvent}
+                  <Menu>
+                    <MenuButton
+                      bg="gray.50"
+                      as={IconButton}
+                      icon={<MdMoreHoriz />}
+                    />
+                    <MenuList
+                      backgroundColor="gray.100"
+                      p={0}
+                      minW="auto"
+                      w="110px"
+                      h="80px"
                     >
-                      <BiSolidEdit />
-                      Edit
-                    </MenuItem>
-                    <MenuItem
-                      background="transparent"
-                      fontSize="md"
-                      onClick={handleDeleteEvent}
-                    >
-                      <FaRegTrashCan />
-                      Delete
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </HStack>
-            </ModalHeader>
-            <ModalBody bg="gray.50">
+                      <MenuItem
+                        background="transparent"
+                        fontSize="md"
+                        onClick={handleEditEvent}
+                      >
+                        <BiSolidEdit />
+                        Edit
+                      </MenuItem>
+                      <MenuItem
+                        background="transparent"
+                        fontSize="md"
+                        onClick={handleDeleteEvent}
+                      >
+                        <FaRegTrashCan />
+                        Delete
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                </HStack>
+                <Box>
               <VStack>
                 <Box
                   bg="white"
@@ -529,22 +570,27 @@ function TeacherEventViewModal({
                   )}
                 </HStack>
               </VStack>
-            </ModalBody>
-            <ModalFooter>
               {role === "student" && (
-                <Button
-                  colorScheme="teal"
-                  onClick={eventSignUp}
+                <Box
+                  mt={6}
+                  textAlign="center"
                 >
-                  Sign Up
-                </Button>
+                  <Button
+                    colorScheme="teal"
+                    onClick={eventSignUp}
+                  >
+                    Sign Up
+                  </Button>
+                </Box>
               )}
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+                </Box>
+              </Box>
+            </Box>
+          )}
+        </>
       )}
     </>
   );
 }
 
-export default TeacherEventViewModal;
+export default TeacherEventViewView;

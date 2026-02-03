@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  Badge,
   Button,
   Flex,
   FormControl,
   FormLabel,
-  HStack,
   IconButton,
   Input,
   Modal,
@@ -21,9 +19,9 @@ import {
 } from "@chakra-ui/react";
 
 import { AiOutlineArrowLeft } from "react-icons/ai";
-import { IoCloseSharp } from "react-icons/io5";
 
 import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
+import { TagSelector } from "../../shared/TagSelector";
 import { ProgressBar } from "./ProgressBar";
 import { UploadComponent } from "./UploadComponent";
 
@@ -37,7 +35,7 @@ export const FormModal = ({
   setDescription,
   link,
   setLink,
-  s3URL,
+  s3URL: _s3URL,
   setS3URL,
   tags,
   setTags,
@@ -194,58 +192,15 @@ export const FormModal = ({
             <br />
             <FormControl mb={1}>
               <FormLabel>Select tags</FormLabel>
-              <Flex
-                gap={3}
-                flexWrap="wrap"
-                width="100%"
-              >
-                {Object.keys(allTags).map((tag) => (
-                  <Badge
-                    key={tag}
-                    onClick={handleClassFilterToggle(tag)}
-                    rounded="full"
-                    border={tags.includes(allTags[tag]) ? "none" : "1px solid"}
-                    borderColor="gray.300"
-                    color={
-                      tags.includes(allTags[tag]) ? "purple.800" : "gray.600"
-                    }
-                    bg={tags.includes(allTags[tag]) ? "purple.100" : "white"}
-                    textTransform="none"
-                    cursor="pointer"
-                    transition="all 0.2s ease-in-out"
-                  >
-                    <HStack>
-                      <Text
-                        p={1}
-                        fontWeight={
-                          tags.includes(allTags[tag]) ? "bold" : "normal"
-                        }
-                      >
-                        {tag.charAt(0).toUpperCase() +
-                          tag.slice(1).toLowerCase()}
-                      </Text>
-                      {tags.includes(allTags[tag]) && (
-                        <IconButton
-                          bg="transparent"
-                          aria-label="Close"
-                          icon={
-                            <IoCloseSharp
-                              color="purple.800"
-                              opacity={0.5}
-                            />
-                          }
-                          variant="unstyled"
-                          minW={0}
-                          h="auto"
-                          p={0}
-                          m={0}
-                          ml={-2}
-                        />
-                      )}
-                    </HStack>
-                  </Badge>
-                ))}
-              </Flex>
+              <TagSelector
+                tags={allTags}
+                selectedTags={tags}
+                onTagToggle={(tagName) => {
+                  handleClassFilterToggle(tagName)();
+                }}
+                scrollable={false}
+                reverseMapping={true}
+              />
             </FormControl>
             <br />
             <FormControl mb={1}>

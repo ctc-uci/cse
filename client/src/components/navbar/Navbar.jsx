@@ -7,7 +7,7 @@ import {
   FaSearch,
   FaUser,
 } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useRoleContext } from "../../contexts/hooks/useRoleContext";
@@ -16,6 +16,7 @@ export const Navbar = () => {
   const { role: user_role } = useAuthContext();
   const { role } = useRoleContext();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     ...(role === "admin"
@@ -40,7 +41,7 @@ export const Navbar = () => {
       borderTop="1px solid"
       borderColor="gray.200"
       p={2}
-      zIndex="sticky"
+      zIndex={1001}
     >
       <Flex
         justify="space-around"
@@ -48,10 +49,21 @@ export const Navbar = () => {
       >
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          const handleClick = (e) => {
+            // If clicking nav item while already on that route, force navigation to close any open views
+            if (item.path === location.pathname) {
+              e.preventDefault();
+              navigate(item.path, {
+                replace: true,
+                state: { forceRefresh: Date.now() },
+              });
+            }
+          };
           return (
             <Link
               to={item.path}
               key={item.path}
+              onClick={handleClick}
             >
               <VStack spacing={1}>
                 <Icon
