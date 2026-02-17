@@ -8,11 +8,20 @@ import App from "./App.tsx";
 import "@fontsource-variable/inter";
 
 const fonts = {
-  body: `'inter', sans-serif`,
-  heading: `'inter', sans-serif`,
+  body: `Inter Variable, sans-serif`,
+  heading: `Inter Variable, sans-serif`,
 };
 
-const theme = extendTheme({ fonts });
+const theme = extendTheme({
+  fonts,
+  styles: {
+    global: {
+      body: {
+        bg: "#FAFAFA",
+      },
+    },
+  },
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

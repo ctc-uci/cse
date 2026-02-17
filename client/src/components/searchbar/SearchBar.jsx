@@ -42,20 +42,22 @@ export const SearchBar = ({ onSearch, tags = {}, tagFilter = {}, onTag }) => {
 
   return (
     <VStack
-      spacing={4}
+      spacing={3}
       align="stretch"
     >
       <InputGroup>
         <InputLeftElement pointerEvents="none">
-          <FaSearch color="gray.300" />
+          <FaSearch color="gray.300" size={12} />
         </InputLeftElement>
         <Input
-          placeholder="Search"
+          placeholder="Search for Classes"
           variant="filled"
-          borderRadius="lg"
-          borderColor={"gray.300"}
-          bg="white.100"
-          _hover={{ bg: "gray.200" }}
+          fontSize="sm"
+          border="1px"
+          borderRadius="xl"
+          borderColor={"gray.200"}
+          bg="white"
+          _hover={{ bg: "gray.50" }}
           _focus={{ bg: "white", borderColor: "gray.300" }}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}

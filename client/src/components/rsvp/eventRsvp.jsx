@@ -142,7 +142,7 @@ export const EventRSVP = ({ isOpen, onClose, card }) => {
                   ))
                 ) : (
                   <Tr>
-                    <Td>No students have RSVP'd</Td>
+                    <Td>No students have enrolled</Td>
                   </Tr>
                 )}
               </Tbody>

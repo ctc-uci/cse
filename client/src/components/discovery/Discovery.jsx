@@ -281,7 +281,6 @@ export const Discovery = () => {
     <Box>
       <Flex
         direction={"column"}
-        p={4}
         mb={20}
       >
         <Tabs
@@ -293,24 +292,26 @@ export const Discovery = () => {
           }}
         >
           <Center>
-            <TabList>
+            <TabList mt={14}>
               <Tab
-                fontWeight={"bold"}
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >
                 Classes
               </Tab>
               <Tab
-                fontWeight={"bold"}
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >
@@ -331,7 +332,7 @@ export const Discovery = () => {
                   onTag={handleClassFilterToggle}
                 />
                 <Flex
-                  gap={5}
+                  gap={3}
                   wrap="wrap"
                   justify="center"
                 >

@@ -1,29 +1,8 @@
 import { memo, useEffect, useState } from "react";
-
-import {
-  Badge,
-  Box,
-  Flex,
-  Heading,
-  HStack,
-  Image,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-
-// import { FaMicrophoneAlt, FaMusic } from "react-icons/fa";
-// import {
-//   GiAbstract001,
-//   GiBallerinaShoes,
-//   GiBoombox,
-//   GiCartwheel,
-//   GiTambourine,
-// } from "react-icons/gi";
 import { useLocation } from "react-router-dom";
-
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
-import { formatDate, formatTime } from "../../utils/formatDateTime";
 import SignUpController from "../discovery/SignUpController";
+import { BaseCard } from "./BaseCard";
 
 export const ClassCard = memo(
   ({
@@ -38,84 +17,10 @@ export const ClassCard = memo(
     onClick = null,
     tags = [],
   }) => {
-    const formattedDate = date ? formatDate(date) : null;
-    const formattedStartTime = startTime ? formatTime(startTime) : null;
-    const formattedEndTime = endTime ? formatTime(endTime) : null;
     const { backend } = useBackendContext();
     const [classDate, setClassDate] = useState(null);
     const [openRootModal, setOpenRootModal] = useState(false);
-
     const { pathname } = useLocation();
-
-    const getIcon = () => {
-      const iconSize = 50;
-      switch (tags[0]?.id) {
-        case 1:
-          return (
-            <Image
-              src="/card_images/fan.svg"
-              alt="Classical dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 2:
-          return (
-            <Image
-              src="/card_images/shoes.svg"
-              alt="Ballet dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 3:
-          return (
-            <Image
-              src="/card_images/not_iems.svg"
-              alt="Kpop dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 4:
-          return (
-            <Image
-              src="/card_images/mic.svg"
-              alt="Hip Hop dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 5:
-          return (
-            <Image
-              src="/card_images/music.svg"
-              alt="Contemporary dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 6:
-          return (
-            <Image
-              src="/card_images/gymnastics.svg"
-              alt="Tumbling dance icon"
-              boxSize={iconSize}
-            />
-          );
-        case 7:
-          return (
-            <Image
-              src="/card_images/flute.svg"
-              alt="Folklore dance icon"
-              boxSize={iconSize}
-            />
-          );
-        default:
-          return (
-            <Image
-              src="/card_images/dancer.svg"
-              alt="Dance icon"
-              boxSize={iconSize}
-            />
-          );
-      }
-    };
 
     const handleClick = () => {
       if (pathname === "/bookings") {
@@ -141,83 +46,16 @@ export const ClassCard = memo(
     }, [backend, classDate, id]);
 
     return (
-      <Box
-        w="100%"
-        bg="gray.50"
-        borderRadius="lg"
-        // borderRadius="16px"
-        borderColor={"gray.300"}
-        borderWidth={1}
-        px={6}
-        py={10}
-        position="relative"
-        cursor="pointer"
+      <BaseCard
+        title={title}
+        location={location}
+        date={date}
+        startTime={startTime}
+        endTime={endTime}
+        attendeeCount={attendeeCount}
+        tags={tags}
         onClick={handleClick}
-        _hover={{ bg: "gray.100" }}
       >
-        <Badge
-          position="absolute"
-          top={4}
-          right={4}
-          variant="outline"
-          borderStyle="dashed"
-          borderColor="purple.600"
-          color="purple.700"
-          bg="purple.50"
-          px={3}
-          py={1}
-          fontSize="xs"
-          fontWeight="medium"
-          borderRadius="full"
-        >
-          {attendeeCount} {attendeeCount === 1 ? "Person" : "People"} Enrolled
-        </Badge>
-
-        <HStack
-          spacing={4}
-          align="center"
-        >
-          <Box
-            maxW="100%"
-            maxH="100%"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            {getIcon()}
-          </Box>
-
-          {/* text */}
-          <VStack
-            w={"80%"}
-            align="flex-start"
-            spacing={1}
-          >
-            <Heading
-              size="md"
-              fontWeight={"semibold"}
-              color="gray.700"
-              wordBreak="break-word"
-              marginTop="10px"
-            >
-              {title}
-            </Heading>
-            <Text
-              fontSize="sm"
-              color="gray.700"
-              wordBreak="break-word"
-            >
-              {location}
-            </Text>
-            <Text
-              fontSize="sm"
-              color="gray.700"
-            >
-              {formattedDate} · {formattedStartTime} – {formattedEndTime}
-            </Text>
-          </VStack>
-        </HStack>
-
         <SignUpController
           class_id={id}
           title={title}
@@ -230,7 +68,7 @@ export const ClassCard = memo(
           user={user}
           tags={tags}
         />
-      </Box>
+      </BaseCard>
     );
   }
 );

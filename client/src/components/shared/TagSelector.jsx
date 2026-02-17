@@ -33,22 +33,22 @@ export const TagSelector = ({
 
   const containerProps = scrollable
     ? {
-        gap: 3,
-        maxWidth: "100%",
-        overflowX: "auto",
-        css: {
-          "&::-webkit-scrollbar": {
-            display: "none",
-          },
-          MsOverflowStyle: "none",
-          scrollbarWidth: "none",
+      gap: 2,
+      maxWidth: "100%",
+      overflowX: "auto",
+      css: {
+        "&::-webkit-scrollbar": {
+          display: "none",
         },
-      }
+        MsOverflowStyle: "none",
+        scrollbarWidth: "none",
+      },
+    }
     : {
-        gap: 3,
-        flexWrap: "wrap",
-        width: "100%",
-      };
+      gap: 2,
+      flexWrap: "wrap",
+      width: "100%",
+    };
 
   return (
     <Flex {...containerProps}>
@@ -64,22 +64,24 @@ export const TagSelector = ({
           <Badge
             key={key}
             onClick={() => onTagToggle(reverseMapping ? tagName : tagId)}
-            rounded="full"
-            border={isSelected ? "none" : "1px solid"}
-            borderColor="gray.300"
-            color={isSelected ? "purple.800" : "gray.600"}
-            bg={isSelected ? "purple.100" : "white"}
+            borderRadius="full"
+            border={isSelected ? "1px solid" : "1px solid"}
+            borderColor={isSelected ? "purple.300" : "gray.300"}
+            color={isSelected ? "purple.600" : "gray.600"}
+            bg={isSelected ? "purple.50" : "transparent"}
             textTransform="none"
             cursor="pointer"
             position="relative"
             display="inline-flex"
             alignItems="center"
-            h="28px"
+            h="24px"
+            px={2}
             transition="all 0.2s ease-in-out"
           >
             <Text
-              px={2}
-              pr={isSelected ? 5 : 2}
+              px={0}
+              pr={isSelected ? 4 : 0}
+              fontSize="sm"
               fontWeight={isSelected ? 500 : 400}
               lineHeight="1"
               transition="font-weight 0.2s ease-in-out, padding-right 0.2s ease-in-out"

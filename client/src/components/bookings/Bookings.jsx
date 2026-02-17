@@ -358,7 +358,7 @@ export const Bookings = () => {
   const prevClassesRef = useRef();
   const prevEventsRef = useRef();
   const prevAttendedRef = useRef([]);
-  
+
   // Use useMemo with deep comparison to prevent re-render loops
   const attended = useMemo(() => {
     // Deep comparison: check if arrays have same IDs
@@ -366,11 +366,11 @@ export const Bookings = () => {
     const eventsIds = events.map(e => e.id).join(',');
     const prevClassesIds = prevClassesRef.current ? prevClassesRef.current.map(c => c.id).join(',') : '';
     const prevEventsIds = prevEventsRef.current ? prevEventsRef.current.map(e => e.id).join(',') : '';
-    
+
     if (classesIds === prevClassesIds && eventsIds === prevEventsIds && prevAttendedRef.current.length > 0) {
       return prevAttendedRef.current;
     }
-    
+
     prevClassesRef.current = classes;
     prevEventsRef.current = events;
     const attendedClasses = classes.filter((c) => c.attendance !== null);
@@ -394,7 +394,7 @@ export const Bookings = () => {
   const memoizedCoEvents = useMemo(() => {
     return coEvents;
   }, [coEventsIdString]);
-  
+
   const memoizedViewViewTags = useMemo(() => {
     if (!selectedCard?.id) return [];
     return cardType === "class"
@@ -774,18 +774,17 @@ export const Bookings = () => {
           <Center>
             <TabList>
               <Tab
-                fontWeight={"bold"}
                 _selected={{
                   borderBottom: "2px",
                   borderColor: "purple.600",
                   fontWeight: "bold",
                   color: "purple.600",
                 }}
+                fontSize={"lg"}
               >
                 Classes
               </Tab>
               <Tab
-                fontWeight={"bold"}
                 _selected={{
                   borderBottom: "2px",
                   borderColor: "purple.600",
@@ -1143,7 +1142,7 @@ export const Bookings = () => {
                     <CreateEvent
                       isOpen={isOpen}
                       onClose={onCloseModal}
-                      // triggerRefresh={reloadClassesAndDrafts}
+                    // triggerRefresh={reloadClassesAndDrafts}
                     />
                   )}
                 </ModalBody>
@@ -1158,36 +1157,36 @@ export const Bookings = () => {
             />
           )
         ) : // STUDENT VIEW HERE
-        currentModal === "view" && isOpen ? (
-          <>
-            <ViewView
-              key={`view-${selectedCard?.id || 'none'}`}
+          currentModal === "view" && isOpen ? (
+            <>
+              <ViewView
+                key={`view-${selectedCard?.id || 'none'}`}
+                isOpen={isOpen}
+                onClose={onClose}
+                setCurrentModal={handleSetCurrentModal}
+                card={selectedCard}
+                coEvents={memoizedCoEvents}
+                type={cardType}
+                isAttended={isAttendedItem}
+                tags={memoizedViewViewTags}
+              />
+            </>
+          ) : currentModal === "confirmation" ? (
+            <ConfirmationModal
               isOpen={isOpen}
-              onClose={onClose}
-              setCurrentModal={handleSetCurrentModal}
+              onClose={onCloseModal}
               card={selectedCard}
-              coEvents={memoizedCoEvents}
-              type={cardType}
-              isAttended={isAttendedItem}
-              tags={memoizedViewViewTags}
             />
-          </>
-        ) : currentModal === "confirmation" ? (
-          <ConfirmationModal
-            isOpen={isOpen}
-            onClose={onCloseModal}
-            card={selectedCard}
-          />
-        ) : (
-          <CancelModal
-            isOpen={isOpen}
-            onClose={onCloseModal}
-            setCurrentModal={setCurrentModal}
-            card={selectedCard}
-            handleEvent={() => handleCancelEnrollment(selectedCard.id)}
-            type={cardType}
-          />
-        )}
+          ) : (
+            <CancelModal
+              isOpen={isOpen}
+              onClose={onCloseModal}
+              setCurrentModal={setCurrentModal}
+              card={selectedCard}
+              handleEvent={() => handleCancelEnrollment(selectedCard.id)}
+              type={cardType}
+            />
+          )}
       </Flex>
       <Navbar />
     </Box>

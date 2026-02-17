@@ -100,7 +100,7 @@ studentsRouter.post("/", async (req, res) => {
     );
 
     const userId = newUser[0].id;
-    console.log("userId", userId);
+    // console.log("userId", userId);
 
     const newStudent = await db.query(
       `INSERT INTO students (id, level)
