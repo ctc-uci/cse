@@ -12,6 +12,7 @@ import {
   Text,
   UnorderedList,
   VStack,
+  Heading
 } from "@chakra-ui/react";
 
 import { MdCheckCircle } from "react-icons/md";
@@ -44,7 +45,7 @@ function SuccessSignupModal({
     <Modal
       isOpen={isOpen}
       size="full"
-      onClose={() => {}}
+      onClose={() => { }}
     >
       <ModalOverlay />
       <ModalContent>
@@ -61,7 +62,8 @@ function SuccessSignupModal({
               <Box color="purple.600">
                 <MdCheckCircle fontSize={"9rem"} />
               </Box>
-              <Text textAlign={"center"}>
+              <Heading>Thanks for Signing Up!</Heading>
+              <Text textAlign={"center"} fontWeight={"semibold"} fontSize={"lg"}>
                 You've successfully signed up for...
               </Text>
               <Text textAlign={"center"}>

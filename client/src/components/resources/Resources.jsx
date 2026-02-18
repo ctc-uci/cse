@@ -182,7 +182,6 @@ export const Resources = () => {
     >
       <Flex
         direction="column"
-        p={4}
       >
         {/* place Videos and News cards into separate tabs */}
         <Tabs
@@ -193,22 +192,24 @@ export const Resources = () => {
           <Center>
             <TabList>
               <Tab
-                fontWeight="bold"
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >
                 Videos
               </Tab>
               <Tab
-                fontWeight="bold"
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >

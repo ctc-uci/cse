@@ -292,7 +292,7 @@ export const Discovery = () => {
           }}
         >
           <Center>
-            <TabList mt={14}>
+            <TabList>
               <Tab
                 fontWeight={500}
                 fontSize={"14px"}

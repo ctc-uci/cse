@@ -41,7 +41,7 @@ const ClassInfoView = ({
   // modalIdentity,
   setModalIdentity,
   // filteredCorequisites,
-  handleResolveCoreq = () => {},
+  handleResolveCoreq = () => { },
   tags = [],
 }) => {
   const { currentUser, role } = useAuthContext();
@@ -202,8 +202,6 @@ const ClassInfoView = ({
         >
           <VStack
             align="start"
-            spacing={4}
-            mb={4}
           >
             <IconButton
               icon={<ArrowBackIcon />}
@@ -239,24 +237,25 @@ const ClassInfoView = ({
               justifyContent="center"
               wordBreak={"break-word"}
               fontWeight={"bold"}
+              fontSize={"3xl"}
             >
               {title}
             </Text>
           </VStack>
           <Box>
-            <Text>Taught by {teacherName ? teacherName : "Unknown"}</Text>
+            <Text mb="4">Taught by {teacherName ? teacherName : "Unknown"}</Text>
             <Text>
               {description
-                ? `Description: ${description}`
+                ? `${description}`
                 : "No description available."}
             </Text>{" "}
             <br />
             <Divider orientation="horizontal" /> <br />
-            <Text color="#553C9A">
+            <Text color="#553C9A" fontWeight="bold">
               {formatDate(date)} · {formatTime(startTime)} –{" "}
               {formatTime(endTime)}
             </Text>
-            <Text>Location: {location}</Text>
+            <Text>{location}</Text>
             <br /> <Divider orientation="horizontal" /> <br />
             <HStack
               spacing={4}

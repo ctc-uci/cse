@@ -764,7 +764,6 @@ export const Bookings = () => {
     <Box>
       <Flex
         direction={"column"}
-        p={4}
         mb={20}
       >
         <Tabs
@@ -774,32 +773,36 @@ export const Bookings = () => {
           <Center>
             <TabList>
               <Tab
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
-                fontSize={"lg"}
               >
                 Classes
               </Tab>
               <Tab
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >
                 Events
               </Tab>
               <Tab
-                fontWeight={"bold"}
+                fontWeight={500}
+                fontSize={"14px"}
+                pb={1}
                 _selected={{
-                  borderBottom: "2px",
+                  borderBottom: "2px solid",
                   borderColor: "purple.600",
-                  fontWeight: "bold",
                   color: "purple.600",
                 }}
               >

@@ -9,6 +9,7 @@ import { TagSelector } from "../shared/TagSelector";
 export const SearchBar = ({ onSearch, tags = {}, tagFilter = {}, onTag }) => {
   const [searchInput, setSearchInput] = useState("");
   const debounceTimeoutRef = useRef(null);
+  const isResources = location.pathname.includes("/resources");
 
   // Debounced search effect
   useEffect(() => {
@@ -50,9 +51,9 @@ export const SearchBar = ({ onSearch, tags = {}, tagFilter = {}, onTag }) => {
           <FaSearch color="gray.300" size={12} />
         </InputLeftElement>
         <Input
-          placeholder="Search for Classes"
+          placeholder={isResources ? "Search for Resources" : "Search for Classes"}
           variant="filled"
-          fontSize="sm"
+          fontSize="md"
           border="1px"
           borderRadius="xl"
           borderColor={"gray.200"}

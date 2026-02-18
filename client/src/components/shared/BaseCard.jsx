@@ -43,7 +43,7 @@ export const BaseCard = memo(
     tags = [],
     onClick,
     headingSize = "md",
-    badgeTop = 2,
+    badgeTop = 3,
     badgeRight = 3,
     badgeFontSize = "10px",
     badgeTextTransform = "capitalize",
@@ -89,7 +89,7 @@ export const BaseCard = memo(
           {attendeeCount} {attendeeCount === 1 ? "Person" : "People"} {badgeTextTransform === 'lowercase' ? 'enrolled' : 'Enrolled'}
         </Badge>
 
-        <HStack spacing={6} align="center">
+        <HStack spacing={6} align="center" mt={2}>
           <Box
             w="100px"
             display="flex"
