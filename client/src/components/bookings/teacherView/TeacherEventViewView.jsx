@@ -67,7 +67,7 @@ function TeacherEventViewView({
   isCorequisiteSignUp,
   corequisites,
   triggerRefresh,
-  handleResolveCoreq = () => {},
+  handleResolveCoreq = () => { },
   tags = [],
   magic,
 }) {
@@ -87,6 +87,7 @@ function TeacherEventViewView({
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   // disclosure for rsvp
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -198,14 +199,36 @@ function TeacherEventViewView({
     }
   };
 
+  const checkEnrollment = async () => {
+    try {
+      const users = await backend.get(`/users/${currentUser.uid}`);
+      if (users?.data?.[0]) {
+        const response = await backend.get(`/event-enrollments/test`, {
+          params: {
+            student_id: users.data[0].id,
+            event_id: id,
+          },
+        });
+        setIsEnrolled(response.data.exists);
+      }
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+    }
+  };
+
   const tagData = tags;
 
   // Close the view when navigating away from bookings
   useEffect(() => {
+    if (isOpenProp) {
+      if (role === "student") {
+        checkEnrollment();
+      }
+    }
     if (isOpenProp && routerLocation.pathname !== "/bookings") {
       handleClose();
     }
-  }, [routerLocation.pathname, isOpenProp, handleClose]);
+  }, [routerLocation.pathname, isOpenProp, handleClose, role]);
 
   // Close the view when location state changes (force refresh from navbar)
   useEffect(() => {
@@ -363,226 +386,228 @@ function TeacherEventViewView({
                   </Menu>
                 </HStack>
                 <Box>
-              <VStack>
-                <Box
-                  bg="white"
-                  h="100%"
-                  w="100%"
-                  mb="4"
-                  p="4"
-                  boxShadow="md"
-                  borderRadius="lg"
-                >
-                  <Center>
-                    <QRCode
-                      id={id}
-                      type="Event"
-                    ></QRCode>
-                  </Center>
-                  <Box
-                    width="100%"
+                  <VStack>
+                    <Box
+                      bg="white"
+                      h="100%"
+                      w="100%"
+                      mb="4"
+                      p="4"
+                      boxShadow="md"
+                      borderRadius="lg"
+                    >
+                      <Center>
+                        <QRCode
+                          id={id}
+                          type="Event"
+                        ></QRCode>
+                      </Center>
+                      <Box
+                        width="100%"
+                        align="center"
+                      >
+                        <Text
+                          fontSize="md"
+                          fontWeight="bold"
+                        >
+                          {" "}
+                          {rsvpnum ? rsvpnum : 0} People Enrolled
+                        </Text>
+                        <Button
+                          onClick={onOpen}
+                          variant="unstyled"
+                          fontSize="md"
+                          fontWeight="normal"
+                          color="black"
+                          textDecoration="underline"
+                          _focus={{ boxShadow: "none" }}
+                        >
+                          <u>View Attendees</u>
+                        </Button>
+                        <EventRSVP
+                          isOpen={isOpen}
+                          onClose={onClose}
+                          card={{ id, name: title }}
+                        />
+                      </Box>
+                    </Box>
+                  </VStack>
+
+                  <VStack
+                    spacing={4}
                     align="center"
                   >
-                    <Text
-                      fontSize="md"
-                      fontWeight="bold"
+                    <Flex
+                      pt={4}
+                      width="100%"
+                      justifyContent="flex-start"
                     >
-                      {" "}
-                      {rsvpnum ? rsvpnum : 0} People Enrolled
-                    </Text>
-                    <Button
-                      onClick={onOpen}
-                      variant="unstyled"
-                      fontSize="md"
-                      fontWeight="normal"
-                      color="black"
-                      textDecoration="underline"
-                      _focus={{ boxShadow: "none" }}
+                      <Box
+                        border={"1px"}
+                        borderColor="gray.300"
+                        borderRadius="full"
+                        px={4}
+                      >
+                        <Text fontSize="sm">
+                          {tagData[0]?.tag ? tagData[0].tag : "No Tags"}
+                        </Text>
+                      </Box>
+                    </Flex>
+                    <Box
+                      display="flex"
+                      justifyContent="flex-start"
+                      width="100%"
                     >
-                      <u>View Attendees</u>
-                    </Button>
-                    <EventRSVP
-                      isOpen={isOpen}
-                      onClose={onClose}
-                      card={{ id, name: title }}
-                    />
-                  </Box>
-                </Box>
-              </VStack>
-
-              <VStack
-                spacing={4}
-                align="center"
-              >
-                <Flex
-                  pt={4}
-                  width="100%"
-                  justifyContent="flex-start"
-                >
-                  <Box
-                    border={"1px"}
-                    borderColor="gray.300"
-                    borderRadius="full"
-                    px={4}
-                  >
-                    <Text fontSize="sm">
-                      {tagData[0]?.tag ? tagData[0].tag : "No Tags"}
-                    </Text>
-                  </Box>
-                </Flex>
-                <Box
-                  display="flex"
-                  justifyContent="flex-start"
-                  width="100%"
-                >
-                  <Text
-                    fontSize="2xl"
-                    fontWeight="bold"
-                    wordBreak={"break-word"}
-                  >
-                    {title}
-                  </Text>
-                </Box>
-                <Box
-                  display="flex"
-                  justifyContent="flex-start"
-                  width="100%"
-                ></Box>
-                <Box
-                  display="flex"
-                  justifyContent="flex-start"
-                  width="100%"
-                >
-                  <Text fontSize="md">{description}</Text>
-                </Box>
-                <Divider
-                  borderColor="gray.400"
-                  borderWidth="1px"
-                  my={4}
-                />
-                <Box width="100%">
-                  <Text
-                    color="purple.700"
-                    fontWeight="bold"
-                    fontSize="md"
-                  >
-                    {formattedDate} ·{" "}
-                    {formattedStartTime ? formattedStartTime : "TBD"} -{" "}
-                    {formattedEndTime ? formattedEndTime : "TBD"}
-                  </Text>
-                </Box>
-                <Box width="100%">
-                  <Text fontSize="md">{location ? location : "N/A"}</Text>
-                </Box>
-                <Divider
-                  borderColor="gray.400"
-                  borderWidth="1px"
-                  my={4}
-                />
-                <Box width="100%">
-                  <Text
-                    fontWeight="bold"
-                    fontSize={"lg"}
-                  >
-                    Call Time
-                  </Text>
-                  <Text>{formattedCallTime ? formattedCallTime : "TBD"}</Text>
-                </Box>
-                <Divider
-                  borderColor="gray.400"
-                  borderWidth="1px"
-                  my={4}
-                />
-
-                <HStack
-                  spacing={4}
-                  width={"100%"}
-                  justifyContent={"space-around"}
-                >
-                  <Box width="50%">
-                    <Text
-                      fontWeight="bold"
-                      fontSize={"lg"}
-                    >
-                      Capacity
-                    </Text>
-                    <Text>{capacity ? capacity : 0}</Text>
-                  </Box>
-                  <Box width="50%">
-                    <Text
-                      fontWeight="bold"
-                      fontSize={"lg"}
-                    >
-                      Level
-                    </Text>
-                    <Text>{level ? level : "TBD"}</Text>
-                  </Box>
-                </HStack>
-                <Divider
-                  borderColor="gray.400"
-                  borderWidth="1px"
-                  my={4}
-                />
-
-                <HStack width={"100%"}>
-                  <Box>
-                    <Text
-                      fontWeight="bold"
-                      fontSize={"lg"}
-                    >
-                      Costume
-                    </Text>
-                    <Text>{costume}</Text>
-                  </Box>
-                </HStack>
-                <HStack width="100%">
-                  {!isCorequisiteSignUp && (
-                    <Box>
                       <Text
-                        as="b"
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        wordBreak={"break-word"}
+                      >
+                        {title}
+                      </Text>
+                    </Box>
+                    <Box
+                      display="flex"
+                      justifyContent="flex-start"
+                      width="100%"
+                    ></Box>
+                    <Box
+                      display="flex"
+                      justifyContent="flex-start"
+                      width="100%"
+                    >
+                      <Text fontSize="md">{description}</Text>
+                    </Box>
+                    <Divider
+                      borderColor="gray.400"
+                      borderWidth="1px"
+                      my={4}
+                    />
+                    <Box width="100%">
+                      <Text
+                        color="purple.700"
+                        fontWeight="bold"
+                        fontSize="md"
+                      >
+                        {formattedDate} ·{" "}
+                        {formattedStartTime ? formattedStartTime : "TBD"} -{" "}
+                        {formattedEndTime ? formattedEndTime : "TBD"}
+                      </Text>
+                    </Box>
+                    <Box width="100%">
+                      <Text fontSize="md">{location ? location : "N/A"}</Text>
+                    </Box>
+                    <Divider
+                      borderColor="gray.400"
+                      borderWidth="1px"
+                      my={4}
+                    />
+                    <Box width="100%">
+                      <Text
+                        fontWeight="bold"
                         fontSize={"lg"}
                       >
-                        Event Prerequisites
+                        Call Time
                       </Text>
-                      <Text color="gray.600">
-                        We recommend taking these classes before enrolling in
-                        this event
-                      </Text>
-                      {!corequisites || corequisites.length === 0 ? (
-                        <Text>No corequisites for this event</Text>
-                      ) : (
-                        <List>
-                          {corequisites.map((coreq, index) => (
-                            <ListItem key={index}>
-                              <ListIcon
-                                as={
-                                  coreq.enrolled
-                                    ? FaCircleCheck
-                                    : FaCircleExclamation
-                                }
-                              />
-                              {coreq.title}
-                            </ListItem>
-                          ))}
-                        </List>
+                      <Text>{formattedCallTime ? formattedCallTime : "TBD"}</Text>
+                    </Box>
+                    <Divider
+                      borderColor="gray.400"
+                      borderWidth="1px"
+                      my={4}
+                    />
+
+                    <HStack
+                      spacing={4}
+                      width={"100%"}
+                      justifyContent={"space-around"}
+                    >
+                      <Box width="50%">
+                        <Text
+                          fontWeight="bold"
+                          fontSize={"lg"}
+                        >
+                          Capacity
+                        </Text>
+                        <Text>{capacity ? capacity : 0}</Text>
+                      </Box>
+                      <Box width="50%">
+                        <Text
+                          fontWeight="bold"
+                          fontSize={"lg"}
+                        >
+                          Level
+                        </Text>
+                        <Text>{level ? level : "TBD"}</Text>
+                      </Box>
+                    </HStack>
+                    <Divider
+                      borderColor="gray.400"
+                      borderWidth="1px"
+                      my={4}
+                    />
+
+                    <HStack width={"100%"}>
+                      <Box>
+                        <Text
+                          fontWeight="bold"
+                          fontSize={"lg"}
+                        >
+                          Costume
+                        </Text>
+                        <Text>{costume}</Text>
+                      </Box>
+                    </HStack>
+                    <HStack width="100%">
+                      {!isCorequisiteSignUp && (
+                        <Box>
+                          <Text
+                            as="b"
+                            fontSize={"lg"}
+                          >
+                            Event Prerequisites
+                          </Text>
+                          <Text color="gray.600">
+                            We recommend taking these classes before enrolling in
+                            this event
+                          </Text>
+                          {!corequisites || corequisites.length === 0 ? (
+                            <Text>No corequisites for this event</Text>
+                          ) : (
+                            <List>
+                              {corequisites.map((coreq, index) => (
+                                <ListItem key={index}>
+                                  <ListIcon
+                                    as={
+                                      coreq.enrolled
+                                        ? FaCircleCheck
+                                        : FaCircleExclamation
+                                    }
+                                  />
+                                  {coreq.title}
+                                </ListItem>
+                              ))}
+                            </List>
+                          )}
+                        </Box>
                       )}
+                    </HStack>
+                  </VStack>
+                  {role === "student" && (
+                    <Box
+                      mt={6}
+                      textAlign="center"
+                    >
+                      <Button
+                        bg={isEnrolled ? "gray.400" : "purple.600"}
+                        color="white"
+                        onClick={eventSignUp}
+                        isDisabled={isEnrolled}
+                      >
+                        {isEnrolled ? "Enrolled" : "Sign Up"}
+                      </Button>
                     </Box>
                   )}
-                </HStack>
-              </VStack>
-              {role === "student" && (
-                <Box
-                  mt={6}
-                  textAlign="center"
-                >
-                  <Button
-                    colorScheme="teal"
-                    onClick={eventSignUp}
-                  >
-                    Sign Up
-                  </Button>
-                </Box>
-              )}
                 </Box>
               </Box>
             </Box>

@@ -117,6 +117,15 @@ eventEnrollmentRouter.post("/", async (req, res) => {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
+    const existing = await db.query(
+      "SELECT * FROM event_enrollments WHERE student_id = $1 AND event_id = $2 AND attendance IS NOT DISTINCT FROM $3",
+      [student_id, event_id, attendance]
+    );
+
+    if (existing.length > 0) {
+      return res.status(200).json(keysToCamel(existing[0] as EventEnrollment));
+    }
+
     // Insert the new article into the database
     // Returning * will return the newly inserted row in the response
 

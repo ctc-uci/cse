@@ -94,7 +94,9 @@ eventsRouter.get(`/drafts`, async (req, res) => {
 eventsRouter.get("/published", async (req, res) => {
   try {
     const drafts = await db.query(
-      `SELECT * FROM events WHERE is_draft = false;`,
+      `SELECT e.*,
+        (SELECT COUNT(*) FROM event_enrollments ee WHERE ee.event_id = e.id) AS attendee_count
+       FROM events e WHERE is_draft = false;`,
       []
     );
     res.status(200).json(keysToCamel(drafts));
@@ -105,7 +107,11 @@ eventsRouter.get("/published", async (req, res) => {
 
 eventsRouter.get("/all", async (req, res) => {
   try {
-    const eventID = await db.query("SELECT * FROM events;");
+    const eventID = await db.query(
+      `SELECT e.*,
+        (SELECT COUNT(*) FROM event_enrollments ee WHERE ee.event_id = e.id) AS attendee_count
+       FROM events e;`
+    );
 
     res.status(200).json(keysToCamel(eventID));
   } catch (err) {
@@ -131,8 +137,9 @@ eventsRouter.get("/", async (req, res) => {
 
   try {
     const query = `
-      SELECT *
-      FROM events
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_enrollments ee WHERE ee.event_id = e.id) AS attendee_count
+      FROM events e
       ${search ? "WHERE title ILIKE $1" : ""}
       ORDER BY date ${reverseSearch ? "ASC" : "DESC"}, LOWER(title) ASC
       LIMIT 10 OFFSET $2;

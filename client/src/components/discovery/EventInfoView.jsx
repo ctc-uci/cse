@@ -38,8 +38,9 @@ const EventInfoView = ({
   // modalIdentity,
   setModalIdentity,
   tags = [],
-  handleResolveCoreq = () => {},
+  handleResolveCoreq = () => { },
 }) => {
+  const { role } = useAuthContext();
   const { backend } = useBackendContext();
   const routerLocation = useLocation();
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const EventInfoView = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [callTime, setCallTime] = useState("");
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const getStartTime = async () => {
     try {
@@ -60,6 +62,21 @@ const EventInfoView = ({
       }
     } catch (error) {
       console.error("Error fetching event time:", error);
+    }
+  };
+
+  const checkEnrollment = async () => {
+    try {
+      if (!user?.data?.[0]?.id) return;
+      const response = await backend.get(`/event-enrollments/test`, {
+        params: {
+          student_id: user.data[0].id,
+          event_id: id,
+        },
+      });
+      setIsEnrolled(response.data.exists);
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
     }
   };
 
@@ -115,6 +132,9 @@ const EventInfoView = ({
   useEffect(() => {
     if (isOpenProp) {
       getStartTime();
+      if (role === "student") {
+        checkEnrollment();
+      }
     }
   }, [isOpenProp]);
 
@@ -284,15 +304,18 @@ const EventInfoView = ({
             <br />
             <Divider orientation="horizontal" />
             <br />
-            <Button
-              width="100%"
-              py={3}
-              bg="purple.600"
-              color="white"
-              onClick={eventSignUp}
-            >
-              Sign Up
-            </Button>
+            {role === "student" && (
+              <Button
+                width="100%"
+                py={3}
+                bg={isEnrolled ? "gray.400" : "purple.600"}
+                color="white"
+                onClick={eventSignUp}
+                isDisabled={isEnrolled}
+              >
+                {isEnrolled ? "Enrolled" : "Sign Up"}
+              </Button>
+            )}
           </Box>
         </Box>
       </Box>

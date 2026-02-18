@@ -58,6 +58,7 @@ const ClassInfoView = ({
   const [capacity, setCapacity] = useState("");
   const [level, setLevel] = useState("");
   const [coClasses, setCoClasses] = useState([]);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const getTeacherName = async () => {
     try {
@@ -146,12 +147,33 @@ const ClassInfoView = ({
     }
   };
 
+  const checkEnrollment = async () => {
+    try {
+      const users = await backend.get(`/users/${currentUser.uid}`);
+      if (users?.data?.[0]) {
+        const response = await backend.get(`/class-enrollments/test`, {
+          params: {
+            student_id: users.data[0].id,
+            class_id: id,
+            attendance: null,
+          },
+        });
+        setIsEnrolled(response.data.exists);
+      }
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+    }
+  };
+
   useEffect(() => {
     if (isOpenProp) {
       getTeacherName();
       getStartTime();
       initClass();
       getCoClasses();
+      if (role === "student") {
+        checkEnrollment();
+      }
     }
   }, [isOpenProp]);
 
@@ -360,11 +382,12 @@ const ClassInfoView = ({
               <Button
                 width="100%"
                 py={3}
-                bg="purple.600"
+                bg={isEnrolled ? "gray.400" : "purple.600"}
                 color="white"
                 onClick={classSignUp}
+                isDisabled={isEnrolled}
               >
-                Sign Up
+                {isEnrolled ? "Enrolled" : "Sign Up"}
               </Button>
             )}
             <br />

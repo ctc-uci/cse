@@ -208,7 +208,8 @@ classesRouter.get("/published", async (req, res) => {
           c.*,
           sc.date,
           sc.start_time,
-          sc.end_time
+          sc.end_time,
+          (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as attendee_count
       FROM classes c
       LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
       WHERE c.is_draft = FALSE
@@ -276,7 +277,9 @@ classesRouter.get("/search/:name", async (req, res) => {
     const { name } = req.params;
     const search = `%${name}%`;
     const allClasses = await db.query(
-      "SELECT * FROM classes WHERE title ILIKE $1;",
+      `SELECT c.*,
+        (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as attendee_count
+       FROM classes c WHERE title ILIKE $1;`,
       [search]
     );
     res.status(200).json(keysToCamel(allClasses));
@@ -316,7 +319,11 @@ classesRouter.get("/:id", async (req, res) => {
 
 classesRouter.get("/", async (req, res) => {
   try {
-    const data = await db.query(`SELECT * FROM classes;`);
+    const data = await db.query(
+      `SELECT c.*,
+        (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as attendee_count
+       FROM classes c;`
+    );
 
     res.status(200).json(keysToCamel(data));
   } catch (err) {

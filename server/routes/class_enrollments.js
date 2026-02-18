@@ -12,7 +12,7 @@ classEnrollmentsRouter.get("/test", async (req, res) => {
 
   try {
     const result = await db.query(
-      "SELECT * FROM class_enrollments WHERE student_id = $1 AND class_id = $2 AND attendance = $3",
+      "SELECT * FROM class_enrollments WHERE student_id = $1 AND class_id = $2 AND attendance IS NOT DISTINCT FROM $3",
       [student_id, class_id, attendance]
     );
 
@@ -175,6 +175,15 @@ classEnrollmentsRouter.get("/:id", async (req, res) => {
 classEnrollmentsRouter.post("/", async (req, res) => {
   const { studentId, classId, attendance } = req.body;
   try {
+    const existing = await db.query(
+      "SELECT * FROM class_enrollments WHERE student_id = $1 AND class_id = $2 AND attendance IS NOT DISTINCT FROM $3",
+      [studentId, classId, attendance]
+    );
+
+    if (existing.length > 0) {
+      return res.status(200).json(keysToCamel(existing[0]));
+    }
+
     const result = await db.query(
       "INSERT INTO class_enrollments (student_id, class_id, attendance) VALUES ($1, $2, $3) RETURNING id",
       [studentId, classId, attendance]

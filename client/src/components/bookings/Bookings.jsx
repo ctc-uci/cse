@@ -88,6 +88,7 @@ export const Bookings = () => {
   const [magic, setMagic] = useState(-1);
 
   const reloadStudentClasses = async () => {
+    if (!user_id) return;
     try {
       const [classesRes, classTagsRes] = await Promise.all([
         backend.get(`/class-enrollments/student/${user_id}`),
@@ -115,6 +116,7 @@ export const Bookings = () => {
   };
 
   const reloadStudentEvents = async () => {
+    if (!user_id) return;
     try {
       const [eventsRes, eventTagsRes] = await Promise.all([
         backend.get(`/event-enrollments/student/${user_id}`),
@@ -675,7 +677,7 @@ export const Bookings = () => {
       if (!query || query.trim() === "") {
         // For empty search, reload the appropriate data based on role
         if (role === "student") {
-          await reloadStudentClasses();
+          if (user_id) await reloadStudentClasses();
         } else {
           await reloadTeacherClasses();
         }
@@ -683,6 +685,7 @@ export const Bookings = () => {
       }
 
       if (currentUser && role === "student") {
+        if (!user_id) return;
         // For students, search within their enrolled classes
         const enrolledRes = await backend.get(
           `/class-enrollments/student/${user_id}`
@@ -710,7 +713,7 @@ export const Bookings = () => {
       if (!query || query.trim() === "") {
         // For empty search, reload the appropriate data based on role
         if (role === "student") {
-          await reloadStudentEvents();
+          if (user_id) await reloadStudentEvents();
         } else {
           await reloadTeacherEvents();
         }
@@ -718,6 +721,7 @@ export const Bookings = () => {
       }
 
       if (currentUser && role === "student") {
+        if (!user_id) return;
         // For students, search within their enrolled events
         const enrolledRes = await backend.get(
           `/event-enrollments/student/${user_id}`
