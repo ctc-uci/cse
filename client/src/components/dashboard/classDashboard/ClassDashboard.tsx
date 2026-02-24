@@ -7,10 +7,8 @@ import {
   Heading,
   HStack,
   IconButton,
-  Image,
   Input,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -22,7 +20,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { FaRegBell } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { PiArrowsDownUpFill } from "react-icons/pi";
@@ -34,7 +32,7 @@ import { useBackendContext } from "../../../contexts/hooks/useBackendContext";
 import { useRoleContext } from "../../../contexts/hooks/useRoleContext";
 import { Class } from "../../../types/class";
 import { Event } from "../../../types/event";
-import { formatDate, formatTime } from "../../../utils/formatDateTime";
+import { formatDate } from "../../../utils/formatDateTime";
 import { NotificationPanel } from "../NotificationPanel";
 import { ClassDeleteConfirmationModal } from "./ClassDeleteConfirmationModal";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
@@ -78,7 +76,7 @@ export function OverallClassDashboard() {
   };
 
   const confirmDeleteEvent = () => {
-    setModal("toConfirmEvent"); //TBD not set up yet.
+    setModal("toConfirmEvent");
     onOpenModal();
   };
 
@@ -96,14 +94,12 @@ export function OverallClassDashboard() {
 
   const handleClassSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     updateClasses(classSearchTerm, 0, false);
     setPageNum(0);
     setReverse(false);
   };
   const handleEventSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     updateEvents(eventSearchTerm, 0, false);
     setPageNumE(0);
     setReverseE(false);
@@ -149,11 +145,11 @@ export function OverallClassDashboard() {
 
   const handleClassChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClassSearchTerm(e.target.value);
-    debouncedClassSearch(e.target.value); // Only runs after not typing for 500ms
+    debouncedClassSearch(e.target.value);
   };
   const handleEventChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEventSearchTerm(e.target.value);
-    debouncedEventSearch(e.target.value); // Only runs after not typing for 500ms
+    debouncedEventSearch(e.target.value);
   };
 
   const debouncedClassSearch = useCallback(
@@ -240,13 +236,6 @@ export function OverallClassDashboard() {
           </Button>
           Classes and Events
         </Heading>
-        {/* <Image
-          alignSelf={"flex-end"}
-          cursor="pointer"
-          onClick={onOpen}
-          ref={notifRef}
-          src="../bell.png"
-        /> */}
         <IconButton
           icon={<FaRegBell />}
           size="lg"
@@ -254,7 +243,7 @@ export function OverallClassDashboard() {
           onClick={onOpen}
           ref={notifRef}
           aria-label="Notifications"
-          bg="white"
+          bg="transparent"
         />
         <NotificationPanel
           isOpen={isOpen}
@@ -323,7 +312,6 @@ export function OverallClassDashboard() {
           <Thead>
             <Tr>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -333,7 +321,6 @@ export function OverallClassDashboard() {
                 Class
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -344,7 +331,6 @@ export function OverallClassDashboard() {
                 Teacher
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -355,7 +341,6 @@ export function OverallClassDashboard() {
                 Level
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -374,7 +359,7 @@ export function OverallClassDashboard() {
                     onClick={() =>
                       navigate(`/dashboard/classes/${cls.id}/${cls.date}`)
                     }
-                    backgroundColor={index % 2 ? "white" : "gray.100"} // Striped row backgrounds
+                    backgroundColor={index % 2 ? "white" : "gray.100"}
                     _hover={{ bg: "gray.300", cursor: "pointer" }}
                     color="gray.700"
                   >
@@ -384,24 +369,21 @@ export function OverallClassDashboard() {
                       width="25vw"
                       overflow="hidden"
                       textOverflow="ellipsis"
-                      fontFamily="Inter"
                     >
                       {cls.title}
                     </Td>
-                    <Td fontFamily="Inter">{cls.teachers}</Td>
-                    <Td fontFamily="Inter">{cls.level}</Td>
-                    <Td fontFamily="Inter">
-                      {cls.date ? formatDate(cls.date) : ""}
-                    </Td>
+                    <Td>{cls.teachers}</Td>
+                    <Td>{cls.level}</Td>
+                    <Td>{cls.date ? formatDate(cls.date) : ""}</Td>
                     <Td>
                       <Button
                         backgroundColor="transparent"
                         onClick={(e) => {
-                          e.stopPropagation(); // prevents earlier onclick
+                          e.stopPropagation();
                           setSelectedClass(cls);
                           confirmDelete();
                         }}
-                        m={-8} // overrides bounds of row
+                        m={-8}
                         fontSize="28px"
                       >
                         <FiTrash2 />
@@ -474,7 +456,6 @@ export function OverallClassDashboard() {
           <Thead>
             <Tr>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -484,7 +465,6 @@ export function OverallClassDashboard() {
                 Event
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -495,7 +475,6 @@ export function OverallClassDashboard() {
                 Level
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -525,23 +504,20 @@ export function OverallClassDashboard() {
                       width="25vw"
                       overflow="hidden"
                       textOverflow="ellipsis"
-                      fontFamily="Inter"
                     >
                       {ev.title}
                     </Td>
-                    <Td fontFamily="Inter">{ev.level}</Td>
-                    <Td fontFamily="Inter">
-                      {ev.date ? formatDate(ev.date) : ""}
-                    </Td>
+                    <Td>{ev.level}</Td>
+                    <Td>{ev.date ? formatDate(ev.date) : ""}</Td>
                     <Td>
                       <Button
                         backgroundColor="transparent"
                         onClick={(e) => {
-                          e.stopPropagation(); // prevents earlier onclick
+                          e.stopPropagation();
                           setSelectedEvent(ev);
                           confirmDeleteEvent();
                         }}
-                        m={-8} // overrides bounds of row
+                        m={-8}
                         fontSize="28px"
                       >
                         <FiTrash2 />

@@ -145,7 +145,11 @@ export const Login = () => {
   return (
     <Box
       bg="white"
-      py={6}
+      minH="100vh"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
       px={6}
     >
       <Center w="100%">

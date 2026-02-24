@@ -41,11 +41,9 @@ export const StudentInfoDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data for specific student
         const response = await backend.get(`/students/${id}`);
         setStudent(response.data);
 
-        // Fetch classes for enrolled student
         const classesResponse = await backend.get(`/students/joined/${id}`);
         setClasses(classesResponse.data);
       } catch (error) {
@@ -81,13 +79,6 @@ export const StudentInfoDashboard = () => {
           </Button>
           {student?.firstName} {student?.lastName}
         </Heading>
-        {/* <Image
-          alignSelf={"flex-end"}
-          cursor="pointer"
-          onClick={onOpen}
-          ref={notifRef}
-          src="/bell.png"
-        /> */}
         <IconButton
           icon={<FaRegBell />}
           size="lg"
@@ -95,7 +86,7 @@ export const StudentInfoDashboard = () => {
           onClick={onOpen}
           ref={notifRef}
           aria-label="Notifications"
-          bg="white"
+          bg="transparent"
         />
         <NotificationPanel
           isOpen={isOpen}
@@ -183,7 +174,6 @@ export const StudentInfoDashboard = () => {
           <Thead>
             <Tr>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -193,7 +183,6 @@ export const StudentInfoDashboard = () => {
                 Class
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -203,7 +192,6 @@ export const StudentInfoDashboard = () => {
                 Level
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -222,9 +210,9 @@ export const StudentInfoDashboard = () => {
                 _hover={{ bg: "gray.300", cursor: "pointer" }}
                 color="gray.700"
               >
-                <Td fontFamily="Inter">{cls.title}</Td>
-                <Td fontFamily="Inter">{cls.level}</Td>
-                <Td fontFamily="Inter">{/** LOCATION **/}</Td>
+                <Td>{cls.title}</Td>
+                <Td>{cls.level}</Td>
+                <Td>{/** LOCATION **/}</Td>
               </Tr>
             ))}
           </Tbody>

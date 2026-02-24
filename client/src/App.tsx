@@ -1,3 +1,5 @@
+import { Box } from "@chakra-ui/react";
+
 import { CookiesProvider } from "react-cookie";
 import {
   Navigate,
@@ -5,7 +7,6 @@ import {
   BrowserRouter as Router,
   Routes,
 } from "react-router-dom";
-import { Box } from "@chakra-ui/react";
 
 import { Admin } from "./components/admin/Admin";
 import { Bookings } from "./components/bookings/Bookings";
@@ -51,7 +52,10 @@ const App = () => {
         <AuthProvider>
           <RoleProvider>
             <Router>
-              <Box pt="env(safe-area-inset-top)" minH="100vh">
+              <Box
+                pt="env(safe-area-inset-top)"
+                minH="100vh"
+              >
                 <Routes>
                   <Route
                     path="/login"
@@ -121,7 +125,9 @@ const App = () => {
                     </Route>
                     <Route
                       path="/dashboard/students"
-                      element={<ProtectedRoute element={<StudentDashboard />} />}
+                      element={
+                        <ProtectedRoute element={<StudentDashboard />} />
+                      }
                     />
                     <Route
                       path="/dashboard/students/:id"
@@ -131,7 +137,9 @@ const App = () => {
                     />
                     <Route
                       path="/dashboard/teachers/"
-                      element={<ProtectedRoute element={<TeacherDashboard />} />}
+                      element={
+                        <ProtectedRoute element={<TeacherDashboard />} />
+                      }
                     />
                     <Route
                       path="/dashboard/teachers/:teacherId"
@@ -163,7 +171,7 @@ const App = () => {
                   />
                   <Route
                     path="/playground"
-                    element={<Playground />} // <ProtectedRoute element={<Playground />}
+                    element={<Playground />}
                   />
 
                   <Route
@@ -209,7 +217,7 @@ const App = () => {
                   <Route
                     path="/logout"
                     element={<L />}
-                  ></Route>
+                  />
                 </Routes>
               </Box>
             </Router>

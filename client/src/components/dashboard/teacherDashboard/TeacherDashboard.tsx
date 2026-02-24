@@ -93,7 +93,7 @@ export const TeacherDashboard = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    debouncedSearch(e.target.value); // Only runs after not typing for 500ms
+    debouncedSearch(e.target.value);
   };
 
   const incPage = () => {
@@ -151,13 +151,6 @@ export const TeacherDashboard = () => {
           </Button>
           Teachers
         </Heading>
-        {/* <Image
-          alignSelf={"flex-end"}
-          cursor="pointer"
-          onClick={onOpen}
-          ref={notifRef}
-          src="../bell.png"
-        /> */}
         <IconButton
           icon={<FaRegBell />}
           size="lg"
@@ -165,7 +158,7 @@ export const TeacherDashboard = () => {
           onClick={onOpen}
           ref={notifRef}
           aria-label="Notifications"
-          bg="white"
+          backgroundColor="transparent"
         />
         <NotificationPanel
           isOpen={isOpen}
@@ -203,7 +196,6 @@ export const TeacherDashboard = () => {
               backgroundColor="transparent"
               p={0}
               onClick={decPage}
-              // disabled={pageNum === 0}
             >
               <SlArrowLeft />
             </Button>
@@ -211,7 +203,6 @@ export const TeacherDashboard = () => {
               backgroundColor="transparent"
               p={0}
               onClick={incPage}
-              // disabled={pageNum * 10 + 10 >= numTeachers}
             >
               <SlArrowRight />
             </Button>
@@ -237,7 +228,6 @@ export const TeacherDashboard = () => {
           <Thead>
             <Tr>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -247,7 +237,6 @@ export const TeacherDashboard = () => {
                 Teacher
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -257,7 +246,6 @@ export const TeacherDashboard = () => {
                 Email
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -267,7 +255,6 @@ export const TeacherDashboard = () => {
                 Status
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -287,7 +274,7 @@ export const TeacherDashboard = () => {
                       onClick={() =>
                         navigate(`/dashboard/teachers/${teacher.id}`)
                       }
-                      backgroundColor={index % 2 ? "white" : "gray.100"} // Striped row backgrounds
+                      backgroundColor={index % 2 ? "white" : "gray.100"}
                       _hover={{ bg: "gray.300", cursor: "pointer" }}
                       color="gray.700"
                     >
@@ -303,9 +290,9 @@ export const TeacherDashboard = () => {
                         <Button
                           backgroundColor="transparent"
                           onClick={(e) => {
-                            e.stopPropagation(); // prevents earlier onclick
+                            e.stopPropagation();
                           }}
-                          m={-8} // overrides bounds of row
+                          m={-8}
                           fontSize="28px"
                         >
                           <FiTrash2 />

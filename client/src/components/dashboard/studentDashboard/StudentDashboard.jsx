@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Image,
   Input,
   Table,
   TableContainer,
@@ -79,7 +78,6 @@ export const StudentDashboard = () => {
         params: { search: term.trim() },
       });
       setNumStudents(studentCountResponse.data[0].count);
-      console.log(studentCountResponse.data[0].count);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
@@ -87,7 +85,7 @@ export const StudentDashboard = () => {
 
   const handleChange = (e) => {
     setSearchTerm(e.target.value);
-    debouncedSearch(e.target.value); // Only runs after not typing for 500ms
+    debouncedSearch(e.target.value);
   };
 
   const incPage = () => {
@@ -145,13 +143,6 @@ export const StudentDashboard = () => {
           </Button>
           Students
         </Heading>
-        {/* <Image
-          alignSelf={"flex-end"}
-          cursor="pointer"
-          onClick={onOpen}
-          ref={notifRef}
-          src="../bell.png"
-        /> */}
         <IconButton
           icon={<FaRegBell />}
           size="lg"
@@ -159,7 +150,7 @@ export const StudentDashboard = () => {
           onClick={onOpen}
           ref={notifRef}
           aria-label="Notifications"
-          bg="white"
+          bg="transparent"
         />
         <NotificationPanel
           isOpen={isOpen}
@@ -227,7 +218,6 @@ export const StudentDashboard = () => {
           <Thead>
             <Tr>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -237,7 +227,6 @@ export const StudentDashboard = () => {
                 Student
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -247,7 +236,6 @@ export const StudentDashboard = () => {
                 Email
               </Th>
               <Th
-                fontFamily="Inter"
                 fontWeight={700}
                 color="#4A5568"
                 letterSpacing="5%"
@@ -260,38 +248,36 @@ export const StudentDashboard = () => {
           </Thead>
           <Tbody>
             {students
-              ? students
-                  // .slice(pageNum * 10, pageNum * 10 + 10)
-                  .map((stud, index) => (
-                    <Tr
-                      key={stud.id}
-                      onClick={() => navigate(`/dashboard/students/${stud.id}`)}
-                      backgroundColor={index % 2 ? "white" : "gray.100"} // Striped row backgrounds
-                      _hover={{ bg: "gray.300", cursor: "pointer" }}
-                      color="gray.700"
-                    >
-                      <Td>
-                        {stud.firstName} {stud.lastName}
-                      </Td>
-                      <Td>{stud.email}</Td>
-                      <Td>
-                        {classCount.find((elem) => elem.id === stud.id)
-                          ?.count ?? 0}
-                      </Td>
-                      <Td>
-                        <Button
-                          backgroundColor="transparent"
-                          onClick={(e) => {
-                            e.stopPropagation(); // prevents earlier onclick
-                          }}
-                          m={-8} // overrides bounds of row
-                          fontSize="28px"
-                        >
-                          <FiTrash2 />
-                        </Button>
-                      </Td>
-                    </Tr>
-                  ))
+              ? students.map((stud, index) => (
+                  <Tr
+                    key={stud.id}
+                    onClick={() => navigate(`/dashboard/students/${stud.id}`)}
+                    backgroundColor={index % 2 ? "white" : "gray.100"}
+                    _hover={{ bg: "gray.300", cursor: "pointer" }}
+                    color="gray.700"
+                  >
+                    <Td>
+                      {stud.firstName} {stud.lastName}
+                    </Td>
+                    <Td>{stud.email}</Td>
+                    <Td>
+                      {classCount.find((elem) => elem.id === stud.id)?.count ??
+                        0}
+                    </Td>
+                    <Td>
+                      <Button
+                        backgroundColor="transparent"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        m={-8}
+                        fontSize="28px"
+                      >
+                        <FiTrash2 />
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))
               : null}
           </Tbody>
         </Table>

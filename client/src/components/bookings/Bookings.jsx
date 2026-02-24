@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Box,
@@ -94,9 +94,12 @@ export const Bookings = () => {
         backend.get(`/class-enrollments/student/${user_id}`),
         backend.get(`/class-tags/enrolled-class-tags/${user_id}`),
       ]);
-      setClasses(prev => {
+      setClasses((prev) => {
         const newData = classesRes.data;
-        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((c, i) => c.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
@@ -105,7 +108,7 @@ export const Bookings = () => {
       classTagsRes.data.forEach((item) => {
         newClassTagsMap[item.classId] = item.tagArray;
       });
-      setClassTagsMap(prev => {
+      setClassTagsMap((prev) => {
         const prevStr = JSON.stringify(prev);
         const newStr = JSON.stringify(newClassTagsMap);
         return prevStr === newStr ? prev : newClassTagsMap;
@@ -122,9 +125,12 @@ export const Bookings = () => {
         backend.get(`/event-enrollments/student/${user_id}`),
         backend.get(`/event-tags/enrolled-event-tags/${user_id}`),
       ]);
-      setEvents(prev => {
+      setEvents((prev) => {
         const newData = eventsRes.data;
-        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((e, i) => e.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
@@ -133,7 +139,7 @@ export const Bookings = () => {
       eventTagsRes.data.forEach((item) => {
         newEventTagsMap[item.eventId] = item.tagArray;
       });
-      setEventTagsMap(prev => {
+      setEventTagsMap((prev) => {
         const prevStr = JSON.stringify(prev);
         const newStr = JSON.stringify(newEventTagsMap);
         return prevStr === newStr ? prev : newEventTagsMap;
@@ -150,16 +156,22 @@ export const Bookings = () => {
         backend.get(`/classes/drafts`),
         backend.get(`/class-tags/all-class-tags`),
       ]);
-      setClasses(prev => {
+      setClasses((prev) => {
         const newData = classesRes.data;
-        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((c, i) => c.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
       });
-      setDraftClasses(prev => {
+      setDraftClasses((prev) => {
         const newData = classDraftsRes.data;
-        if (prev.length !== newData.length || prev.some((c, i) => c.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((c, i) => c.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
@@ -168,7 +180,7 @@ export const Bookings = () => {
       classTagsRes.data.forEach((item) => {
         newClassTagsMap[item.classId] = item.tagArray;
       });
-      setClassTagsMap(prev => {
+      setClassTagsMap((prev) => {
         const prevStr = JSON.stringify(prev);
         const newStr = JSON.stringify(newClassTagsMap);
         return prevStr === newStr ? prev : newClassTagsMap;
@@ -185,16 +197,22 @@ export const Bookings = () => {
         backend.get(`/events/drafts`),
         backend.get(`/event-tags/all-event-tags`),
       ]);
-      setEvents(prev => {
+      setEvents((prev) => {
         const newData = eventsRes.data;
-        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((e, i) => e.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
       });
-      setDraftEvents(prev => {
+      setDraftEvents((prev) => {
         const newData = eventDraftsRes.data;
-        if (prev.length !== newData.length || prev.some((e, i) => e.id !== newData[i]?.id)) {
+        if (
+          prev.length !== newData.length ||
+          prev.some((e, i) => e.id !== newData[i]?.id)
+        ) {
           return newData;
         }
         return prev;
@@ -203,7 +221,7 @@ export const Bookings = () => {
       eventTagsRes.data.forEach((item) => {
         newEventTagsMap[item.eventId] = item.tagArray;
       });
-      setEventTagsMap(prev => {
+      setEventTagsMap((prev) => {
         const prevStr = JSON.stringify(prev);
         const newStr = JSON.stringify(newEventTagsMap);
         return prevStr === newStr ? prev : newEventTagsMap;
@@ -251,42 +269,57 @@ export const Bookings = () => {
           // console.log("Event Tags Map:", newEventTagsMap);
 
           // Set all the state - only update if data actually changed
-          setClassTagsMap(prev => {
+          setClassTagsMap((prev) => {
             const prevStr = JSON.stringify(prev);
             const newStr = JSON.stringify(newClassTagsMap);
             return prevStr === newStr ? prev : newClassTagsMap;
           });
-          setEventTagsMap(prev => {
+          setEventTagsMap((prev) => {
             const prevStr = JSON.stringify(prev);
             const newStr = JSON.stringify(newEventTagsMap);
             return prevStr === newStr ? prev : newEventTagsMap;
           });
-          setClasses(prev => {
-            if (prev.length !== allClasses.length || prev.some((c, i) => c.id !== allClasses[i]?.id)) {
+          setClasses((prev) => {
+            if (
+              prev.length !== allClasses.length ||
+              prev.some((c, i) => c.id !== allClasses[i]?.id)
+            ) {
               return allClasses;
             }
             return prev;
           });
-          setEvents(prev => {
-            if (prev.length !== eventsRes.data.length || prev.some((e, i) => e.id !== eventsRes.data[i]?.id)) {
+          setEvents((prev) => {
+            if (
+              prev.length !== eventsRes.data.length ||
+              prev.some((e, i) => e.id !== eventsRes.data[i]?.id)
+            ) {
               return eventsRes.data;
             }
             return prev;
           });
-          setDraftEvents(prev => {
-            if (prev.length !== draftEventsRes.data.length || prev.some((e, i) => e.id !== draftEventsRes.data[i]?.id)) {
+          setDraftEvents((prev) => {
+            if (
+              prev.length !== draftEventsRes.data.length ||
+              prev.some((e, i) => e.id !== draftEventsRes.data[i]?.id)
+            ) {
               return draftEventsRes.data;
             }
             return prev;
           });
-          setDraftClasses(prev => {
-            if (prev.length !== allDraftClasses.length || prev.some((c, i) => c.id !== allDraftClasses[i]?.id)) {
+          setDraftClasses((prev) => {
+            if (
+              prev.length !== allDraftClasses.length ||
+              prev.some((c, i) => c.id !== allDraftClasses[i]?.id)
+            ) {
               return allDraftClasses;
             }
             return prev;
           });
-          setAllEvents(prev => {
-            if (prev.length !== allEventsRes.data.length || prev.some((e, i) => e.id !== allEventsRes.data[i]?.id)) {
+          setAllEvents((prev) => {
+            if (
+              prev.length !== allEventsRes.data.length ||
+              prev.some((e, i) => e.id !== allEventsRes.data[i]?.id)
+            ) {
               return allEventsRes.data;
             }
             return prev;
@@ -309,14 +342,20 @@ export const Bookings = () => {
           ]);
           const enrolledClasses = enrolledClassesRes.data;
           const enrolledEvents = enrolledEventsRes.data;
-          setClasses(prev => {
-            if (prev.length !== enrolledClasses.length || prev.some((c, i) => c.id !== enrolledClasses[i]?.id)) {
+          setClasses((prev) => {
+            if (
+              prev.length !== enrolledClasses.length ||
+              prev.some((c, i) => c.id !== enrolledClasses[i]?.id)
+            ) {
               return enrolledClasses;
             }
             return prev;
           });
-          setEvents(prev => {
-            if (prev.length !== enrolledEvents.length || prev.some((e, i) => e.id !== enrolledEvents[i]?.id)) {
+          setEvents((prev) => {
+            if (
+              prev.length !== enrolledEvents.length ||
+              prev.some((e, i) => e.id !== enrolledEvents[i]?.id)
+            ) {
               return enrolledEvents;
             }
             return prev;
@@ -338,12 +377,12 @@ export const Bookings = () => {
             newEventTagsMap[item.eventId] = item.tagArray;
           });
           // console.log("Student Event Tags Map:", newEventTagsMap);
-          setClassTagsMap(prev => {
+          setClassTagsMap((prev) => {
             const prevStr = JSON.stringify(prev);
             const newStr = JSON.stringify(newClassTagsMap);
             return prevStr === newStr ? prev : newClassTagsMap;
           });
-          setEventTagsMap(prev => {
+          setEventTagsMap((prev) => {
             const prevStr = JSON.stringify(prev);
             const newStr = JSON.stringify(newEventTagsMap);
             return prevStr === newStr ? prev : newEventTagsMap;
@@ -364,12 +403,20 @@ export const Bookings = () => {
   // Use useMemo with deep comparison to prevent re-render loops
   const attended = useMemo(() => {
     // Deep comparison: check if arrays have same IDs
-    const classesIds = classes.map(c => c.id).join(',');
-    const eventsIds = events.map(e => e.id).join(',');
-    const prevClassesIds = prevClassesRef.current ? prevClassesRef.current.map(c => c.id).join(',') : '';
-    const prevEventsIds = prevEventsRef.current ? prevEventsRef.current.map(e => e.id).join(',') : '';
+    const classesIds = classes.map((c) => c.id).join(",");
+    const eventsIds = events.map((e) => e.id).join(",");
+    const prevClassesIds = prevClassesRef.current
+      ? prevClassesRef.current.map((c) => c.id).join(",")
+      : "";
+    const prevEventsIds = prevEventsRef.current
+      ? prevEventsRef.current.map((e) => e.id).join(",")
+      : "";
 
-    if (classesIds === prevClassesIds && eventsIds === prevEventsIds && prevAttendedRef.current.length > 0) {
+    if (
+      classesIds === prevClassesIds &&
+      eventsIds === prevEventsIds &&
+      prevAttendedRef.current.length > 0
+    ) {
       return prevAttendedRef.current;
     }
 
@@ -392,7 +439,14 @@ export const Bookings = () => {
   }, []);
 
   // Memoize coEvents to prevent unnecessary re-renders
-  const coEventsIdString = useMemo(() => coEvents.map(e => e?.id).filter(Boolean).join(','), [coEvents]);
+  const coEventsIdString = useMemo(
+    () =>
+      coEvents
+        .map((e) => e?.id)
+        .filter(Boolean)
+        .join(","),
+    [coEvents]
+  );
   const memoizedCoEvents = useMemo(() => {
     return coEvents;
   }, [coEventsIdString]);
@@ -610,33 +664,43 @@ export const Bookings = () => {
   //   return true;
   // };
 
-  const loadCorequisites = useCallback(async (classId) => {
-    try {
-      const response = await backend.get(`classes/corequisites/${classId}`);
+  const loadCorequisites = useCallback(
+    async (classId) => {
+      try {
+        const response = await backend.get(`classes/corequisites/${classId}`);
 
-      if (response.status === 200) {
-        setCoEvents(prev => {
-          const newData = response.data || [];
-          if (!prev || prev.length !== newData.length || prev.some((e, i) => e?.id !== newData[i]?.id)) {
-            return newData;
-          }
-          return prev;
-        });
+        if (response.status === 200) {
+          setCoEvents((prev) => {
+            const newData = response.data || [];
+            if (
+              !prev ||
+              prev.length !== newData.length ||
+              prev.some((e, i) => e?.id !== newData[i]?.id)
+            ) {
+              return newData;
+            }
+            return prev;
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching corequisite enrollment:", error);
+        setCoEvents([]);
       }
-    } catch (error) {
-      console.error("Error fetching corequisite enrollment:", error);
-      setCoEvents([]);
-    }
-  }, [backend]);
+    },
+    [backend]
+  );
 
-  const updateModal = useCallback((item, type = "class") => {
-    if (type === "class") loadCorequisites(item.id);
-    setSelectedCard(item);
-    setCardType(type);
-    const isAttended = attended.some((attendedItem) => attendedItem === item);
-    setIsAttendedItem(isAttended);
-    onOpen();
-  }, [attended, onOpen, loadCorequisites]);
+  const updateModal = useCallback(
+    (item, type = "class") => {
+      if (type === "class") loadCorequisites(item.id);
+      setSelectedCard(item);
+      setCardType(type);
+      const isAttended = attended.some((attendedItem) => attendedItem === item);
+      setIsAttendedItem(isAttended);
+      onOpen();
+    },
+    [attended, onOpen, loadCorequisites]
+  );
 
   const handleCancelEnrollment = async (itemId) => {
     if (!user_id) {
@@ -774,7 +838,7 @@ export const Bookings = () => {
           colorScheme="purple"
           onChange={(index) => setTabIndex(index)}
         >
-          <Center>
+          <Center mt={4}>
             <TabList>
               <Tab
                 fontWeight={500}
@@ -1057,8 +1121,11 @@ export const Bookings = () => {
                   )
                 ) : attended.length > 0 ? (
                   attended.map((item, index) => {
-                    const itemTags = classTagsMap[item.id] || eventTagsMap[item.id] || [];
-                    const uniqueKey = item.id ? `${item.callTime ? 'event' : 'class'}-${item.id}` : `attended-${index}`;
+                    const itemTags =
+                      classTagsMap[item.id] || eventTagsMap[item.id] || [];
+                    const uniqueKey = item.id
+                      ? `${item.callTime ? "event" : "class"}-${item.id}`
+                      : `attended-${index}`;
                     return !item.callTime ? (
                       <ClassCard
                         key={uniqueKey}
@@ -1092,7 +1159,7 @@ export const Bookings = () => {
           currentModal === "view" && isOpen ? (
             <>
               <TeacherViewView
-                key={`teacher-view-${selectedCard?.id || 'none'}`}
+                key={`teacher-view-${selectedCard?.id || "none"}`}
                 isOpen={isOpen}
                 onClose={onCloseModal}
                 setCurrentModal={setCurrentModal}
@@ -1149,7 +1216,7 @@ export const Bookings = () => {
                     <CreateEvent
                       isOpen={isOpen}
                       onClose={onCloseModal}
-                    // triggerRefresh={reloadClassesAndDrafts}
+                      // triggerRefresh={reloadClassesAndDrafts}
                     />
                   )}
                 </ModalBody>
@@ -1164,36 +1231,36 @@ export const Bookings = () => {
             />
           )
         ) : // STUDENT VIEW HERE
-          currentModal === "view" && isOpen ? (
-            <>
-              <ViewView
-                key={`view-${selectedCard?.id || 'none'}`}
-                isOpen={isOpen}
-                onClose={onClose}
-                setCurrentModal={handleSetCurrentModal}
-                card={selectedCard}
-                coEvents={memoizedCoEvents}
-                type={cardType}
-                isAttended={isAttendedItem}
-                tags={memoizedViewViewTags}
-              />
-            </>
-          ) : currentModal === "confirmation" ? (
-            <ConfirmationModal
+        currentModal === "view" && isOpen ? (
+          <>
+            <ViewView
+              key={`view-${selectedCard?.id || "none"}`}
               isOpen={isOpen}
-              onClose={onCloseModal}
+              onClose={onClose}
+              setCurrentModal={handleSetCurrentModal}
               card={selectedCard}
-            />
-          ) : (
-            <CancelModal
-              isOpen={isOpen}
-              onClose={onCloseModal}
-              setCurrentModal={setCurrentModal}
-              card={selectedCard}
-              handleEvent={() => handleCancelEnrollment(selectedCard.id)}
+              coEvents={memoizedCoEvents}
               type={cardType}
+              isAttended={isAttendedItem}
+              tags={memoizedViewViewTags}
             />
-          )}
+          </>
+        ) : currentModal === "confirmation" ? (
+          <ConfirmationModal
+            isOpen={isOpen}
+            onClose={onCloseModal}
+            card={selectedCard}
+          />
+        ) : (
+          <CancelModal
+            isOpen={isOpen}
+            onClose={onCloseModal}
+            setCurrentModal={setCurrentModal}
+            card={selectedCard}
+            handleEvent={() => handleCancelEnrollment(selectedCard.id)}
+            type={cardType}
+          />
+        )}
       </Flex>
       <Navbar />
     </Box>

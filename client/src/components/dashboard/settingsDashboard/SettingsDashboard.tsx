@@ -55,13 +55,6 @@ const SettingsDashboard: React.FC = () => {
           </Button>
           Settings
         </Heading>
-        {/* <Image
-          alignSelf={"flex-end"}
-          cursor="pointer"
-          onClick={onOpen}
-          ref={notifRef}
-          src="../bell.png"
-        /> */}
         <IconButton
           icon={<FaRegBell />}
           size="lg"
@@ -69,7 +62,7 @@ const SettingsDashboard: React.FC = () => {
           onClick={onOpen}
           ref={notifRef}
           aria-label="Notifications"
-          bg="white"
+          bg="transparent"
         />
         <NotificationPanel
           isOpen={isOpen}
