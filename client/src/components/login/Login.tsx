@@ -7,13 +7,13 @@ import {
   Link as ChakraLink,
   FormControl,
   FormErrorMessage,
-  FormHelperText,
   FormLabel,
   Heading,
+  HStack,
   Image,
   Input,
-  Stack,
   Text,
+  useDisclosure,
   useToast,
   VStack,
 } from "@chakra-ui/react";
@@ -26,6 +26,7 @@ import { z } from "zod";
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
 import { authenticateGoogleUser } from "../../utils/auth/providers";
+import AuthorityModal from "../signup/AuthorityModal";
 import logo from "/logo.png";
 
 const signinSchema = z.object({
@@ -38,6 +39,7 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 export const Login = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { login, handleRedirectResult, updateRole } = useAuthContext();
   const { backend } = useBackendContext();
@@ -127,121 +129,169 @@ export const Login = () => {
     await authenticateGoogleUser();
   };
 
+  const handleSelectAuthority = (authority: "student" | "teacher") => {
+    onClose();
+    if (authority === "student") {
+      navigate("/signup");
+    } else if (authority === "teacher") {
+      navigate("/teacher-signup");
+    }
+  };
+
   useEffect(() => {
     handleRedirectResult(backend, navigate, toast);
   }, [backend, handleRedirectResult, navigate, toast]);
 
   return (
-    <Box mt={"15.10vh"}>
+    <Box
+      bg="white"
+      py={6}
+      px={6}
+    >
       <Center w="100%">
-        <VStack>
-          <Image
-            src={logo}
-            w="24.378vw"
-            h="11.670vh"
-            fit="contain"
-          ></Image>
-          {/* <Text fontSize="20px" sx={{fontWeight: "500" }}>Account created! Continue to log in.</Text> */}
-        </VStack>
-      </Center>
-
-      <Center
-        mt={6}
-        w="100%"
-      >
         <VStack
-          spacing={8}
-          sx={{ width: 324, marginX: "auto" }}
+          spacing={5}
+          w="full"
+          maxW="sm"
         >
-          <form
-            onSubmit={handleSubmit(handleLogin)}
-            style={{ width: "100%" }}
-          >
-            <Stack spacing={2}>
-              <Box>
-                <FormControl
-                  isInvalid={!!errors.email}
-                  w={"100%"}
-                >
-                  <Center>
-                    <FormControl>
-                      <FormLabel>Email Address</FormLabel>
-                      <Input
-                        // placeholder="Email"
-                        type="email"
-                        size={"lg"}
-                        {...register("email")}
-                        name="email"
-                        isRequired
-                        autoComplete="email"
-                        borderRadius="4px"
-                        h="3.661vh"
-                      />
-                    </FormControl>
-                  </Center>
+          <VStack spacing={4}>
+            <Image
+              src={logo}
+              w="134px"
+              h="140px"
+              objectFit="contain"
+              rounded="xl"
+            />
+            <Heading
+              size="lg"
+              fontWeight="semibold"
+            >
+              Welcome!
+            </Heading>
+          </VStack>
+
+          <Box w="100%">
+            <form
+              onSubmit={handleSubmit(handleLogin)}
+              style={{ width: "100%" }}
+            >
+              <VStack
+                spacing={4}
+                align="stretch"
+              >
+                <FormControl isInvalid={!!errors.email}>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    type="email"
+                    size="md"
+                    placeholder="Enter email"
+                    {...register("email")}
+                    name="email"
+                    isRequired
+                    autoComplete="email"
+                    borderRadius="md"
+                  />
                   <FormErrorMessage>
                     {errors.email?.message?.toString()}
                   </FormErrorMessage>
                 </FormControl>
+
                 <FormControl isInvalid={!!errors.password}>
                   <FormLabel>Password</FormLabel>
-                  <Center>
-                    <Input
-                      // placeholder="Password"
-                      type="password"
-                      size={"lg"}
-                      {...register("password")}
-                      name="password"
-                      isRequired
-                      autoComplete="current-password"
-                      h="3.661vh"
-                    />
-                  </Center>
+                  <Input
+                    type="password"
+                    size="md"
+                    placeholder="Enter password"
+                    {...register("password")}
+                    name="password"
+                    isRequired
+                    autoComplete="current-password"
+                    borderRadius="md"
+                  />
                   <FormErrorMessage>
                     {errors.password?.message?.toString()}
                   </FormErrorMessage>
+                </FormControl>
+
+                <Box
+                  w="full"
+                  textAlign="right"
+                >
                   <ChakraLink
                     as={Link}
-                    to="/signup"
-                  ></ChakraLink>
-                </FormControl>
-              </Box>
-              <Box mb={5}>
-                <Text
-                  color="#6B46C1"
-                  fontSize="16px"
-                  fontWeight={500}
-                >
-                  <Link to="/forgotPassword">Forgot Password?</Link>
-                </Text>
-              </Box>
-              <Center>
+                    to="/forgotPassword"
+                    color="purple.500"
+                    fontSize="sm"
+                    fontWeight={500}
+                  >
+                    Forgot password?
+                  </ChakraLink>
+                </Box>
+
                 <Button
                   type="submit"
-                  size={"lg"}
+                  size="md"
                   bg="#6B46C1"
                   color="white"
-                  sx={{ width: "100%" }}
-                  borderRadius="4px"
+                  w="full"
+                  borderRadius="md"
+                  _hover={{ bg: "#5A3AB0" }}
                   isDisabled={Object.keys(errors).length > 0}
                 >
-                  <Text>Log In</Text>
+                  Log In
                 </Button>
-              </Center>
-            </Stack>
-          </form>
+              </VStack>
+            </form>
+          </Box>
 
-          {/* <Button
-            leftIcon={<FaGoogle />}
-            variant={"solid"}
-            size={"lg"}
-            onClick={handleGoogleLogin}
-            sx={{ width: "100%" }}
+          <VStack
+            spacing={4}
+            w="full"
           >
-            Login with Google
-          </Button> */}
+            <HStack
+              w="full"
+              align="center"
+              spacing={4}
+            >
+              <Box
+                flex="1"
+                h="1px"
+                bg="gray.300"
+              />
+              <Text
+                fontSize="sm"
+                color="gray.600"
+              >
+                OR
+              </Text>
+              <Box
+                flex="1"
+                h="1px"
+                bg="gray.300"
+              />
+            </HStack>
+
+            <Button
+              type="button"
+              size="md"
+              w="full"
+              bg="gray.100"
+              color="gray.700"
+              borderRadius="md"
+              _hover={{ bg: "gray.200" }}
+              onClick={onOpen}
+            >
+              Sign Up
+            </Button>
+          </VStack>
         </VStack>
       </Center>
+
+      <AuthorityModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSelectAuthority={handleSelectAuthority}
+      />
     </Box>
   );
 };
