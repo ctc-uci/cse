@@ -62,15 +62,9 @@ export const StatCard = ({ iconColor, label, value }: StatCardProps) => {
       shadow="md"
       direction="row"
       align="center"
-      w={["100%", "30%"]} // Responsive width
-      mb={[4, 0]} // Margin bottom for mobile
+      w={["100%", "30%"]}
+      mb={[4, 0]}
     >
-      {/* <Icon
-        as="circle"
-        boxSize="50px"
-        color={iconColor}
-        mr={4}
-      /> */}
       <Flex direction="column">
         <Text
           fontSize="xl"
@@ -175,13 +169,6 @@ export const DashboardHome = () => {
           justify={"space-between"}
         >
           <Heading alignSelf="flex-start">Dashboard</Heading>
-          {/* <Image
-            alignSelf={"flex-end"}
-            cursor="pointer"
-            onClick={onOpen}
-            ref={notifRef}
-            src="../bell.png"
-          /> */}
           <IconButton
             icon={<FaRegBell />}
             size="lg"
@@ -197,12 +184,11 @@ export const DashboardHome = () => {
           />
         </Flex>
 
-        {/* Stat Cards */}
         <Flex
           justifyContent="space-between"
           alignItems="center"
           w="100%"
-          direction={["column", "row"]} // Column for mobile, row for larger screens
+          direction={["column", "row"]}
           gap={4}
         >
           <StatCard
@@ -246,7 +232,6 @@ export const DashboardHome = () => {
           </Box>
           <Box
             w="100%"
-            // h="400px"
             borderRadius="md"
             display="flex"
             position={"relative"}
@@ -270,43 +255,9 @@ export const DashboardHome = () => {
                 <YAxis />
               </LineChart>
             </ResponsiveContainer>
-
-            {/* <Box
-              position="absolute"
-              top="4"
-              right="4"
-            >
-              <Flex
-                bg="white"
-                borderRadius="full"
-                border="1px"
-                borderColor="gray.200"
-                p={1}
-                shadow="sm"
-              >
-                {["day", "week", "month"].map((period) => (
-                  <Box
-                    key={period}
-                    px={3}
-                    py={1}
-                    cursor="pointer"
-                    borderRadius="full"
-                    bg={selectedPeriod === period ? "blue.500" : "transparent"}
-                    color={selectedPeriod === period ? "white" : "gray.600"}
-                    onClick={() => setSelectedPeriod(period)}
-                    _hover={{
-                      bg: selectedPeriod === period ? "blue.600" : "gray.100",
-                    }}
-                  >
-                    {period.charAt(0).toUpperCase() + period.slice(1)}
-                  </Box>
-                ))}
-              </Flex>
-            </Box> */}
           </Box>
         </Flex>
 
-        {/* Signed-in User Info */}
         <VStack>
           <Text>
             Signed in as {currentUser?.email} (
@@ -330,8 +281,7 @@ export const Sidebar = () => {
       bg="#FEF7FF"
       w="250px"
       p={5}
-      fontFamily="Inter"
-      fontWeight={400}
+      fontWeight={500}
       fontSize="16px"
     >
       <Flex
@@ -340,7 +290,7 @@ export const Sidebar = () => {
         height="100%"
         marginTop="40px"
       >
-        <Box
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -348,13 +298,13 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/dashboard")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={dashboardIcon} />
-            <Text>Dashboard</Text>
-          </HStack>
-        </Box>
-        <Box
+          <Image src={dashboardIcon} />
+          <Text fontWeight={500}>Dashboard</Text>
+        </Flex>
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -362,13 +312,13 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/dashboard/classes")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={classesIcon} />
-            <Text>Classes / Events</Text>
-          </HStack>
-        </Box>
-        <Box
+          <Image src={classesIcon} />
+          <Text fontWeight={500}>Classes / Events</Text>
+        </Flex>
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -376,13 +326,13 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/dashboard/teachers")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={teachersIcon} />
-            <Text>Teachers</Text>
-          </HStack>
-        </Box>
-        <Box
+          <Image src={teachersIcon} />
+          <Text fontWeight={500}>Teachers</Text>
+        </Flex>
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -390,13 +340,13 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/dashboard/students")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={studentsIcon} />
-            <Text>Students</Text>
-          </HStack>
-        </Box>
-        <Box
+          <Image src={studentsIcon} />
+          <Text fontWeight={500}>Students</Text>
+        </Flex>
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -404,13 +354,13 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/bookings")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={redirectIcon} />
-            <Text>Redirect to Teacher-End</Text>
-          </HStack>
-        </Box>
-        <Box
+          <Image src={redirectIcon} />
+          <Text fontWeight={500}>Redirect to Teacher-End</Text>
+        </Flex>
+        <Flex
           as="button"
           p={3}
           borderRadius="md"
@@ -418,12 +368,12 @@ export const Sidebar = () => {
           color="black"
           onClick={() => navigate("/dashboard/settings")}
           textAlign="left"
+          align="center"
+          gap={2}
         >
-          <HStack>
-            <Image src={settingsIcon} />
-            <Text>Settings</Text>
-          </HStack>
-        </Box>
+          <Image src={settingsIcon} />
+          <Text fontWeight={500}>Settings</Text>
+        </Flex>
         <Box
           flex={1}
           alignContent="center"
