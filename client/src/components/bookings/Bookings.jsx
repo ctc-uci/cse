@@ -936,7 +936,7 @@ export const Bookings = () => {
                       ) {
                         return (
                           <ClassTeacherCard
-                            key={classItem.id || `class-${index}`}
+                            key={`${classItem.id}-${classItem.date ?? index}`}
                             setSelectedCard={setSelectedCard}
                             {...classItem}
                             performance={coEvents}
@@ -956,7 +956,7 @@ export const Bookings = () => {
                     <Text>No classes available.</Text>
                   )
                 ) : classes.length > 0 ? (
-                  classes.map((classItem) => {
+                  classes.map((classItem, index) => {
                     const classTags = classTagsMap[classItem.id] || [];
 
                     if (
@@ -965,7 +965,7 @@ export const Bookings = () => {
                     ) {
                       return (
                         <Box
-                          key={classItem.id}
+                          key={`${classItem.id}-${classItem.date ?? index}`}
                           display="flex"
                           justifyContent="center"
                           w="100%"
@@ -1034,7 +1034,7 @@ export const Bookings = () => {
                   </Box>
                 )}{" "}
                 {events.length > 0 ? (
-                  events.map((eventItem) => {
+                  events.map((eventItem, index) => {
                     const eventTags = eventTagsMap[eventItem.id] || [];
 
                     if (
@@ -1043,7 +1043,7 @@ export const Bookings = () => {
                     ) {
                       return (
                         <EventCard
-                          key={eventItem.id}
+                          key={`${eventItem.id}-${eventItem.date ?? index}`}
                           {...eventItem}
                           onClick={() => {
                             updateModal(eventItem, "event");
