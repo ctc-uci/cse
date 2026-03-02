@@ -326,7 +326,7 @@ export const Discovery = () => {
                 align="stretch"
               >
                 <SearchBar
-                  onSearch={(query) => searchClasses(query)}
+                  onSearch={searchClasses}
                   tags={tags}
                   tagFilter={tagFilter}
                   onTag={handleClassFilterToggle}
@@ -374,7 +374,7 @@ export const Discovery = () => {
                 align="stretch"
               >
                 <SearchBar
-                  onSearch={(query) => searchEvents(query)}
+                  onSearch={searchEvents}
                   tags={tags}
                   tagFilter={tagFilter}
                   onTag={handleFilterToggle}
