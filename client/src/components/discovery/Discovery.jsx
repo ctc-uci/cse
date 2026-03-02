@@ -1,10 +1,10 @@
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   Box,
-  Button,
   Center,
   Flex,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -12,6 +12,8 @@ import {
   Tabs,
   VStack,
 } from "@chakra-ui/react";
+
+const CLASSES_PAGE_SIZE = 12;
 
 import { useAuthContext } from "../../contexts/hooks/useAuthContext";
 import { useBackendContext } from "../../contexts/hooks/useBackendContext";
@@ -27,7 +29,12 @@ export const Discovery = () => {
   const [refresh, setRefresh] = useState(0);
   const [lastToggledTag, setLastToggledTag] = useState(null);
   const [classes, setClasses] = useState([]);
+  const [classesOffset, setClassesOffset] = useState(0);
+  const [hasMoreClasses, setHasMoreClasses] = useState(true);
+  const [classesLoading, setClassesLoading] = useState(false);
+  const [classesMode, setClassesMode] = useState("browse"); // 'browse' | 'search' | 'tag'
   const [events, setEvents] = useState([]);
+  const loadMoreRef = useRef(null);
   const [tags, setTags] = useState({});
   const [tagFilter, setTagFilter] = useState({});
   const [initialTagFilter, setInitialTagFilter] = useState({});
@@ -67,15 +74,42 @@ export const Discovery = () => {
     }
   }, [backend, getApiEndpoints]);
 
+  const fetchClassesPage = useCallback(
+    async (offset = 0, append = false) => {
+      try {
+        setClassesLoading(true);
+        const endpoints = getApiEndpoints();
+        const res = await backend.get(endpoints.classes.published, {
+          params: { limit: CLASSES_PAGE_SIZE, offset },
+        });
+        const newClasses = res.data;
+
+        if (append) {
+          setClasses((prev) => [...prev, ...newClasses]);
+        } else {
+          setClasses(newClasses);
+        }
+        setHasMoreClasses(newClasses.length === CLASSES_PAGE_SIZE);
+        setClassesOffset(offset + newClasses.length);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        setHasMoreClasses(false);
+      } finally {
+        setClassesLoading(false);
+      }
+    },
+    [backend, getApiEndpoints]
+  );
+
   const fetchAllClasses = useCallback(async () => {
-    try {
-      const endpoints = getApiEndpoints();
-      const res = await backend.get(endpoints.classes.published);
-      setClasses(res.data);
-    } catch (error) {
-      console.error("Error fetching all classes:", error);
-    }
-  }, [backend, getApiEndpoints]);
+    setClassesMode("browse");
+    await fetchClassesPage(0, false);
+  }, [fetchClassesPage]);
+
+  const loadMoreClasses = useCallback(async () => {
+    if (classesLoading || !hasMoreClasses || classesMode !== "browse") return;
+    await fetchClassesPage(classesOffset, true);
+  }, [fetchClassesPage, classesLoading, hasMoreClasses, classesMode, classesOffset]);
 
   const fetchEventsByTag = useCallback(
     async (tagId) => {
@@ -92,10 +126,15 @@ export const Discovery = () => {
   const fetchClassesByTag = useCallback(
     async (tagId) => {
       try {
+        setClassesMode("tag");
+        setClassesLoading(true);
         const res = await backend.get(`/class-tags/classes/${tagId}`);
         setClasses(res.data);
+        setHasMoreClasses(false); // Tag filter returns all, no pagination
       } catch (error) {
         console.error("Error fetching classes for specified tag:", error);
+      } finally {
+        setClassesLoading(false);
       }
     },
     [backend]
@@ -130,13 +169,18 @@ export const Discovery = () => {
           return;
         }
 
+        setClassesMode("search");
+        setClassesLoading(true);
         const endpoints = getApiEndpoints();
         const res = await backend.get(
           `${endpoints.classes.search}/${query.trim()}`
         );
         setClasses(res.data);
+        setHasMoreClasses(false); // Search returns all matches, no pagination
       } catch (error) {
         console.error("Error searching classes:", error);
+      } finally {
+        setClassesLoading(false);
       }
     },
     [backend, fetchAllClasses, getApiEndpoints]
@@ -185,11 +229,16 @@ export const Discovery = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch classes with tags
+        // Fetch first page of classes (lazy load rest on scroll)
         const classResponse = await backend.get(
-          role !== "student" ? "/classes/scheduled" : "/classes/published"
+          role !== "student" ? "/classes/scheduled" : "/classes/published",
+          { params: { limit: CLASSES_PAGE_SIZE, offset: 0 } }
         );
-        setClasses(classResponse.data);
+        const classData = classResponse.data;
+        setClasses(classData);
+        setClassesOffset(classData.length);
+        setHasMoreClasses(classData.length === CLASSES_PAGE_SIZE);
+        setClassesMode("browse");
 
         const classTagsResponse = await backend.get(
           "/class-tags/all-class-tags"
@@ -277,6 +326,25 @@ export const Discovery = () => {
     tabIndex,
   ]);
 
+  // Infinite scroll for classes
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel || classesMode !== "browse" || !hasMoreClasses || classesLoading)
+      return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMoreClasses();
+        }
+      },
+      { rootMargin: "200px", threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [classesMode, hasMoreClasses, classesLoading, loadMoreClasses]);
+
   return (
     <Box>
       <Flex
@@ -347,7 +415,7 @@ export const Discovery = () => {
                       return (
                         <ClassCard
                           id={classItem.id}
-                          key={index}
+                          key={`${classItem.id}-${classItem.date ?? index}`}
                           title={classItem.title}
                           description={classItem.description}
                           location={classItem.location}
@@ -366,6 +434,17 @@ export const Discovery = () => {
                     return null;
                   })}
                 </Flex>
+                {classesMode === "browse" && hasMoreClasses && (
+                  <Box
+                    ref={loadMoreRef}
+                    py={8}
+                    display="flex"
+                    justifyContent="center"
+                    w="100%"
+                  >
+                    {classesLoading && <Spinner color="purple.500" size="lg" />}
+                  </Box>
+                )}
               </VStack>
             </TabPanel>
             <TabPanel>

@@ -6,9 +6,15 @@ import { db } from "../db/db-pgp";
 const classesRouter = express.Router();
 classesRouter.use(express.json());
 
+const CLASSES_PAGE_SIZE = 12;
+
 classesRouter.get("/scheduled", async (req, res) => {
   try {
-    const result = await db.query(`
+    const limit = Math.min(parseInt(req.query.limit, 10) || CLASSES_PAGE_SIZE, 50);
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    const result = await db.query(
+      `
       SELECT
         c.*,
         sc.date,
@@ -18,7 +24,11 @@ classesRouter.get("/scheduled", async (req, res) => {
       FROM classes c
       LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
       GROUP BY c.id, sc.date, sc.start_time, sc.end_time
-    `);
+      ORDER BY sc.date DESC NULLS LAST, c.id ASC
+      LIMIT $1 OFFSET $2
+    `,
+      [limit, offset]
+    );
 
     res.json(keysToCamel(result));
   } catch (err) {
@@ -202,20 +212,28 @@ classesRouter.get("/joined/:id", async (req, res) => {
 
 classesRouter.get("/published", async (req, res) => {
   try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || CLASSES_PAGE_SIZE, 50);
+    const offset = parseInt(req.query.offset, 10) || 0;
+
     const data = await db.query(
       `
-      SELECT DISTINCT ON (c.id, sc.date)
-          c.*,
-          sc.date,
-          sc.start_time,
-          sc.end_time,
-          (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as attendee_count
-      FROM classes c
-      LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
-      WHERE c.is_draft = FALSE
-      ORDER BY c.id, sc.date DESC;
+      WITH ordered AS (
+        SELECT DISTINCT ON (c.id, sc.date)
+            c.*,
+            sc.date,
+            sc.start_time,
+            sc.end_time,
+            (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as attendee_count
+        FROM classes c
+        LEFT JOIN scheduled_classes sc ON c.id = sc.class_id
+        WHERE c.is_draft = FALSE
+        ORDER BY c.id, sc.date DESC
+      )
+      SELECT * FROM ordered
+      ORDER BY date DESC NULLS LAST, id ASC
+      LIMIT $1 OFFSET $2
       `,
-      []
+      [limit, offset]
     );
 
     res.status(200).json(keysToCamel(data));
