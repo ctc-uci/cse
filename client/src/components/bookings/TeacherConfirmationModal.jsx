@@ -17,6 +17,7 @@ export const TeacherConfirmationModal = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      size="sm"
     >
       <ModalOverlay />
       <ModalContent>
@@ -24,12 +25,11 @@ export const TeacherConfirmationModal = ({ isOpen, onClose }) => {
           <Flex
             paddingTop={10}
             justifyContent="center"
-            w="100%"
             position="relative"
           >
             <Icon
               as={BsCheck}
-              boxSize="75vw"
+              boxSize="100px"
               backgroundColor="#134A74"
               borderRadius="full"
               color="white"
